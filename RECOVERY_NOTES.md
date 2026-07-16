@@ -40,8 +40,9 @@ NOT byte-identical to lost originals; tests re-run in-container):**
 - ledger/ledger.py — smoke test passed: valid seal, mandatory-condition
   rejection, grammar rejection, homoglyph rejection, tamper detection,
   chain-head stability
-- tools/check_mandatory_conditions.py — self-test 14/14 (the original's
-  11 cases + 1 unknown-derivation-type case + 2 placeholder-guard cases)
+- tools/check_mandatory_conditions.py — self-test 16/16 (the original's
+  11 cases + 1 unknown-derivation-type case + 2 malformed-input cases +
+  2 placeholder-guard cases)
 - volume_test.py — NOT rebuilt; the ~9,000-record volume test must be
   re-implemented and re-run before VOLUME_TEST_REPORT.md is recreated.
   Until then, no public document may cite volume-test results.

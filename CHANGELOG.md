@@ -14,6 +14,10 @@ canonical-byte contract (SCHEMA.md s10).
   in force carries operative placeholders; the intake tool flags unknown
   derivation types; malformed proposals get citable rejections, not
   crashes.
+- Intake tool CLI + input hardening; property-based canonicalization
+  tests (stress/test_canonical_properties.py) including a byte-for-byte
+  cross-check of the JCS implementation against an independent RFC 8785
+  library.
 
 ## Internal prehistory (never public, preserved for the record)
 - v0 (2026-07-07): first prototype — schema, five CODATA seed facts,

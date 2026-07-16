@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
 .cache/
+.hypothesis/
 .DS_Store
 *.local.*

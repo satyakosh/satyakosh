@@ -4,7 +4,9 @@
 Enforces rulesets/mandatory_conditions.json at intake. The lost original
 passed an 11-case self-test; this reconstruction ships its own self-test
 covering the same specified behaviors. Re-run before any report cites it:
-    python3 tools/check_mandatory_conditions.py
+    python3 tools/check_mandatory_conditions.py                # self-test
+    python3 tools/check_mandatory_conditions.py RULESET.json   # placeholder scan
+    python3 tools/check_mandatory_conditions.py RULESET.json PROPOSAL.json
 """
 import json, re, sys
 from pathlib import Path
@@ -34,6 +36,23 @@ def operative_placeholders(ruleset):
 def check_proposal(triple, derivation_type, ruleset):
     """Returns list of violation strings; empty = passes the gate."""
     violations = []
+    if not isinstance(triple, dict) or not isinstance(triple.get("subject"), str):
+        violations.append(
+            "malformed proposal: triple must be an object with a string "
+            "'subject' (SCHEMA s3.1)")
+        return violations
+    conds = triple.get("conditions", [])
+    if not isinstance(conds, list) or not all(
+            isinstance(c, dict) and isinstance(c.get("property"), str)
+            for c in conds):
+        violations.append(
+            "malformed proposal: each condition must be an object with a "
+            "string 'property' (SCHEMA s3.4)")
+        return violations
+    if not isinstance(derivation_type, str):
+        violations.append(
+            "malformed proposal: derivation type must be a string (SCHEMA s4)")
+        return violations
     dt_map = ruleset["derivation_type_rules"]
     if derivation_type not in dt_map:
         violations.append(
@@ -51,7 +70,7 @@ def check_proposal(triple, derivation_type, ruleset):
     for rule in ruleset.get("subject_rules", []):
         if rule["subject"] == triple["subject"]:
             required += rule["requires"]
-    present = {c["property"] for c in triple.get("conditions", [])}
+    present = {c["property"] for c in conds}
     for req in required:
         if req not in present:
             violations.append(
@@ -92,6 +111,8 @@ def self_test():
         ("unknown derivation type (typo)", t("SK-ENT-000001", []), "si_exact_defintion", False),
         ("extra unrelated condition ok", t("SK-ENT-000001", [cond("SK-ENT-000006")]), "si_exact_definition", True),
         ("boiling point, extra condition + both required", t("SK-ENT-000005", [cond("SK-ENT-000006"), cond("SK-ENT-000007"), cond("SK-ENT-000008")]), "laboratory_measurement", True),
+        ("malformed: triple missing subject", {"conditions": []}, "si_exact_definition", False),
+        ("malformed: non-dict condition entry", {"subject": "SK-ENT-000001", "conditions": ["oops"]}, "si_exact_definition", False),
     ]
     passed = 0
     for name, triple, dtype, expect_pass in cases:
@@ -112,5 +133,43 @@ def self_test():
     print(f"\n{passed}/{total} cases passed")
     return passed == total
 
+def main(argv):
+    """CLI. No args: run the self-test.
+    1 arg:  check a real ruleset file for operative placeholders.
+    2 args: additionally gate a proposal file ({"triple": ..., "derivation":
+            {"type": ...}}) against that ruleset. Exit 0 = passes."""
+    if not argv:
+        return 0 if self_test() else 1
+    try:
+        ruleset = load_ruleset(argv[0])
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"cannot load ruleset {argv[0]}: {e}")
+        return 2
+    hits = operative_placeholders(ruleset)
+    for h in hits:
+        print("PLACEHOLDER (operative):", h)
+    if hits:
+        print(f"\n{len(hits)} operative placeholder(s) -- nothing can seal "
+              f"against this ruleset until they are resolved")
+    else:
+        print("ruleset placeholder-free in operative fields")
+    if len(argv) < 2:
+        return 1 if hits else 0
+    try:
+        proposal = json.loads(Path(argv[1]).read_text())
+        triple = proposal["triple"]
+        dtype = proposal["derivation"]["type"]
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:
+        print(f"cannot load proposal {argv[1]}: needs triple + "
+              f"derivation.type ({e})")
+        return 2
+    violations = check_proposal(triple, dtype, ruleset)
+    for v in violations:
+        print("VIOLATION:", v)
+    print("proposal passes the mandatory-conditions gate" if not violations
+          else f"\n{len(violations)} violation(s) -- never enters review")
+    return 1 if (hits or violations) else 0
+
+
 if __name__ == "__main__":
-    sys.exit(0 if self_test() else 1)
+    sys.exit(main(sys.argv[1:]))

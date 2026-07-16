@@ -57,9 +57,10 @@ the real local bytes directly; do not regenerate documents from memory.
 ## rulesets/mandatory_conditions.json
 
 - [ ] **A12 — Confirm final state.** Reference implementation
-      check_mandatory_conditions.py self-test passes (14/14 in the
+      check_mandatory_conditions.py self-test passes (16/16 in the
       rebuilt tool: the original's 11 cases + 1 unknown-derivation-type
-      case + 2 placeholder-guard cases). Hash seals in genesis.
+      case + 2 malformed-input cases + 2 placeholder-guard cases).
+      Hash seals in genesis.
 
 ## Predicate registry
 
