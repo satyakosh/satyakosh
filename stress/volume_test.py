@@ -12,10 +12,9 @@ chain mechanics at ~9,000-record scale using synthetic facts:
      must each be detected by verify(), then restore cleanly
   6. save/load — ledger file round-trip preserves the chain head
 
-Synthetic data only: the four ruleset placeholders are resolved in
-memory to the suggested (founder-unconfirmed) IDs; nothing here is ever
-proposed for real sealing. Fixed seed; fixed timestamps; re-runs are
-byte-reproducible.
+Synthetic data only, validated against the founding rulesets as
+committed; nothing here is ever proposed for real sealing. Fixed seed;
+fixed timestamps; re-runs are byte-reproducible.
 
 Run:  python3 stress/volume_test.py [N]          (default N=9000)
       python3 stress/volume_test.py --report     (also writes
@@ -44,14 +43,10 @@ def load(rel):
 
 
 def resolved_rulesets():
-    rs = {"mandatory_conditions": load("rulesets/mandatory_conditions.json"),
-          "admissibility_map": load("rules/admissibility_map.json")}
-    mc = rs["mandatory_conditions"]
-    mc["derivation_type_rules"]["statistical_analysis"] = ["SK-ENT-000008"]
-    mc["subject_rules"] = [{"subject": "SK-ENT-000005",
-                            "requires": ["SK-ENT-000006", "SK-ENT-000007"],
-                            "rationale": "test resolution"}]
-    return rs
+    """The founding rulesets as committed (entity IDs founder-confirmed
+    2026-07-17; placeholder-free)."""
+    return {"mandatory_conditions": load("rulesets/mandatory_conditions.json"),
+            "admissibility_map": load("rules/admissibility_map.json")}
 
 
 def make_genesis():
@@ -203,10 +198,10 @@ def main():
             "# Volume test report (rebuilt implementation)", "",
             "The pre-2026-07-15 report was lost with the original working",
             "copy; this report supersedes it and describes the rebuilt test",
-            "(stress/volume_test.py). Synthetic data only: ruleset",
-            "placeholders resolved in memory to the suggested IDs, pending",
-            "founder confirmation.", "",
-            f"- Date: 2026-07-18 · Python {platform.python_version()} "
+            "(stress/volume_test.py). Synthetic data only, validated",
+            "against the founding rulesets as committed (entity IDs",
+            "founder-confirmed 2026-07-17).", "",
+            f"- Date: 2026-07-17 · Python {platform.python_version()} "
             f"on {platform.system()}",
             f"- Scale: {n} facts + 1 genesis record, fixed seed {SEED}", "",
             "| Check | Result | Detail |", "|---|---|---|"]

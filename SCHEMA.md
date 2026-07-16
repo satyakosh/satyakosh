@@ -311,8 +311,14 @@ verifier can reconstruct the rules governing fact #1 from the chain alone:
 - `pipeline_policy_version` + `pipeline_policy_hash`
 - `scope_hash` (frozen SCOPE.md)
 - `admissibility_map_hash` (SHA-256 of JCS(`rules/admissibility_map.json`))
-- `mandatory_conditions_hash` (frozen `rulesets/mandatory_conditions.json`)
-- `predicates_founding_hash` (predicate registry founding snapshot)
+- `mandatory_conditions_hash` (SHA-256 of
+  JCS(`rulesets/mandatory_conditions.json`))
+- `predicates_founding_hash` (SHA-256 of JCS(`registries/predicates.json`),
+  founding snapshot)
+
+Hash convention for founding documents: prose documents (`.md`) hash as
+their raw frozen file bytes; machine-readable JSON documents hash as
+their RFC 8785 (JCS) serialization.
 - the founding **whitelist, inline** (machine-readable `SK-SRC-` entries
   with publisher and ring applicability — in the record, not referenced)
 - chain fields (§8)

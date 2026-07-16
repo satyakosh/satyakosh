@@ -18,8 +18,8 @@
 
   "scope_hash": "<<PLACEHOLDER: sha256 of frozen SCOPE.md>>",
   "admissibility_map_hash": "<<PLACEHOLDER: sha256 of JCS(admissibility_map.json)>>",
-  "mandatory_conditions_hash": "<<PLACEHOLDER: sha256 of frozen rulesets/mandatory_conditions.json>>",
-  "predicates_founding_hash": "<<PLACEHOLDER: sha256 of predicate registry founding snapshot>>",
+  "mandatory_conditions_hash": "<<PLACEHOLDER: sha256 of JCS(rulesets/mandatory_conditions.json)>>",
+  "predicates_founding_hash": "<<PLACEHOLDER: sha256 of JCS(registries/predicates.json) founding snapshot>>",
 
   "whitelist": [
     { "id": "SK-SRC-000001", "publisher": "CODATA", "rings": [1] },

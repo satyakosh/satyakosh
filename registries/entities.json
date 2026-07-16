@@ -1,5 +1,5 @@
 {
-  "_comment": "Founding entity registry - RECONSTRUCTED DRAFT. ID assignments follow the v2.0 transcript where recoverable (SK-ENT-000001 speed of light; 000005 boiling temperature of water; 000006 pressure) and are otherwise fresh. FOUNDER MUST CONFIRM all IDs before any fact references them; IDs are append-only and never re-pointed once used. Labels are freely correctable forever.",
+  "_comment": "Founding entity registry. ID assignments follow the v2.0 transcript where recoverable (SK-ENT-000001 speed of light; 000005 boiling temperature of water; 000006 pressure) and are otherwise fresh; all IDs confirmed by the founder 2026-07-17 and final. IDs are append-only and never re-pointed once used. Labels are freely correctable forever.",
   "entities": [
     { "id": "SK-ENT-000001", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "speed of light in vacuum" } },
     { "id": "SK-ENT-000002", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "Planck constant" } },

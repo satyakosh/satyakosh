@@ -29,13 +29,16 @@ RAW_RULESETS = {"mandatory_conditions": load("rulesets/mandatory_conditions.json
 
 
 def resolved_rulesets():
-    """Test copy with placeholders resolved per the suggested mapping."""
+    """The founding rulesets as committed (placeholder-free since the
+    founder confirmed the entity IDs on 2026-07-17)."""
+    return copy.deepcopy(RAW_RULESETS)
+
+
+def placeholder_rulesets():
+    """Synthetic placeholder-bearing copy for the refusal test."""
     rs = copy.deepcopy(RAW_RULESETS)
-    mc = rs["mandatory_conditions"]
-    mc["derivation_type_rules"]["statistical_analysis"] = ["SK-ENT-000008"]
-    mc["subject_rules"] = [{"subject": "SK-ENT-000005",
-                            "requires": ["SK-ENT-000006", "SK-ENT-000007"],
-                            "rationale": "test resolution"}]
+    rs["mandatory_conditions"]["subject_rules"][0]["subject"] = \
+        "<SK-ENT: boiling temperature of water>"
     return rs
 
 
@@ -117,7 +120,7 @@ def run():
 
     # placeholder-bearing rulesets refuse every fact seal
     led_ph = L.Ledger(Path("unused2.json"), REGISTRIES,
-                      copy.deepcopy(RAW_RULESETS))
+                      placeholder_rulesets())
     led_ph.records = led.records[:1]
     check("fact refused while ruleset has placeholders",
           lambda: led_ph.seal(make_fact()), True, "placeholder")

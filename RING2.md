@@ -52,7 +52,12 @@ census) but never an *authority whose word makes things true*.
 **[RECONSTRUCTION GAP: the lost original enumerated all seven criteria
 individually. The list above names five recoverable ones; the founder or
 a recovered copy of the original file must restore the exact seven before
-this document is relied on.]**
+this document is relied on. If the original proves unrecoverable, the
+candidate re-derivations for the missing two (founder-endorsed
+2026-07-17, pending final wording) are: institutional longevity — a
+credible expectation that the source and its archives outlive a decade,
+or a named successor of record; and stable citable editions — the source
+publishes versioned, machine-accessible editions that can be pinned.]**
 
 ## 5. Candidate first domains
 

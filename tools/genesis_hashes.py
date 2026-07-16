@@ -2,16 +2,15 @@
 """Compute the six founding-document hashes enumerated by the genesis
 record (SCHEMA s9). Report-only: prints hashes, never edits files.
 
-Hash conventions, per the genesis draft's own placeholder descriptions:
+Hash convention (founder-locked 2026-07-17, SCHEMA s9): prose documents
+(.md) hash as raw frozen file bytes; machine-readable JSON documents
+hash as their RFC 8785 (JCS) serialization.
   schema_hash               sha256 of SCHEMA.md file bytes
   pipeline_policy_hash      sha256 of PIPELINE_POLICY.md file bytes
   scope_hash                sha256 of SCOPE.md file bytes
   admissibility_map_hash    sha256 of JCS(rules/admissibility_map.json)
-  mandatory_conditions_hash sha256 of rulesets/mandatory_conditions.json
-                            file bytes
-  predicates_founding_hash  UNSETTLED convention (file bytes vs JCS) --
-                            both printed; founder must lock one before
-                            the freeze
+  mandatory_conditions_hash sha256 of JCS(rulesets/mandatory_conditions.json)
+  predicates_founding_hash  sha256 of JCS(registries/predicates.json)
 
 The tool refuses to present freeze-ready output while the mandatory-
 conditions ruleset carries operative placeholders (same rule ledger.py
@@ -50,17 +49,13 @@ def main():
         ("admissibility_map_hash", jcs_sha256("rules/admissibility_map.json"),
          "JCS(rules/admissibility_map.json)"),
         ("mandatory_conditions_hash",
-         file_sha256("rulesets/mandatory_conditions.json"),
-         "rulesets/mandatory_conditions.json file bytes"),
+         jcs_sha256("rulesets/mandatory_conditions.json"),
+         "JCS(rulesets/mandatory_conditions.json)"),
+        ("predicates_founding_hash", jcs_sha256("registries/predicates.json"),
+         "JCS(registries/predicates.json)"),
     ]
     for name, digest, basis in rows:
         print(f"  {name}\n    {digest}  <- {basis}")
-    print("  predicates_founding_hash  [CONVENTION NOT LOCKED - founder "
-          "must choose]")
-    print(f"    {file_sha256('registries/predicates.json')}  "
-          f"<- if file bytes")
-    print(f"    {jcs_sha256('registries/predicates.json')}  "
-          f"<- if JCS(registries/predicates.json)")
 
     mc = json.loads((REPO / "rulesets/mandatory_conditions.json")
                     .read_text(encoding="utf-8"))

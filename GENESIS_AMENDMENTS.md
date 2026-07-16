@@ -56,11 +56,15 @@ the real local bytes directly; do not regenerate documents from memory.
 
 ## rulesets/mandatory_conditions.json
 
-- [ ] **A12 — Confirm final state.** Reference implementation
+- [x] **A12 — Confirm final state.** Reference implementation
       check_mandatory_conditions.py self-test passes (16/16 in the
       rebuilt tool: the original's 11 cases + 1 unknown-derivation-type
       case + 2 malformed-input cases + 2 placeholder-guard cases).
-      Hash seals in genesis.
+      Hash seals in genesis. **Done 2026-07-17:** all four placeholder
+      entity IDs resolved (method = SK-ENT-000008; boiling temperature
+      of water = SK-ENT-000005; pressure = SK-ENT-000006; temperature
+      scale = SK-ENT-000007) and confirmed by the founder, together
+      with the full entity registry.
 
 ## Predicate registry
 
@@ -68,13 +72,13 @@ the real local bytes directly; do not regenerate documents from memory.
       its definition wording final) and compute predicates_founding_hash.
       Entity-registry founding hash deliberately NOT sealed (labels are
       renderings; revisit via governance record at Ring 2 if needed).
-- [ ] **A17 — Lock the predicates_founding_hash convention.** SCHEMA s9
-      and the genesis draft pin the basis for five of the six hashes
-      (three .md files: raw bytes; admissibility map: JCS; mandatory
-      conditions: raw file bytes) but not for the predicate snapshot —
-      raw file bytes vs JCS(registries/predicates.json) is undecided.
-      tools/genesis_hashes.py prints both until this is locked; the
-      chosen convention should be recorded in SCHEMA s9 at the freeze.
+- [x] **A17 — Lock the predicates_founding_hash convention.**
+      **Decided 2026-07-17 (founder):** uniform doctrine — prose
+      documents (.md) hash as raw frozen file bytes; machine-readable
+      JSON documents hash as their JCS serialization. Applied to
+      predicates_founding_hash AND mandatory_conditions_hash (both now
+      JCS). SCHEMA s9, the genesis draft, and tools/genesis_hashes.py
+      updated to match.
 
 ## ledger.py
 
@@ -104,17 +108,30 @@ the real local bytes directly; do not regenerate documents from memory.
 
 ## Genesis transcription checklist (for the review file)
 
-- [ ] Pavamana mantra: full three lines; pick one critical edition and
-      cite it; decide danda । / double danda ॥ inclusion and the
-      मृत्योर्मा space-vs-avagraha (ऽ) orthography per that edition;
-      NFC-normalize; record exact U+ code-point sequence.
-- [ ] Citation string locked: "Brihadaranyaka Upanishad 1.3.28"
+- [x] Pavamana mantra: **confirmed 2026-07-17 (founder)** — the
+      unaccented, word-separated Devanagari form as drafted, a
+      deliberate legibility-and-unambiguity choice (consistent with the
+      simplified-romanization citation) rather than a facsimile of one
+      printed edition; danda pattern । after lines 1-2, double danda ॥
+      terminal; spaced मृत्योर्मा अमृतं (no avagraha). NFC-stable,
+      61 code points; exact sequence recorded below.
+- [x] Citation string locked: "Brihadaranyaka Upanishad 1.3.28"
       (simplified romanization — deliberate choice over IAST).
-- [ ] Dedication exact bytes: "Anaya Gangakhedkar" spelling verified;
-      em dash (U+2014) in dedication kept or swapped by explicit
-      decision, not inherited from a draft.
+- [x] Dedication exact bytes: **confirmed 2026-07-17 (founder)** —
+      wording final; em dash (U+2014) kept by explicit decision.
 - [ ] Anaya's informed consent (permanence + erasure waiver explained)
       noted in the review file.
+
+Recorded invocation code points (NFC, 61 code points, confirmed
+2026-07-17 — the genesis review file must match this sequence exactly):
+
+```
+0905 0938 0924 094B 0020 092E 093E 0020 0938 0926 094D 0917 092E 092F
+0020 0964 0020 0924 092E 0938 094B 0020 092E 093E 0020 091C 094D 092F
+094B 0924 093F 0930 094D 0917 092E 092F 0020 0964 0020 092E 0943 0924
+094D 092F 094B 0930 094D 092E 093E 0020 0905 092E 0943 0924 0902 0020
+0917 092E 092F 0020 0965
+```
 - [ ] Founder string "Shubhankar Patil" matches trademark filings.
 - [ ] Founding date 2026-07-07 = trademark priority date (independent
       corroboration).

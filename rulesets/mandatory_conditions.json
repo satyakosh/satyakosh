@@ -1,5 +1,5 @@
 {
-  "_comment": "RECOVERED near-verbatim from the 2026-07-09 session transcript. All <PLACEHOLDER> entity IDs must be resolved against registries/entities.json before this file is hashed. The resolved file's SHA-256 is enumerated in the genesis record next to the admissibility map hash. Changes after genesis are governance records (machine-readable delta + effective-from). Suggested resolutions from the reconstructed registry: boiling temperature of water = SK-ENT-000005; pressure = SK-ENT-000006; temperature scale = SK-ENT-000007; method = SK-ENT-000008 -- FOUNDER TO CONFIRM.",
+  "_comment": "RECOVERED near-verbatim from the 2026-07-09 session transcript. Entity IDs resolved against registries/entities.json and confirmed by the founder 2026-07-17: boiling temperature of water = SK-ENT-000005; pressure = SK-ENT-000006; temperature scale = SK-ENT-000007; method = SK-ENT-000008. This file's SHA-256 (of its JCS form) is enumerated in the genesis record next to the admissibility map hash. Changes after genesis are governance records (machine-readable delta + effective-from).",
   "semantics": {
     "match_rule": "A requirement is satisfied iff at least one condition in the triple has property == the required property entity ID. Requirements constrain presence, never value; value correctness is the review's job.",
     "enforcement": [
@@ -15,7 +15,7 @@
     "mathematical_proof": [],
     "laboratory_measurement": [],
     "derived_exact": [],
-    "statistical_analysis": ["<SK-ENT: method>"],
+    "statistical_analysis": ["SK-ENT-000008"],
     "documentary_evidence": [],
     "causal_inference": null,
     "institutional_declaration": null
@@ -27,10 +27,10 @@
   },
   "subject_rules": [
     {
-      "subject": "<SK-ENT: boiling temperature of water>",
+      "subject": "SK-ENT-000005",
       "requires": [
-        "<SK-ENT: pressure (condition property)>",
-        "<SK-ENT: temperature scale (condition property)>"
+        "SK-ENT-000006",
+        "SK-ENT-000007"
       ],
       "rationale": "condition-dependent property: the claim is undefined without ambient pressure and the temperature scale (e.g. ITS-90); model/frame is an explicit condition per SCHEMA s3.4"
     }
