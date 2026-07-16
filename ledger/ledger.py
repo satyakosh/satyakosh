@@ -277,7 +277,8 @@ class Ledger:
         self.rulesets = rulesets
         self.records = []
         if self.path.exists():
-            self.records = json.loads(self.path.read_text())["records"]
+            self.records = json.loads(
+                self.path.read_text(encoding="utf-8"))["records"]
 
     def seal(self, record: dict) -> dict:
         rt = record.get("record_type")
@@ -337,9 +338,11 @@ class Ledger:
         return findings
 
     def save(self):
+        # explicit UTF-8: platform default encodings (e.g. cp1252 on
+        # Windows) would corrupt or refuse the genesis record's NFC UTF-8
         self.path.write_text(json.dumps(
             {"chain_head": self.chain_head(), "records": self.records},
-            indent=2, ensure_ascii=False))
+            indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 if __name__ == "__main__":

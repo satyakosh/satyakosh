@@ -18,6 +18,12 @@ canonical-byte contract (SCHEMA.md s10).
   tests (stress/test_canonical_properties.py) including a byte-for-byte
   cross-check of the JCS implementation against an independent RFC 8785
   library.
+- Volume test rebuilt and re-run at 9,000 records (2026-07-18); report
+  regenerated. The run exposed a platform-encoding bug in ledger
+  save/load — file I/O is now explicitly UTF-8 on all platforms.
+- Committed test suite (stress/test_ledger.py), founding-document hash
+  tool (tools/genesis_hashes.py, report-only), and CI running all
+  checks on every push and pull request.
 
 ## Internal prehistory (never public, preserved for the record)
 - v0 (2026-07-07): first prototype — schema, five CODATA seed facts,

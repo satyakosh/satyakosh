@@ -43,9 +43,11 @@ NOT byte-identical to lost originals; tests re-run in-container):**
 - tools/check_mandatory_conditions.py — self-test 16/16 (the original's
   11 cases + 1 unknown-derivation-type case + 2 malformed-input cases +
   2 placeholder-guard cases)
-- volume_test.py — NOT rebuilt; the ~9,000-record volume test must be
-  re-implemented and re-run before VOLUME_TEST_REPORT.md is recreated.
-  Until then, no public document may cite volume-test results.
+- stress/volume_test.py — rebuilt and re-run 2026-07-18 (9,000 synthetic
+  records: seal, verify, determinism, duplicate refusal, tamper sweep,
+  save/load). Report regenerated at stress/VOLUME_TEST_REPORT.md; the
+  run also caught and fixed a platform-encoding bug in Ledger.save/load
+  (UTF-8 now explicit).
 
 **Fetched verbatim from canonical sources:** LICENSE-APACHE, LICENSE-CC0.
 
@@ -55,7 +57,8 @@ NOT byte-identical to lost originals; tests re-run in-container):**
 2. Confirm or reassign all entity registry IDs (Tier C note in
    entities.json), then resolve the four placeholders in
    rulesets/mandatory_conditions.json.
-3. Re-implement and re-run the volume test; regenerate its report.
+3. ~~Re-implement and re-run the volume test; regenerate its report.~~
+   Done 2026-07-18 (stress/volume_test.py, stress/VOLUME_TEST_REPORT.md).
 4. Verify every Tier 1 seed value digit-by-digit against CODATA/BIPM.
 5. Resolve the flagged Tier 3 condition-typing question (ITS-90 as an
    entity-valued condition is a v-next type; decide the v1 treatment).

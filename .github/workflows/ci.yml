@@ -1,0 +1,42 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test dependencies (ledger itself is stdlib-only)
+        run: pip install hypothesis rfc8785
+      - name: All JSON files parse
+        run: |
+          python - <<'EOF'
+          import json, pathlib, sys
+          bad = 0
+          for p in pathlib.Path(".").rglob("*.json"):
+              if ".git" in p.parts: continue
+              try:
+                  json.loads(p.read_text(encoding="utf-8"))
+                  print("OK ", p)
+              except Exception as e:
+                  bad += 1; print("BAD", p, e)
+          sys.exit(1 if bad else 0)
+          EOF
+      - name: Intake tool self-test
+        run: python tools/check_mandatory_conditions.py
+      - name: Ledger test suite
+        run: python stress/test_ledger.py
+      - name: Canonicalization property tests
+        run: python stress/test_canonical_properties.py
+      - name: Volume test (reduced N for CI)
+        run: python stress/volume_test.py 2000
+      - name: Genesis freeze readiness (informational pre-genesis)
+        continue-on-error: true
+        run: python tools/genesis_hashes.py

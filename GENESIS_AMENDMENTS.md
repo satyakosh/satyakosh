@@ -68,6 +68,13 @@ the real local bytes directly; do not regenerate documents from memory.
       its definition wording final) and compute predicates_founding_hash.
       Entity-registry founding hash deliberately NOT sealed (labels are
       renderings; revisit via governance record at Ring 2 if needed).
+- [ ] **A17 — Lock the predicates_founding_hash convention.** SCHEMA s9
+      and the genesis draft pin the basis for five of the six hashes
+      (three .md files: raw bytes; admissibility map: JCS; mandatory
+      conditions: raw file bytes) but not for the predicate snapshot —
+      raw file bytes vs JCS(registries/predicates.json) is undecided.
+      tools/genesis_hashes.py prints both until this is locked; the
+      chosen convention should be recorded in SCHEMA s9 at the freeze.
 
 ## ledger.py
 
