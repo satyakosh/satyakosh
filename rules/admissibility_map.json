@@ -1,0 +1,14 @@
+{
+  "_comment": "RECONSTRUCTED from the locked taxonomy decisions: rings gate ambition; derivation gates admissibility. This file, JCS-canonicalized and SHA-256 hashed, is enumerated in the genesis record. Changes after genesis are governance records. FOUNDER TO RE-REVIEW before hashing.",
+  "map": {
+    "si_exact_definition":       { "ring_1": "SEAL",           "notes": "2019 SI defining constants" },
+    "defined_convention":        { "ring_1": "SEAL",           "notes": "e.g. standard gravity, standard atmosphere; external-standard adoptions (ISO 3166, Unicode) are RING-2 PENDING and require an adoption governance record" },
+    "mathematical_proof":        { "ring_1": "SEAL",           "notes": "" },
+    "laboratory_measurement":    { "ring_1": "SEAL",           "notes": "uncertainty carried per SCHEMA s3.3" },
+    "derived_exact":             { "ring_1": "SEAL",           "notes": "derived_from must be non-empty (SCHEMA s11)" },
+    "statistical_analysis":      { "ring_1": "RING-2 PENDING", "notes": "cannot enter review until the Ring 2 governance record exists" },
+    "documentary_evidence":      { "ring_1": "RING-2 PENDING", "notes": "cannot enter review until the Ring 2 governance record exists" },
+    "causal_inference":          { "ring_1": "BLOCKED",        "notes": "pending a dedicated evidence framework" },
+    "institutional_declaration": { "ring_1": "BLOCKED",        "notes": "pending a dedicated evidence framework; time-bound status lives in the unsealed attestation layer" }
+  }
+}

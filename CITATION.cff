@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Satyakosh: a tamper-evident public ledger of verified facts"
+message: "Data is CC0; citation appreciated but never required. Cite fact IDs and the chain-head hash you verified against."
+type: dataset
+authors:
+  - family-names: "Patil"
+    given-names: "Shubhankar"
+repository-code: "https://github.com/satyakosh/satyakosh"
+url: "https://satyakosh.org"
+license: CC0-1.0

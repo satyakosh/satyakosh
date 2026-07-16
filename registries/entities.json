@@ -1,0 +1,17 @@
+{
+  "_comment": "Founding entity registry - RECONSTRUCTED DRAFT. ID assignments follow the v2.0 transcript where recoverable (SK-ENT-000001 speed of light; 000005 boiling temperature of water; 000006 pressure) and are otherwise fresh. FOUNDER MUST CONFIRM all IDs before any fact references them; IDs are append-only and never re-pointed once used. Labels are freely correctable forever.",
+  "entities": [
+    { "id": "SK-ENT-000001", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "speed of light in vacuum" } },
+    { "id": "SK-ENT-000002", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "Planck constant" } },
+    { "id": "SK-ENT-000003", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "Newtonian constant of gravitation" } },
+    { "id": "SK-ENT-000004", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "Avogadro constant" } },
+    { "id": "SK-ENT-000005", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": true, "labels": { "en": "boiling temperature of water" } },
+    { "id": "SK-ENT-000006", "kind": "condition-property", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "ambient pressure" } },
+    { "id": "SK-ENT-000007", "kind": "condition-property", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "temperature scale" } },
+    { "id": "SK-ENT-000008", "kind": "condition-property", "domain": "META", "condition_dependent": false, "labels": { "en": "method" } },
+    { "id": "SK-ENT-000009", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "elementary charge" } },
+    { "id": "SK-ENT-000010", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "Boltzmann constant" } },
+    { "id": "SK-ENT-000011", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "hyperfine transition frequency of caesium-133" } },
+    { "id": "SK-ENT-000012", "kind": "quantity-entity", "domain": "PHYS", "condition_dependent": false, "labels": { "en": "luminous efficacy of monochromatic radiation of frequency 540 THz" } }
+  ]
+}

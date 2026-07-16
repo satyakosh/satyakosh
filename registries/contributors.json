@@ -1,0 +1,4 @@
+{
+  "_comment": "Opt-in, deletable mapping from opaque SK-USR- IDs to names. Deleting an entry here never touches the chain: sealed records carry only the opaque ID. This preserves right-to-erasure alongside immutability.",
+  "contributors": []
+}

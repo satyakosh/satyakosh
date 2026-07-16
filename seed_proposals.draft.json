@@ -1,0 +1,30 @@
+{
+  "_comment": "Founding seed set - RECONSTRUCTED per the tiered structure locked in the July 2026 genesis-design session. Tier 1 values are the seven 2019 SI defining constants (exact by definition; transcribe-verified against CODATA 2022 before proposing). Tier 2 is a batch proposal per PIPELINE_POLICY P11. Every proposal below passes through the full public pipeline during the Genesis Window - there is no seed bypass. FOUNDER: verify every digit against the source before opening the window; entity IDs pending registry confirmation.",
+  "tier_1_individual_proposals": [
+    { "subject": "SK-ENT-000011", "value": "9.192631770e9", "unit": "Hz",     "exact": true, "derivation": "si_exact_definition", "label_hint": "hyperfine transition frequency of Cs-133 (9192631770 Hz)" },
+    { "subject": "SK-ENT-000001", "value": "2.99792458e8",  "unit": "m/s",    "exact": true, "derivation": "si_exact_definition", "label_hint": "speed of light in vacuum" },
+    { "subject": "SK-ENT-000002", "value": "6.62607015e-34","unit": "J.s",    "exact": true, "derivation": "si_exact_definition", "label_hint": "Planck constant" },
+    { "subject": "SK-ENT-000009", "value": "1.602176634e-19","unit": "C",     "exact": true, "derivation": "si_exact_definition", "label_hint": "elementary charge" },
+    { "subject": "SK-ENT-000010", "value": "1.380649e-23",  "unit": "J/K",    "exact": true, "derivation": "si_exact_definition", "label_hint": "Boltzmann constant" },
+    { "subject": "SK-ENT-000004", "value": "6.02214076e23", "unit": "mol-1",  "exact": true, "derivation": "si_exact_definition", "label_hint": "Avogadro constant" },
+    { "subject": "SK-ENT-000012", "value": "6.83e2",        "unit": "lm/W",   "exact": true, "derivation": "si_exact_definition", "label_hint": "luminous efficacy of 540 THz radiation (683 lm/W)" }
+  ],
+  "tier_2_batch_proposal": {
+    "description": "Complete CODATA 2022 recommended values (~350 constants) via one batch proposal (P11). Reviewed object: the ingestion script + the pinned source edition + spot checks. Each fact gets its own record, ID, and dispute window.",
+    "source": "SK-SRC-000001",
+    "edition": "CODATA 2022",
+    "ingestion_script": "tools/ingest_codata.py (to be written; audit target of the batch review)"
+  },
+  "tier_3_condition_bearing": [
+    { "subject": "SK-ENT-000005", "value": "9.9974e1", "unit": "Cel", "exact": false,
+      "derivation": "laboratory_measurement",
+      "conditions": [
+        { "property": "SK-ENT-000006", "value": "1.01325e2", "unit": "kPa", "note": "standard atmosphere" },
+        { "property": "SK-ENT-000007", "note": "ITS-90 - entity-valued condition; requires v-next entity condition type OR seal with scale documented in review + quantity placeholder per founder decision. FLAGGED: resolve before window." }
+      ],
+      "label_hint": "boiling temperature of water at standard pressure - exercises Dimension D" }
+  ],
+  "tier_4_deliberate_rejection": {
+    "description": "One proposal designed to be permanently held in review, demonstrating that the review zone works and rejections are visible forever. Candidate: a proposal missing its mandatory pressure condition, or a value with a deliberate last-digit transcription error for the window crowd to catch. FOUNDER TO CHOOSE."
+  }
+}

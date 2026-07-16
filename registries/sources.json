@@ -1,0 +1,11 @@
+{
+  "_comment": "Founding source whitelist. Ring applicability per entry. Enumerated inline in the genesis record; changes after genesis are governance records.",
+  "sources": [
+    { "id": "SK-SRC-000001", "publisher": "CODATA", "rings": [1],
+      "labels": { "en": "Committee on Data of the International Science Council" } },
+    { "id": "SK-SRC-000002", "publisher": "NIST", "rings": [1],
+      "labels": { "en": "National Institute of Standards and Technology" } },
+    { "id": "SK-SRC-000003", "publisher": "BIPM", "rings": [1],
+      "labels": { "en": "Bureau International des Poids et Mesures" } }
+  ]
+}

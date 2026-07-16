@@ -1,0 +1,11 @@
+{
+  "_comment": "Founding predicate registry. The founding snapshot of this file is hashed into the genesis record (predicates_founding_hash) because predicate definitions are semantically load-bearing for every sealed fact. IDs are append-only, never reused or re-pointed.",
+  "predicates": [
+    {
+      "id": "SK-PRED-000001",
+      "definition": "subject has the quantity value given by object, under the stated conditions",
+      "epistemic_hedge": null,
+      "labels": { "en": "has quantity value" }
+    }
+  ]
+}

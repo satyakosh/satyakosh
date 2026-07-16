@@ -1,0 +1,42 @@
+{
+  "_comment": "RECOVERED near-verbatim from the 2026-07-09 session transcript. All <PLACEHOLDER> entity IDs must be resolved against registries/entities.json before this file is hashed. The resolved file's SHA-256 is enumerated in the genesis record next to the admissibility map hash. Changes after genesis are governance records (machine-readable delta + effective-from). Suggested resolutions from the reconstructed registry: boiling temperature of water = SK-ENT-000005; pressure = SK-ENT-000006; temperature scale = SK-ENT-000007; method = SK-ENT-000008 -- FOUNDER TO CONFIRM.",
+  "semantics": {
+    "match_rule": "A requirement is satisfied iff at least one condition in the triple has property == the required property entity ID. Requirements constrain presence, never value; value correctness is the review's job.",
+    "enforcement": [
+      "intake (pre-review): a proposal missing any applicable required condition never enters review; rejection cites the specific unmet requirement and this ruleset version (principled, citable refusal)",
+      "seal (validator, SCHEMA s11): the fact must satisfy the mandatory-condition map in force at its chain position (genesis state + all preceding governance records)"
+    ],
+    "byte_impact": "none - this ruleset never alters canonical serialization or any hash; it is pipeline/witness layer only",
+    "rule_composition": "applicable requirements = derivation_type_rules[derivation.type] UNION requirements of every subject_rules entry whose subject matches the triple's subject"
+  },
+  "derivation_type_rules": {
+    "si_exact_definition": [],
+    "defined_convention": [],
+    "mathematical_proof": [],
+    "laboratory_measurement": [],
+    "derived_exact": [],
+    "statistical_analysis": ["<SK-ENT: method>"],
+    "documentary_evidence": [],
+    "causal_inference": null,
+    "institutional_declaration": null
+  },
+  "_derivation_type_notes": {
+    "null": "not applicable - derivation type is BLOCKED by the admissibility map; no intake rules are defined for it",
+    "statistical_analysis": "DORMANT in v1: RING-2 PENDING types cannot enter review until the Ring 2 governance record exists; the rule is encoded now so the founding table is complete and witnessed, and binds automatically on activation",
+    "laboratory_measurement": "intentionally empty at the type level - not every measurement is condition-dependent (G is not); condition-dependence is a property of the subject, hence subject_rules below"
+  },
+  "subject_rules": [
+    {
+      "subject": "<SK-ENT: boiling temperature of water>",
+      "requires": [
+        "<SK-ENT: pressure (condition property)>",
+        "<SK-ENT: temperature scale (condition property)>"
+      ],
+      "rationale": "condition-dependent property: the claim is undefined without ambient pressure and the temperature scale (e.g. ITS-90); model/frame is an explicit condition per SCHEMA s3.4"
+    }
+  ],
+  "_subject_rules_notes": [
+    "Fundamental-constant subjects (c, h, G, N_A, e, k) carry no entries: their claims are condition-independent by construction.",
+    "Closed-by-default: a quantity-entity flagged condition_dependent in the registry must have a subject_rules entry before any fact about it can enter review."
+  ]
+}
