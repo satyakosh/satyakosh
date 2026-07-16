@@ -139,5 +139,13 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 ## Still owed by the founder (no one else can write these)
 
 1. Mission prose passage (MISSION.md opening is the starting point).
-2. Final read of the dedication wording (current draft is locked unless
-   you change it).
+2. ~~Final read of the dedication wording (current draft is locked unless
+   you change it).~~ Confirmed 2026-07-17.
+
+## Tracked, not blocking the freeze
+
+- **Legal wrapper.** Decide the long-term legal form (foundation or
+  trust whose sole mandate is perpetual maintenance of the public
+  ledger, with explicit succession rules). Institutional independence
+  (MISSION principle 3) requires this to exist *before* the first
+  serious partner, sponsor, or funding conversation — not after.
