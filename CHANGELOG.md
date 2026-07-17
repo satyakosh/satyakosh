@@ -24,6 +24,22 @@ canonical-byte contract (SCHEMA.md s10).
 - Committed test suite (stress/test_ledger.py), founding-document hash
   tool (tools/genesis_hashes.py, report-only), and CI running all
   checks on every push and pull request.
+- Validator hardening round 2 (2026-07-17, from an external adversarial
+  review; all findings reproduced before fixing): supersession is now a
+  full transaction (target must exist, be latest, be unsuperseded;
+  metadata supersession keeps fact_id and increments version by exactly
+  1 — closes a duplicate-seal bypass); superseded-ness is derived from
+  the chain, never written into sealed records; strict field
+  enumerations (unknown fields refused); shared typed-union validation
+  for condition values incl. registry existence; enums, hash formats,
+  date formats, validity-window order, non-empty complete sources, and
+  ring typing all enforced; exact quantities cannot carry uncertainty,
+  uncertainty non-negative; jcs() refuses JSON floats (proven
+  cross-implementation divergence) and lone surrogates; v1 UCUM code
+  whitelist; near-duplicate flag implemented (warn, never refuse);
+  derived_from references must exist; verify(full=True) replays every
+  record through seal-time validation; O(1) duplicate index (4x faster
+  sealing); atomic save; chain_head re-verified on load.
 - Founder decisions recorded 2026-07-17: the four mandatory-conditions
   placeholder entity IDs resolved and the entity registry confirmed
   final; founding-document hash doctrine locked (prose = raw file

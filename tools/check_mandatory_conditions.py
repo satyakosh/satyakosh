@@ -14,7 +14,7 @@ from pathlib import Path
 PLACEHOLDER_RE = re.compile(r"<SK-ENT:")
 
 def load_ruleset(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 def operative_placeholders(ruleset):
     """Placeholders in operative (non-underscore) fields only."""
@@ -156,7 +156,7 @@ def main(argv):
     if len(argv) < 2:
         return 1 if hits else 0
     try:
-        proposal = json.loads(Path(argv[1]).read_text())
+        proposal = json.loads(Path(argv[1]).read_text(encoding="utf-8"))
         triple = proposal["triple"]
         dtype = proposal["derivation"]["type"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:

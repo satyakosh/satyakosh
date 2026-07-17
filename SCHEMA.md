@@ -349,7 +349,9 @@ version bumps.
 
 **Structural:** required fields; types; registry existence of all IDs;
 object/condition typing per §3.3–3.4 (v1 gate: `quantity` only); value &
-uncertainty grammar (§7.3); UCUM parse; condition sort + tie-break;
+uncertainty grammar (§7.3); UCUM code check (v1: a closed whitelist of
+founding-scope codes in the reference implementation, expanded with
+proposals); condition sort + tie-break;
 mandatory-condition satisfaction per the mandatory-condition map in force
 at this chain position (first enforced at intake per §3.4); source sort;
 date/timestamp formats; ASCII-only canonical bytes for `fact` records

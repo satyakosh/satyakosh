@@ -142,7 +142,22 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 2. ~~Final read of the dedication wording (current draft is locked unless
    you change it).~~ Confirmed 2026-07-17.
 
+- [ ] **A18 — Specify the canonical review-file format.** process_hash
+      is "SHA-256 of the raw review-file bytes" (SCHEMA s7.4), but no
+      canonical review-file format exists, so the hash is currently
+      unverifiable by third parties. Define the format (and how
+      reviewer attestations are recorded) BEFORE the Genesis Window
+      opens — the window's first sealed facts carry process hashes
+      that must be auditable.
+
 ## Tracked, not blocking the freeze
+
+- **Governance engine.** SCHEMA s10 / P9 promise chain-position ruleset
+  resolution (genesis state + preceding governance records) and
+  governance-payload validation; the reference implementation validates
+  against in-memory rulesets only. The engine must exist before the
+  FIRST governance record seals — nothing may enter the chain that a
+  verifier cannot re-derive rules for.
 
 - **Legal wrapper.** Decide the long-term legal form (foundation or
   trust whose sole mandate is perpetual maintenance of the public

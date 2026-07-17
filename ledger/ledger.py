@@ -12,14 +12,26 @@ Canonicalization note: RFC 8785 (JCS) reduces, for Satyakosh's data shape,
 to: lexicographically sorted keys, minimal escaping, UTF-8, no
 insignificant whitespace — because the schema forbids JSON floats
 everywhere (the only numbers are small integers), which removes JCS's
-number-serialization complexity entirely. json.dumps with sort_keys and
-compact separators (ensure_ascii=False) therefore produces JCS-conformant
-bytes for all valid Satyakosh records. This equivalence is itself a
+number-serialization complexity entirely. jcs() ENFORCES the no-float
+rule (a float anywhere is a citable rejection), so json.dumps with
+sort_keys and compact separators (ensure_ascii=False) produces
+JCS-conformant bytes for all records this module accepts. This
+equivalence is cross-checked against an independent RFC 8785
+implementation in stress/test_canonical_properties.py and remains a
 Genesis Window review target.
+
+Supersession semantics (v1): sealed records are never edited, so a
+record's stored `status` is always "sealed". A record X@n is
+*effectively* superseded iff a later sealed record carries
+`supersedes: "X@n"` — superseded-ness is derived from the chain, never
+written back. The duplicate rule ("no duplicate triple_hash among
+non-superseded facts", SCHEMA s11) is enforced against that derived
+state at seal time and re-checked by verify(full=True).
 """
 
 import hashlib
 import json
+import os
 import re
 import unicodedata
 from pathlib import Path
@@ -34,11 +46,43 @@ SRC_RE = re.compile(r"^SK-SRC-\d{6}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 HASH_RE = re.compile(r"^[0-9a-f]{64}$")
+FACT_ID_RE = re.compile(r"^SK-R([1-9]\d*)-([A-Z][A-Z0-9]*)-([0-9a-f]{12}|[0-9a-f]{16})$")
+SUPERSEDES_RE = re.compile(
+    r"^(SK-R[1-9]\d*-[A-Z][A-Z0-9]*-(?:[0-9a-f]{12}|[0-9a-f]{16}))@([1-9]\d*)$")
+
+TRUTH_TYPES = frozenset({"always", "conditional", "seasonal", "periodic"})
+
+# Exact enumerations of sealed-record fields (SCHEMA s4). Unknown fields
+# are refused: any extra key would enter the hashed bytes and become a
+# smuggling channel past the language-neutrality and ASCII tripwires.
+FACT_FIELDS = frozenset({
+    "record_type", "fact_id", "triple_hash", "version", "supersedes",
+    "triple", "ring", "truth_type", "valid_from", "valid_until",
+    "valid_until_expected", "sources", "derivation", "process_hash",
+    "status", "created", "content_hash", "prev_record_hash"})
+REQUIRED_FACT_FIELDS = FACT_FIELDS - {"content_hash", "prev_record_hash"}
+TRIPLE_FIELDS = frozenset({"subject", "predicate", "object", "conditions"})
+QUANTITY_FIELDS = frozenset({"type", "value", "unit", "exact", "uncertainty"})
+CONDITION_FIELDS = frozenset({"property", "object"})
+SOURCE_FIELDS = frozenset({"source", "edition", "retrieved"})
+
+# v1 UCUM code whitelist (SCHEMA s11). Ring 1's founding scope needs a
+# small closed set, matching the whitelist philosophy; UCUM codes are
+# case-sensitive and verbatim (s7.2.6). Additions are code changes
+# pre-genesis and accompany proposal review after.
+UCUM_V1 = frozenset({
+    "1", "m", "s", "g", "kg", "A", "K", "mol", "cd", "Hz", "N", "Pa",
+    "kPa", "J", "W", "C", "V", "Ohm", "lm", "lx", "Cel", "eV",
+    "m/s", "m/s2", "m2", "m3", "J.s", "J/K", "mol-1", "lm/W", "kg/m3"})
 
 SEALABLE_DERIVATIONS = {
     "si_exact_definition", "defined_convention", "mathematical_proof",
     "laboratory_measurement", "derived_exact",
 }
+
+
+class ValidationError(Exception):
+    """Raised with a citable reason (SCHEMA s11 / SCOPE / ruleset)."""
 
 
 def nfc(obj):
@@ -52,10 +96,33 @@ def nfc(obj):
     return obj
 
 
+def _reject_floats(obj, path="$"):
+    """SCHEMA s7.1: no JSON floats exist anywhere in sealed records.
+    Enforced at serialization so a float can never reach the hash — a
+    float serializes differently across JCS implementations (json.dumps
+    '1.0' vs RFC 8785 '1') and would silently fork the chain."""
+    if isinstance(obj, float):
+        raise ValidationError(
+            f"SCHEMA s7.1: JSON float at {path} — floats are forbidden "
+            f"in canonical form (use the s7.3 string grammar)")
+    if isinstance(obj, list):
+        for i, v in enumerate(obj):
+            _reject_floats(v, f"{path}[{i}]")
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            _reject_floats(v, f"{path}.{k}")
+
+
 def jcs(obj) -> bytes:
     """Canonical bytes. See module docstring for the JCS equivalence."""
-    return json.dumps(nfc(obj), sort_keys=True, separators=(",", ":"),
-                      ensure_ascii=False).encode("utf-8")
+    _reject_floats(obj)
+    try:
+        return json.dumps(nfc(obj), sort_keys=True, separators=(",", ":"),
+                          ensure_ascii=False).encode("utf-8")
+    except UnicodeEncodeError:
+        raise ValidationError(
+            "SCHEMA s7.2: invalid Unicode (lone surrogate) in canonical "
+            "form — refusing to serialize")
 
 
 def sha256_hex(data: bytes) -> str:
@@ -87,13 +154,11 @@ def chain_link(curr_content_hash: str, prev_link: str) -> str:
 
 # ---------------------------------------------------------------- validation
 
-class ValidationError(Exception):
-    """Raised with a citable reason (SCHEMA s11 / SCOPE / ruleset)."""
-
-
 def _ascii_guard(record: dict):
     """Fact records must be pure ASCII in canonical form (SCHEMA s7.2.1).
-    A non-ASCII byte in a fact record is an attack signature."""
+    A non-ASCII byte in a fact record is an attack signature. Kept as a
+    backstop behind the per-field checks: it catches anything a future
+    field or free-text slot (e.g. source edition) lets through."""
     raw = jcs(record)
     try:
         raw.decode("ascii")
@@ -112,23 +177,122 @@ def _placeholder_guard(obj, context: str):
             f"refusing to seal")
 
 
-def validate_fact(record: dict, registries: dict, rulesets: dict):
-    """SCHEMA s11 structural + admissibility checks. Raises on violation."""
-    for field in ("record_type", "fact_id", "triple_hash", "version",
-                  "triple", "ring", "truth_type", "sources", "derivation",
-                  "process_hash", "status", "created"):
-        if field not in record:
-            raise ValidationError(f"SCHEMA s4: missing field {field!r}")
-    if record["record_type"] != "fact":
-        raise ValidationError("validate_fact called on non-fact record")
+def _require_int(value, name, minimum=1):
+    if not isinstance(value, int) or isinstance(value, bool) or \
+            value < minimum:
+        raise ValidationError(
+            f"SCHEMA s4: {name} must be an integer >= {minimum}, "
+            f"got {value!r}")
 
+
+def _validate_quantity(obj, where):
+    """Shared s3.3 validation for the object and every condition value —
+    conditions use the same typed union (s3.4)."""
+    if not isinstance(obj, dict):
+        raise ValidationError(
+            f"SCHEMA s3.3: {where} must be a typed union object")
+    unknown = set(obj) - QUANTITY_FIELDS
+    if unknown:
+        raise ValidationError(
+            f"SCHEMA s3.3: unknown field(s) {sorted(unknown)} in {where}")
+    missing = QUANTITY_FIELDS - set(obj)
+    if missing:
+        raise ValidationError(
+            f"SCHEMA s3.3: missing field(s) {sorted(missing)} in {where}")
+    if obj["type"] != "quantity":
+        raise ValidationError(
+            f"SCHEMA s3.3: v1 gate admits type 'quantity' only ({where})")
+    val = obj["value"]
+    if not isinstance(val, str) or not VALUE_RE.match(val):
+        raise ValidationError(
+            f"SCHEMA s7.3: {where} value {val!r} violates the grammar")
+    unit = obj["unit"]
+    if not isinstance(unit, str) or not unit:
+        raise ValidationError(
+            f"SCHEMA s3.3: {where} unit required ('1' if dimensionless)")
+    if unit not in UCUM_V1:
+        raise ValidationError(
+            f"SCHEMA s11: {where} unit {unit!r} is not in the v1 UCUM "
+            f"code whitelist")
+    if not isinstance(obj["exact"], bool):
+        raise ValidationError(f"SCHEMA s3.3: {where} exact must be boolean")
+    unc = obj["uncertainty"]
+    if unc is not None:
+        if not isinstance(unc, str) or not VALUE_RE.match(unc):
+            raise ValidationError(
+                f"SCHEMA s7.3: {where} uncertainty violates the grammar")
+        if unc.startswith("-"):
+            raise ValidationError(
+                f"SCHEMA s3.3: {where} uncertainty must be non-negative")
+        if obj["exact"]:
+            raise ValidationError(
+                f"SCHEMA s3.3: {where} is exact — an exact quantity "
+                f"cannot carry uncertainty")
+
+
+def validate_fact(record: dict, registries: dict, rulesets: dict):
+    """SCHEMA s11 structural + admissibility checks. Raises on violation.
+    Chain-dependent rules (duplicates, supersession linkage,
+    derived_from existence) live in Ledger.seal."""
+    if record.get("record_type") != "fact":
+        raise ValidationError("validate_fact called on non-fact record")
+    unknown = set(record) - FACT_FIELDS
+    if unknown:
+        raise ValidationError(
+            f"SCHEMA s4: unknown field(s) {sorted(unknown)} in fact record")
+    missing = REQUIRED_FACT_FIELDS - set(record)
+    if missing:
+        raise ValidationError(
+            f"SCHEMA s4: missing field(s) {sorted(missing)}")
+
+    # scalar fields
+    _require_int(record["version"], "version")
+    _require_int(record["ring"], "ring")
+    if record["status"] != "sealed":
+        raise ValidationError(
+            "SCHEMA s4: status must be 'sealed' at seal time — "
+            "superseded-ness is expressed by a later superseding record, "
+            "never written into a sealed record")
+    if record["truth_type"] not in TRUTH_TYPES:
+        raise ValidationError(
+            f"SCHEMA s4: truth_type {record['truth_type']!r} not in "
+            f"{sorted(TRUTH_TYPES)}")
+    for f in ("valid_from", "valid_until"):
+        v = record[f]
+        if v is not None and (not isinstance(v, str) or not DATE_RE.match(v)):
+            raise ValidationError(f"SCHEMA s7.2.2: {f} must be null or "
+                                  f"YYYY-MM-DD, got {v!r}")
+    if record["valid_from"] and record["valid_until"] and \
+            record["valid_from"] > record["valid_until"]:
+        raise ValidationError("SCHEMA s4: valid_from is after valid_until")
+    if not isinstance(record["valid_until_expected"], bool):
+        raise ValidationError("SCHEMA s4: valid_until_expected must be boolean")
+    sup = record["supersedes"]
+    if sup is not None and (not isinstance(sup, str)
+                            or not SUPERSEDES_RE.match(sup)):
+        raise ValidationError(
+            f"SCHEMA s6: supersedes must be null or 'fact_id@version', "
+            f"got {sup!r}")
+    ph = record["process_hash"]
+    if not isinstance(ph, str) or not HASH_RE.match(ph):
+        raise ValidationError(
+            "SCHEMA s7.2.3: process_hash must be 64 lowercase hex chars")
+    if not isinstance(record["created"], str) or \
+            not TS_RE.match(record["created"]):
+        raise ValidationError("SCHEMA s7.2.2: created not UTC timestamp form")
+
+    # triple
     triple = record["triple"]
     if not isinstance(triple, dict):
         raise ValidationError("SCHEMA s3: triple must be an object")
-    if not isinstance(triple.get("subject"), str) or \
+    if set(triple) != TRIPLE_FIELDS:
+        raise ValidationError(
+            f"SCHEMA s3: triple must have exactly the fields "
+            f"{sorted(TRIPLE_FIELDS)}")
+    if not isinstance(triple["subject"], str) or \
             not ENT_RE.match(triple["subject"]):
         raise ValidationError("SCHEMA s3.1: malformed or missing subject ID")
-    if not isinstance(triple.get("predicate"), str) or \
+    if not isinstance(triple["predicate"], str) or \
             not PRED_RE.match(triple["predicate"]):
         raise ValidationError("SCHEMA s3.2: malformed or missing predicate ID")
 
@@ -140,36 +304,21 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     if triple["predicate"] not in preds:
         raise ValidationError("SCHEMA s11: predicate not in registry")
 
-    obj = triple.get("object")
-    if not isinstance(obj, dict):
-        raise ValidationError("SCHEMA s3.3: object must be a typed union object")
-    if obj.get("type") != "quantity":
-        raise ValidationError(
-            "SCHEMA s3.3: v1 gate admits object type 'quantity' only")
-    val = obj.get("value")
-    if not isinstance(val, str) or not VALUE_RE.match(val):
-        raise ValidationError(
-            f"SCHEMA s7.3: value {val!r} violates the grammar")
-    unc = obj.get("uncertainty")
-    if unc is not None and (not isinstance(unc, str)
-                            or not VALUE_RE.match(unc)):
-        raise ValidationError("SCHEMA s7.3: uncertainty violates grammar")
-    if not isinstance(obj.get("exact"), bool):
-        raise ValidationError("SCHEMA s3.3: exact must be boolean")
-    if not obj.get("unit"):
-        raise ValidationError("SCHEMA s3.3: unit required ('1' if dimensionless)")
+    _validate_quantity(triple["object"], "object")
 
-    conds = triple.get("conditions", [])
+    conds = triple["conditions"]
     if not isinstance(conds, list):
         raise ValidationError("SCHEMA s3.4: conditions must be an array")
     for c in conds:
-        if not isinstance(c, dict) or not isinstance(c.get("property"), str) \
-                or not isinstance(c.get("object"), dict):
+        if not isinstance(c, dict) or set(c) != CONDITION_FIELDS:
             raise ValidationError("SCHEMA s3.4: malformed condition entry")
-        if not ENT_RE.match(c["property"]):
+        if not isinstance(c["property"], str) or not ENT_RE.match(c["property"]):
             raise ValidationError("SCHEMA s3.4: malformed condition property")
-        if c["object"].get("type") != "quantity":
-            raise ValidationError("SCHEMA s3.3: v1 condition values are quantity only")
+        if c["property"] not in ents:
+            raise ValidationError(
+                f"SCHEMA s11: condition property {c['property']} not in "
+                f"entity registry")
+        _validate_quantity(c["object"], f"condition {c['property']} value")
     sorted_conds = sorted(conds, key=lambda c: (c["property"], jcs(c["object"])))
     if conds != sorted_conds:
         raise ValidationError("SCHEMA s7.2.4: conditions not in canonical order")
@@ -177,10 +326,6 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     if not isinstance(record["derivation"], dict) or \
             not isinstance(record["derivation"].get("type"), str):
         raise ValidationError("SCHEMA s4: derivation must carry a type")
-    if not isinstance(record["sources"], list) or not all(
-            isinstance(s, dict) and isinstance(s.get("source"), str)
-            for s in record["sources"]):
-        raise ValidationError("SCHEMA s4: malformed sources array")
 
     # rulesets in force must be placeholder-free before any fact can seal
     # (same guard validate_genesis applies; SCHEMA s9 / s11)
@@ -202,8 +347,26 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
                 f"rulesets/mandatory_conditions.json: required condition "
                 f"property {req} absent — never enters review")
 
-    # sources: sorted, whitelisted for ring
-    src_ids = [s["source"] for s in record["sources"]]
+    # sources: non-empty, complete, sorted, whitelisted for ring
+    sources = record["sources"]
+    if not isinstance(sources, list) or not sources:
+        raise ValidationError(
+            "SCHEMA s4: sources must be a non-empty array — a fact "
+            "without sources cannot show its working (MISSION principle 2)")
+    for s in sources:
+        if not isinstance(s, dict) or set(s) != SOURCE_FIELDS:
+            raise ValidationError(
+                f"SCHEMA s4: each source needs exactly the fields "
+                f"{sorted(SOURCE_FIELDS)}")
+        if not isinstance(s["source"], str) or not SRC_RE.match(s["source"]):
+            raise ValidationError("SCHEMA s4: malformed source ID")
+        if not isinstance(s["edition"], str) or not s["edition"].strip():
+            raise ValidationError("SCHEMA s4: source edition required")
+        if not isinstance(s["retrieved"], str) or \
+                not DATE_RE.match(s["retrieved"]):
+            raise ValidationError(
+                "SCHEMA s7.2.2: source retrieved must be YYYY-MM-DD")
+    src_ids = [s["source"] for s in sources]
     if src_ids != sorted(src_ids):
         raise ValidationError("SCHEMA s7.2.5: sources not sorted")
     for sid in src_ids:
@@ -217,11 +380,17 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     # admissibility map
     dtype = record["derivation"]["type"]
     adm = rulesets["admissibility_map"]["map"].get(dtype)
-    if adm is None or adm[f"ring_{record['ring']}"] != "SEAL":
+    verdict = adm.get(f"ring_{record['ring']}") if adm else None
+    if verdict != "SEAL":
         raise ValidationError(
             f"rules/admissibility_map.json: derivation type {dtype!r} is "
             f"not SEAL for ring {record['ring']}")
-    if dtype == "derived_exact" and not record["derivation"].get("derived_from"):
+    df = record["derivation"].get("derived_from")
+    if df is not None and (not isinstance(df, list) or
+                           not all(isinstance(x, str) for x in df)):
+        raise ValidationError(
+            "SCHEMA s4: derived_from must be an array of fact IDs")
+    if dtype == "derived_exact" and not df:
         raise ValidationError(
             "SCHEMA s11: derived_exact requires non-empty derived_from")
 
@@ -229,15 +398,31 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     th = triple_hash(triple)
     if record["triple_hash"] != th:
         raise ValidationError("SCHEMA s11: triple_hash mismatch")
-    if not isinstance(record["fact_id"], str) or (
-            not record["fact_id"].endswith(th[:12]) and
-            not record["fact_id"].endswith(th[:16])):
+    fid = record["fact_id"]
+    m = FACT_ID_RE.match(fid) if isinstance(fid, str) else None
+    if not m:
+        raise ValidationError(
+            f"SCHEMA s6: fact_id {fid!r} does not match "
+            f"SK-R<ring>-<DOMAIN>-<12|16 hex>")
+    if int(m.group(1)) != record["ring"]:
+        raise ValidationError(
+            f"SCHEMA s6: fact_id ring segment R{m.group(1)} != record "
+            f"ring {record['ring']}")
+    if not th.startswith(m.group(3)):
         raise ValidationError("SCHEMA s6: fact_id suffix != triple_hash prefix")
-    if not isinstance(record["created"], str) or \
-            not TS_RE.match(record["created"]):
-        raise ValidationError("SCHEMA s7.2.2: created not UTC timestamp form")
 
     _ascii_guard(record)
+
+
+GENESIS_FIELDS = frozenset({
+    "record_type", "inscription", "schema_version", "schema_hash",
+    "pipeline_policy_version", "pipeline_policy_hash", "scope_hash",
+    "admissibility_map_hash", "mandatory_conditions_hash",
+    "predicates_founding_hash", "whitelist", "created",
+    "content_hash", "prev_record_hash"})
+INSCRIPTION_FIELDS = frozenset({
+    "mission", "invocation", "invocation_source", "founder",
+    "dedication", "founded"})
 
 
 def validate_genesis(record: dict, rulesets: dict):
@@ -247,18 +432,32 @@ def validate_genesis(record: dict, rulesets: dict):
         raise ValidationError("not a genesis record")
     if record.get("prev_record_hash") != GENESIS_PREV:
         raise ValidationError("SCHEMA s8: genesis prev_record_hash must be 64 zeros")
+    unknown = set(record) - GENESIS_FIELDS
+    if unknown:
+        raise ValidationError(
+            f"SCHEMA s9: unknown field(s) {sorted(unknown)} in genesis record")
+    missing = GENESIS_FIELDS - {"content_hash"} - set(record)
+    if missing:
+        raise ValidationError(f"SCHEMA s9: missing field(s) {sorted(missing)}")
     _placeholder_guard(record, "genesis record")
     insc = record["inscription"]
-    for f in ("mission", "invocation", "invocation_source", "founder",
-              "dedication", "founded"):
-        if not insc.get(f, "").strip():
+    if not isinstance(insc, dict) or set(insc) != INSCRIPTION_FIELDS:
+        raise ValidationError(
+            f"SCHEMA s9: inscription must have exactly the fields "
+            f"{sorted(INSCRIPTION_FIELDS)}")
+    for f in sorted(INSCRIPTION_FIELDS):
+        if not isinstance(insc.get(f), str) or not insc[f].strip():
             raise ValidationError(f"SCHEMA s9: empty inscription field {f!r}")
     if not DATE_RE.match(insc["founded"]):
         raise ValidationError("SCHEMA s9: founded must be YYYY-MM-DD")
+    if not isinstance(record["created"], str) or \
+            not TS_RE.match(record["created"]):
+        raise ValidationError("SCHEMA s7.2.2: genesis created not UTC "
+                              "timestamp form")
     for hf in ("schema_hash", "pipeline_policy_hash", "scope_hash",
                "admissibility_map_hash", "mandatory_conditions_hash",
                "predicates_founding_hash"):
-        if not HASH_RE.match(record.get(hf, "")):
+        if not isinstance(record.get(hf), str) or not HASH_RE.match(record[hf]):
             raise ValidationError(f"SCHEMA s9: {hf} is not a sha256 hex digest")
     if not record.get("whitelist"):
         raise ValidationError("SCHEMA s9: whitelist must be enumerated inline")
@@ -271,14 +470,114 @@ def validate_genesis(record: dict, rulesets: dict):
 # ---------------------------------------------------------------- ledger
 
 class Ledger:
-    def __init__(self, path: Path, registries: dict, rulesets: dict):
-        self.path = Path(path)
+    def __init__(self, path, registries: dict, rulesets: dict):
+        self.path = Path(path) if path is not None else None
         self.registries = registries
         self.rulesets = rulesets
         self.records = []
-        if self.path.exists():
-            self.records = json.loads(
-                self.path.read_text(encoding="utf-8"))["records"]
+        self.flags = []  # near-duplicate warnings (s11: warn, not a byte rule)
+        self._init_indexes()
+        if self.path is not None and self.path.exists():
+            data = json.loads(self.path.read_text(encoding="utf-8"))
+            self.records = data["records"]
+            for r in self.records:
+                self._index(r)
+            stored = data.get("chain_head")
+            if stored is not None and stored != self.chain_head():
+                raise ValidationError(
+                    "ledger file chain_head does not match the recomputed "
+                    "chain head — file corrupt or tampered")
+
+    def _init_indexes(self):
+        self._by_id = {}        # fact_id -> {version: record}
+        self._by_triple = {}    # triple_hash -> [record, ...]
+        self._superseded = set()  # {"fact_id@version", ...} named as targets
+        self._np_units = {}     # near-dup key -> {unit, ...}
+
+    def _np_key(self, triple):
+        ct = canonical_triple(triple)
+        return sha256_hex(jcs([ct["subject"], ct["predicate"],
+                               ct["conditions"]]))
+
+    def _index(self, r):
+        if r.get("record_type") != "fact":
+            return
+        self._by_id.setdefault(r["fact_id"], {})[r["version"]] = r
+        self._by_triple.setdefault(r["triple_hash"], []).append(r)
+        if isinstance(r.get("supersedes"), str):
+            self._superseded.add(r["supersedes"])
+        self._np_units.setdefault(self._np_key(r["triple"]), set()).add(
+            r["triple"]["object"]["unit"])
+
+    def _check_chain_rules(self, record):
+        """Chain-position rules: (fact_id, version) uniqueness, the
+        supersession transaction (SCHEMA s6), the duplicate rule against
+        derived live status (s11), derived_from existence, and the
+        near-duplicate flag."""
+        fid, ver, th = record["fact_id"], record["version"], record["triple_hash"]
+        if ver in self._by_id.get(fid, {}):
+            raise ValidationError(f"SCHEMA s6: {fid}@{ver} is already sealed")
+
+        sup, target = record["supersedes"], None
+        if sup is not None:
+            tfid, tver = sup.rsplit("@", 1)
+            tver = int(tver)
+            versions = self._by_id.get(tfid)
+            if not versions or tver not in versions:
+                raise ValidationError(
+                    f"SCHEMA s6: supersedes target {sup} is not on the chain")
+            if tver != max(versions):
+                raise ValidationError(
+                    f"SCHEMA s6: only the latest version of {tfid} "
+                    f"(@{max(versions)}) can be superseded")
+            if sup in self._superseded:
+                raise ValidationError(
+                    f"SCHEMA s6: {sup} is already superseded")
+            target = versions[tver]
+            if th == target["triple_hash"]:
+                # metadata-only supersession: same identity, next version
+                if fid != tfid or ver != tver + 1:
+                    raise ValidationError(
+                        "SCHEMA s6: metadata supersession must keep the "
+                        "fact_id and increment version by exactly 1")
+            else:
+                # triple-changing supersession: new identity, fresh version
+                if fid == tfid:
+                    raise ValidationError(
+                        "SCHEMA s6: a changed triple yields a new "
+                        "triple_hash and hence a new fact_id")
+                if ver != 1:
+                    raise ValidationError(
+                        "SCHEMA s6: a new-triple fact starts at version 1")
+        elif ver != 1:
+            raise ValidationError(
+                "SCHEMA s6: a fact without supersedes starts at version 1")
+
+        # duplicate detection against derived live status
+        for r in self._by_triple.get(th, []):
+            if f"{r['fact_id']}@{r['version']}" in self._superseded:
+                continue
+            if target is not None and r is target:
+                continue
+            raise ValidationError(
+                f"SCHEMA s11: duplicate triple_hash of non-superseded "
+                f"fact {r['fact_id']}@{r['version']}")
+
+        # derived_from must reference sealed facts
+        for x in record["derivation"].get("derived_from") or []:
+            if x not in self._by_id:
+                raise ValidationError(
+                    f"SCHEMA s11: derived_from references unknown fact {x}")
+
+        # near-duplicate flag (s11: same subject+predicate+conditions,
+        # different unit -> human review; a warning, never a refusal)
+        other_units = self._np_units.get(self._np_key(record["triple"]),
+                                         set()) - {record["triple"]["object"]["unit"]}
+        if other_units:
+            self.flags.append(
+                f"near-duplicate flag: {fid} shares subject+predicate+"
+                f"conditions with sealed fact(s) in unit(s) "
+                f"{sorted(other_units)} — possible unit-converted duplicate")
 
     def seal(self, record: dict) -> dict:
         rt = record.get("record_type")
@@ -286,22 +585,16 @@ class Ledger:
             raise ValidationError("SCHEMA s8: record 0 must be genesis")
         if rt == "fact":
             validate_fact(record, self.registries, self.rulesets)
-            # duplicate detection is an exact hash lookup (SCHEMA s11):
-            # same canonical triple may only re-enter as a supersession
-            sup = (record.get("supersedes") or "").split("@")[0]
-            for r in self.records:
-                if (r.get("record_type") == "fact"
-                        and r.get("status") != "superseded"
-                        and r.get("triple_hash") == record["triple_hash"]
-                        and r.get("fact_id") != sup):
-                    raise ValidationError(
-                        f"SCHEMA s11: duplicate triple_hash of "
-                        f"non-superseded fact {r['fact_id']}")
+            self._check_chain_rules(record)
         elif rt == "genesis":
             if self.records:
                 raise ValidationError("genesis must be record zero")
             validate_genesis(record, self.rulesets)
         elif rt in ("governance", "inscription"):
+            # NOTE: the governance engine (payload validation + chain-
+            # position ruleset resolution, SCHEMA s10/P9) is not yet
+            # implemented; it must exist before the first governance
+            # record seals. Tracked in GENESIS_AMENDMENTS.md.
             _placeholder_guard(record, f"{rt} record")
         else:
             raise ValidationError(f"unknown record_type {rt!r}")
@@ -312,6 +605,7 @@ class Ledger:
             else self.records[-1]["content_hash"])
         record["content_hash"] = content_hash(record)
         self.records.append(record)
+        self._index(record)
         return record
 
     def chain_head(self) -> str:
@@ -320,29 +614,53 @@ class Ledger:
             link = chain_link(r["content_hash"], link)
         return link
 
-    def verify(self) -> list:
-        """Returns list of tamper findings; empty list = chain intact."""
+    def verify(self, full: bool = False) -> list:
+        """Returns a list of findings; empty list = chain intact.
+
+        Default mode is tamper-evidence: hash links and content hashes.
+        full=True additionally replays every record through seal-time
+        validation (fraud-evidence): field validity, duplicate rule
+        against derived status, supersession linkage, genesis-first."""
         findings = []
         prev = GENESIS_PREV
         for i, r in enumerate(self.records):
-            if r["prev_record_hash"] != prev:
+            if r.get("prev_record_hash") != prev:
                 findings.append(f"record {i}: broken chain link")
-            if content_hash(r) != r["content_hash"]:
+            if content_hash(r) != r.get("content_hash"):
                 fid = r.get("fact_id", r.get("record_type"))
                 findings.append(f"TAMPERED: {fid} (record {i})")
             if r.get("record_type") == "fact":
                 if triple_hash(r["triple"]) != r["triple_hash"]:
                     findings.append(
                         f"TAMPERED TRIPLE: {r['fact_id']} (record {i})")
-            prev = r["content_hash"]
+            prev = r.get("content_hash")
+
+        if full:
+            shadow = Ledger(None, self.registries, self.rulesets)
+            for i, r in enumerate(self.records):
+                body = {k: v for k, v in r.items() if k != "content_hash"}
+                try:
+                    shadow.seal(dict(body))
+                except ValidationError as e:
+                    findings.append(
+                        f"INVALID record {i} "
+                        f"({r.get('fact_id', r.get('record_type'))}): {e}")
+                    # keep the replay coherent so later records can still
+                    # resolve supersedes/derived_from targets
+                    shadow.records.append(dict(r))
+                    shadow._index(r)
         return findings
 
     def save(self):
-        # explicit UTF-8: platform default encodings (e.g. cp1252 on
-        # Windows) would corrupt or refuse the genesis record's NFC UTF-8
-        self.path.write_text(json.dumps(
+        # explicit UTF-8 (platform defaults like cp1252 corrupt the
+        # genesis record's NFC UTF-8) and atomic replace (a crash
+        # mid-write must never corrupt the canonical store)
+        payload = json.dumps(
             {"chain_head": self.chain_head(), "records": self.records},
-            indent=2, ensure_ascii=False), encoding="utf-8")
+            indent=2, ensure_ascii=False)
+        tmp = self.path.with_suffix(self.path.suffix + ".tmp")
+        tmp.write_text(payload, encoding="utf-8")
+        os.replace(tmp, self.path)
 
 
 if __name__ == "__main__":

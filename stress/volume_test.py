@@ -132,12 +132,19 @@ def main():
            f"{n} facts + genesis in {seal_s:.1f}s "
            f"({n / seal_s:.0f} seals/s)")
 
-    # 2. verify
+    # 2. verify (tamper-evidence), then full replay (fraud-evidence)
     t0 = time.perf_counter()
     findings = led.verify()
     verify_s = time.perf_counter() - t0
     record("verify clean chain", not findings,
            f"0 findings expected, got {len(findings)} in {verify_s:.1f}s")
+    t0 = time.perf_counter()
+    full_findings = led.verify(full=True)
+    full_s = time.perf_counter() - t0
+    record("verify(full) seal-time replay", not full_findings,
+           f"0 findings expected, got {len(full_findings)} in {full_s:.1f}s")
+    record("no near-duplicate flags", not led.flags,
+           f"{len(led.flags)} flag(s)")
     head = led.chain_head()
 
     # 3. determinism — independent rebuild, same inputs

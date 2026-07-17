@@ -165,6 +165,19 @@ def p_ascii_guard_catches_any_nonascii(t, ch):
         pass
 
 
+@settings(max_examples=MAX_EXAMPLES)
+@given(json_value)
+def p_jcs_rejects_floats(obj):
+    """A JSON float anywhere must be a citable rejection (s7.1) — floats
+    serialize differently across JCS implementations and would fork the
+    chain silently."""
+    try:
+        L.jcs({"k": [obj, 0.5]})
+        raise AssertionError("float accepted into canonical form")
+    except L.ValidationError:
+        pass
+
+
 if HAVE_RFC8785:
     @settings(max_examples=MAX_EXAMPLES)
     @given(json_value)
