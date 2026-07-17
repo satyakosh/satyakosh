@@ -50,21 +50,24 @@ FACT_ID_RE = re.compile(r"^SK-R([1-9]\d*)-([A-Z][A-Z0-9]*)-([0-9a-f]{12}|[0-9a-f
 SUPERSEDES_RE = re.compile(
     r"^(SK-R[1-9]\d*-[A-Z][A-Z0-9]*-(?:[0-9a-f]{12}|[0-9a-f]{16}))@([1-9]\d*)$")
 
-TRUTH_TYPES = frozenset({"always", "conditional", "seasonal", "periodic"})
+TERMINALITY = frozenset({"none", "expected", "scheduled"})
 
-# Exact enumerations of sealed-record fields (SCHEMA s4). Unknown fields
-# are refused: any extra key would enter the hashed bytes and become a
-# smuggling channel past the language-neutrality and ASCII tripwires.
+# Exact enumerations of sealed-record fields (SCHEMA s4, per the
+# recovered original: truth_type was removed by the July 2026 taxonomy
+# review; terminality replaces the boolean). Unknown fields are refused:
+# any extra key would enter the hashed bytes and become a smuggling
+# channel past the language-neutrality and ASCII tripwires.
 FACT_FIELDS = frozenset({
     "record_type", "fact_id", "triple_hash", "version", "supersedes",
-    "triple", "ring", "truth_type", "valid_from", "valid_until",
-    "valid_until_expected", "sources", "derivation", "process_hash",
+    "triple", "ring", "valid_from", "valid_until", "terminality",
+    "sources", "derivation", "process_hash",
     "status", "created", "content_hash", "prev_record_hash"})
 REQUIRED_FACT_FIELDS = FACT_FIELDS - {"content_hash", "prev_record_hash"}
 TRIPLE_FIELDS = frozenset({"subject", "predicate", "object", "conditions"})
 QUANTITY_FIELDS = frozenset({"type", "value", "unit", "exact", "uncertainty"})
 CONDITION_FIELDS = frozenset({"property", "object"})
 SOURCE_FIELDS = frozenset({"source", "edition", "retrieved"})
+DERIVATION_FIELDS = frozenset({"type", "script", "derived_from"})
 
 # v1 UCUM code whitelist (SCHEMA s11). Ring 1's founding scope needs a
 # small closed set, matching the whitelist philosophy; UCUM codes are
@@ -250,14 +253,14 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     _require_int(record["ring"], "ring")
     if record["status"] != "sealed":
         raise ValidationError(
-            "SCHEMA s4: status must be 'sealed' at seal time — "
-            "superseded-ness is expressed by a later superseding record, "
+            "SCHEMA s4: status must be 'sealed' at seal time — later "
+            "states (superseded, retired) are expressed by later records, "
             "never written into a sealed record")
-    if not isinstance(record["truth_type"], str) or \
-            record["truth_type"] not in TRUTH_TYPES:
+    if not isinstance(record["terminality"], str) or \
+            record["terminality"] not in TERMINALITY:
         raise ValidationError(
-            f"SCHEMA s4: truth_type {record['truth_type']!r} not in "
-            f"{sorted(TRUTH_TYPES)}")
+            f"SCHEMA s4: terminality {record['terminality']!r} not in "
+            f"{sorted(TERMINALITY)}")
     for f in ("valid_from", "valid_until"):
         v = record[f]
         if v is not None and (not isinstance(v, str) or not DATE_RE.match(v)):
@@ -266,8 +269,12 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     if record["valid_from"] and record["valid_until"] and \
             record["valid_from"] > record["valid_until"]:
         raise ValidationError("SCHEMA s4: valid_from is after valid_until")
-    if not isinstance(record["valid_until_expected"], bool):
-        raise ValidationError("SCHEMA s4: valid_until_expected must be boolean")
+    # s4 semantics: 'scheduled' means dated expiry — the two travel together
+    if (record["terminality"] == "scheduled") != \
+            (record["valid_until"] is not None):
+        raise ValidationError(
+            "SCHEMA s4: terminality 'scheduled' requires valid_until, and "
+            "a dated valid_until requires terminality 'scheduled'")
     sup = record["supersedes"]
     if sup is not None and (not isinstance(sup, str)
                             or not SUPERSEDES_RE.match(sup)):
@@ -324,9 +331,18 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     if conds != sorted_conds:
         raise ValidationError("SCHEMA s7.2.4: conditions not in canonical order")
 
-    if not isinstance(record["derivation"], dict) or \
-            not isinstance(record["derivation"].get("type"), str):
-        raise ValidationError("SCHEMA s4: derivation must carry a type")
+    deriv = record["derivation"]
+    if not isinstance(deriv, dict) or set(deriv) != DERIVATION_FIELDS or \
+            not isinstance(deriv["type"], str):
+        raise ValidationError(
+            f"SCHEMA s4.1: derivation must have exactly the fields "
+            f"{sorted(DERIVATION_FIELDS)} with a string type")
+    if deriv["script"] is not None and (
+            not isinstance(deriv["script"], str)
+            or not HASH_RE.match(deriv["script"])):
+        raise ValidationError(
+            "SCHEMA s4.1: derivation.script must be null or the sha256 "
+            "of the recipe at derivations/<triple_hash>.py")
 
     # rulesets in force must be placeholder-free before any fact can seal
     # (same guard validate_genesis applies; SCHEMA s9 / s11)
@@ -386,11 +402,10 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
         raise ValidationError(
             f"rules/admissibility_map.json: derivation type {dtype!r} is "
             f"not SEAL for ring {record['ring']}")
-    df = record["derivation"].get("derived_from")
-    if df is not None and (not isinstance(df, list) or
-                           not all(isinstance(x, str) for x in df)):
+    df = record["derivation"]["derived_from"]
+    if not isinstance(df, list) or not all(isinstance(x, str) for x in df):
         raise ValidationError(
-            "SCHEMA s4: derived_from must be an array of fact IDs")
+            "SCHEMA s4.1: derived_from must be an array of fact IDs")
     if dtype == "derived_exact" and not df:
         raise ValidationError(
             "SCHEMA s11: derived_exact requires non-empty derived_from")

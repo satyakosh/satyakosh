@@ -113,7 +113,8 @@ annotations carry `tool_version`. See docs/review_file_format.md.
 *Applied: 6afcc02.*
 
 **FD-17 — Tier 3 (ITS-90) holds in review.** The boiling-point
-proposal is submitted and held (P6) as a living exhibit — never
+proposal is submitted and held (P6; renumbered P7 when the
+original PIPELINE_POLICY was restored — FD-24) as a living exhibit — never
 sealed with a placeholder condition. It seals only after a governance
 record activates the entity condition type. *Applied: 6afcc02.*
 
@@ -149,6 +150,25 @@ foundation or trust with succession rules must exist before any
 sponsor, partner, or funding conversation — institutional independence
 requires an institution. Tracked in GENESIS_AMENDMENTS.md.
 *Applied: c61227b (tracked; entity not yet formed).*
+
+## Reconciliation with the recovered originals (2026-07-17)
+
+**FD-24 — Restore the recovered originals; re-apply post-loss
+amendments on top.** The recovered 2026-07-10 package proved that the
+rebuilt SCHEMA s4, SCOPE, TAXONOMY, MISSION, and PIPELINE_POLICY came
+from earlier-draft fragments. The originals are restored as the base:
+the s4 field set returns to its taxonomy-review form (`truth_type`
+removed; `terminality` `none|expected|scheduled`; `status` includes
+`retired`; `derivation` = `{type, script, derived_from}` with the
+recipe hash sealed in the record), SCOPE's true S1–S7 (incl.
+identity/equivalence and self-reference) returns with rule-ID
+authority, TAXONOMY returns as the four-dimension intake model, MISSION
+returns with "Open data is the moat" as principle 1, and
+PIPELINE_POLICY returns with its P1–P10 numbering and explicit seal
+preconditions. Re-applied on top: A1–A4, A6, A8 (as P11), A9, FD-12,
+FD-16/A18, the UCUM whitelist wording, and the A16 seed restructure.
+Validator, fixtures, and cross-references aligned; pipeline-rule
+citations now use the restored numbering. *Applied: this commit.*
 
 ## Explicitly rejected (recorded so they are not re-litigated)
 

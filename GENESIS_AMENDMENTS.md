@@ -1,53 +1,60 @@
 # Genesis freeze — pending amendments to local files
 
+> **Reconciliation note (2026-07-17, FD-24):** the recovered
+> pre-loss originals were restored as the base for SCHEMA, SCOPE,
+> TAXONOMY, MISSION, CONTRIBUTING, and PIPELINE_POLICY, and the
+> amendments below were re-applied on top of the original bytes.
+> A1-A10 are therefore applied (checked). See
+> docs/rebuild_divergence_report.md.
+
 Every decision from the genesis-design sessions that must land in the
 local working files BEFORE the six document hashes are computed. Apply to
 the real local bytes directly; do not regenerate documents from memory.
 
 ## SCHEMA.md
 
-- [ ] **A1 — Scope the ASCII invariant.** §7.2 and the invariant list:
+- [x] **A1 — Scope the ASCII invariant.** §7.2 and the invariant list:
       "canonical bytes are pure ASCII" applies to `fact` records only, as
       an intake tripwire keyed to v1's admissible vocabularies (any
       non-ASCII byte in a fact record is an attack signature, not
       content). Chain-wide rule remains NFC UTF-8. Genesis record is
       NFC UTF-8 by design.
-- [ ] **A2 — State the genesis identity exception.** Invariant 6 (no
+- [x] **A2 — State the genesis identity exception.** Invariant 6 (no
       contributor identity in hashed content) carries one conscious
       exception: the genesis inscription (founder name + dedication),
       with consent on record.
-- [ ] **A3 — Amend §9** to enumerate the full genesis manifest:
+- [x] **A3 — Amend §9** to enumerate the full genesis manifest:
       inscription; schema_version + schema_hash; pipeline_policy_version +
       pipeline_policy_hash; scope_hash; admissibility_map_hash;
       mandatory_conditions_hash; predicates_founding_hash; inline
       three-source whitelist; chain fields.
-- [ ] **A4 — Amend §10**: add "supersession of any founding-document
+- [x] **A4 — Amend §10**: add "supersession of any founding-document
       hash" to the governance-record triggers.
-- [ ] **A5 — Version relabel.** Header and all self-references:
+- [x] **A5 — Version relabel.** Header and all self-references:
       v2.1(-rc2) → 1.0.0 (1.0.0-rc.1 during the Genesis Window). Move the
       v2.0→v2.1 lineage to CHANGELOG/design-history (unsealed).
 
 ## SCOPE.md
 
-- [ ] **A6 — Character-inventory clarification** (recommended, not
+- [x] **A6 — Character-inventory clarification** (recommended, not
       blocking): characters-as-entities via Unicode code points are
       in-scope but Ring 2 (external-standard adoption); lexical facts
       (word meanings, translations) remain out of scope. Draws the
       boundary proposers will probe.
-- [ ] **A7 — Version relabel** as in A5.
+- [x] **A7 — Version relabel** as in A5.
 
 ## PIPELINE_POLICY.md
 
-- [ ] **A8 — Batch-proposal mechanism (BLOCKING).** Define review of
+- [x] **A8 — Batch-proposal mechanism (BLOCKING).** Define review of
       mechanically-ingested batches: the reviewed object is the batch
       (ingestion script + source pin + spot checks); each fact still gets
       its own record, ID, and dispute window; a disputed fact holds in
       review while siblings seal. Required before freeze — the CODATA
       full-set ingestion depends on it, and the policy hash seals at
       genesis.
-- [ ] **A9 — Genesis Window review scope**: adversarial review explicitly
+- [x] **A9 — Genesis Window review scope**: adversarial review explicitly
       covers all six frozen documents, not only the schema.
-- [ ] **A10 — Version relabel** as in A5.
+- [x] **A10 — Version relabel** as in A5.
 
 ## admissibility_map.json
 

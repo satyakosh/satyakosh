@@ -87,12 +87,13 @@ def make_fact(i):
     th = L.triple_hash(triple)
     return {"record_type": "fact", "fact_id": f"SK-R1-PHYS-{th[:12]}",
             "triple_hash": th, "version": 1, "supersedes": None,
-            "triple": triple, "ring": 1, "truth_type": "always",
+            "triple": triple, "ring": 1,
             "valid_from": None, "valid_until": None,
-            "valid_until_expected": False,
+            "terminality": "none",
             "sources": [{"source": "SK-SRC-000001",
                          "edition": "synthetic", "retrieved": "2026-07-18"}],
-            "derivation": {"type": dtype},
+            "derivation": {"type": dtype, "script": None,
+                          "derived_from": []},
             "process_hash": "b" * 64, "status": "sealed",
             "created": CREATED}
 

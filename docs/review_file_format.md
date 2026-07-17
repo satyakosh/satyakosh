@@ -48,8 +48,8 @@ detection, exactly as the fact itself cannot.
     "proposed_by": "SK-USR-000007",
     "proposed_at": "2026-08-01T12:00:00Z",
     "triple": { "...": "the exact triple submitted" },
-    "derivation": { "type": "si_exact_definition",
-                    "recipe_hash": "<sha256 of the recipe artifact>" },
+    "derivation": { "type": "si_exact_definition", "script":
+                    "<sha256 of the recipe artifact>", "derived_from": [] },
     "sources": [ { "source": "SK-SRC-000001", "edition": "CODATA 2022",
                    "retrieved": "2026-08-01" } ]
   },
@@ -72,15 +72,17 @@ detection, exactly as the fact itself cannot.
 }
 ```
 
-- **Recipe artifacts** are separate files pinned by `recipe_hash`
-  (SHA-256 of the artifact's bytes). They live in the same repository
-  and mirrors as review files — shared fate, no new availability risk.
-  Batch rows all pin the same artifact.
+- **Recipe artifacts** are separate files at
+  `derivations/<triple_hash>.py`, pinned by `derivation.script` — the
+  SHA-256 of the artifact's bytes, which (per the restored SCHEMA s4.1)
+  also seals inside the fact record itself. They live in the same
+  repository and mirrors as review files — shared fate, no new
+  availability risk. Batch rows all pin the same artifact.
 - **`batch_ref`** (P11): for a batch-proposed fact, the `fact_id`-style
   identifier of the shared batch review (ingestion script + source pin
   + spot checks). `null` for individual proposals.
 - **`decision.outcome`**: `sealed` | `withdrawn` | `held`. A held
-  proposal (unresolved objections, P6) keeps a living, unsealed review
+  proposal (unresolved objections, P7) keeps a living, unsealed review
   file in the public review zone — visible forever, hashed never.
 - **Timestamps**: `at` fields are convenience labels. The authoritative
   timeline is the Git commit history of the public review — the
@@ -91,12 +93,12 @@ detection, exactly as the fact itself cannot.
 1. Recompute `SHA-256(JCS(review file))`; check it equals the sealed
    `process_hash`.
 2. Confirm `fact_id` / `triple_hash` match the sealed fact.
-3. Fetch the recipe artifact; check its SHA-256 equals `recipe_hash`;
+3. Fetch the recipe artifact; check its SHA-256 equals `derivation.script`;
    run it.
 4. Re-run the machine annotations (at the recorded `tool_version`) and
    confirm the recorded results.
 5. Confirm `decision.outcome == "sealed"` and
-   `decision.unresolved_objections == 0` (P6).
+   `decision.unresolved_objections == 0` (P5/P7).
 
 These steps ship in the verifier SDK (post-genesis build item) so
 "audit the process" is a one-command exercise.

@@ -61,12 +61,13 @@ def make_fact(value="2.99792458e8", subject="SK-ENT-000001", conds=None,
               "conditions": conds or []}
     rec = {"record_type": "fact", "fact_id": None,
            "triple_hash": None, "version": 1, "supersedes": None,
-           "triple": triple, "ring": 1, "truth_type": "always",
+           "triple": triple, "ring": 1,
            "valid_from": None, "valid_until": None,
-           "valid_until_expected": False,
+           "terminality": "none",
            "sources": [{"source": "SK-SRC-000001", "edition": "CODATA 2022",
                         "retrieved": "2026-07-01"}],
-           "derivation": {"type": dtype},
+           "derivation": {"type": dtype, "script": None,
+                          "derived_from": []},
            "process_hash": "a" * 64, "status": "sealed",
            "created": "2026-07-18T00:00:00Z"}
     rec.update(over)
@@ -191,16 +192,23 @@ def run():
     check("K8a: status='bogus' refused", mutated(status="bogus"),
           True, "status")
     check("K8b: version=-3 refused", mutated(version=-3), True, "version")
-    check("K8c: truth_type='maybe' refused", mutated(truth_type="maybe"),
-          True, "truth_type")
-    check("K8c2: unhashable truth_type gets citable rejection (fuzz find)",
-          mutated(truth_type={"x": 1}), True, "truth_type")
+    check("K8c: terminality='maybe' refused", mutated(terminality="maybe"),
+          True, "terminality")
+    check("K8c2: unhashable terminality gets citable rejection (fuzz find)",
+          mutated(terminality={"x": 1}), True, "terminality")
     check("K8d: valid_from='yesterday' refused",
           mutated(valid_from="yesterday"), True, "")
     check("K8e: inverted validity window refused",
           mutated(valid_from="2030-01-01", valid_until="2020-01-01"),
           True, "after")
     check("K9a: sources=[] refused", mutated(sources=[]), True, "non-empty")
+    check("K8f: dated valid_until needs terminality=scheduled",
+          mutated(valid_until="2030-01-01"), True, "scheduled")
+    check("K8g: scheduled terminality with valid_until seals",
+          lambda: led.seal(make_fact(value="9.91e9",
+                                     valid_until="2030-01-01",
+                                     terminality="scheduled")),
+          False)
     check("K9b: source missing edition refused",
           mutated(sources=[{"source": "SK-SRC-000001",
                             "retrieved": "2026-07-01"}]), True, "")
@@ -226,8 +234,7 @@ def run():
     check("K13: lone surrogate gets citable rejection",
           lambda: L.jcs({"x": "a\ud800b"}), True, "surrogate")
     check("K14: derived_from unknown fact refused",
-          mutated(dtype="derived_exact",
-                  derivation={"type": "derived_exact",
+          mutated(derivation={"type": "derived_exact", "script": None,
                               "derived_from": ["SK-R1-PHYS-" + "9" * 12]}),
           True, "unknown fact")
     check("K15: unit not in v1 UCUM whitelist refused",

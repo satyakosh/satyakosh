@@ -40,6 +40,14 @@ canonical-byte contract (SCHEMA.md s10).
   bytes, recipes by content hash, hash-at-seal only, per-fact files
   with batch_ref, Git history as the authoritative timeline,
   tool-versioned machine annotations.
+- Reconciliation (FD-24, 2026-07-17): the recovered originals of
+  SCHEMA, SCOPE, TAXONOMY, MISSION, CONTRIBUTING, and PIPELINE_POLICY
+  restored as the base with all post-loss amendments re-applied. The
+  sealed fact record returns to its taxonomy-review field set
+  (terminality instead of truth_type; derivation.script seals the
+  recipe hash); SCOPE's original S1-S7 (incl. self-reference) and the
+  four-dimension TAXONOMY return; pipeline rules return to P1-P10 (+
+  P11 batch). Validator and all suites aligned.
 - Pre-loss originals recovered (2026-07-17): both zips found and hashed.
   Locked inscription fields verified byte-identical against the
   original; predicate definition wording, source metadata, directory
