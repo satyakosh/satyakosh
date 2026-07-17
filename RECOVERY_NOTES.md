@@ -21,8 +21,21 @@ seed_facts.json, sealed 5-record demo ledger (chain verifies intact).
 Pure prehistory; kept locally, not imported (CHANGELOG: never public,
 preserved for the record). It independently corroborates three Tier 1
 seed values (c, h, N_A) and contains nothing the current line lacks.
-Still outstanding: `satyakosh-first-commit.zip` (2026-07-10) — the only
-artifact that can close the RING2 s4 seven-criteria gap verbatim.
+**Recovered 2026-07-17: `satyakosh-first-commit.zip`** (45,039 bytes,
+SHA-256
+`659851a0f97f32a33c7ad2f5c9039068dcb9f0c80af9c17acafefe0a28dde910`,
+30 files — and it had been sitting extracted in Downloads all along;
+the 2026-07-15 loss took the later working copy, not this package).
+Full file-by-file reconciliation worklist:
+**docs/rebuild_divergence_report.md**. Headlines: all five locked
+inscription fields byte-identical; admissibility map semantically
+identical; predicate wording + source metadata + directory READMEs +
+the original volume-test report restored; MAJOR divergences found in
+SCHEMA s4 / SCOPE / TAXONOMY / MISSION / PIPELINE_POLICY (rebuilds were
+based on earlier-draft fragments) — founder reconciliation required
+before the freeze. RING2.md was NOT in this package: the seven
+source-admission criteria remain outstanding (last lead: the
+2026-07-09 session).
 
 ## Provenance tiers
 

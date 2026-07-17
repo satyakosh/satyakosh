@@ -2,10 +2,19 @@
   "_comment": "Founding source whitelist. Ring applicability per entry. Enumerated inline in the genesis record; changes after genesis are governance records.",
   "sources": [
     { "id": "SK-SRC-000001", "publisher": "CODATA", "rings": [1],
+      "name": "CODATA Recommended Values of the Fundamental Physical Constants",
+      "urls": ["https://codata.org", "https://physics.nist.gov/cuu/Constants/"],
+      "editions": ["2022"],
       "labels": { "en": "Committee on Data of the International Science Council" } },
     { "id": "SK-SRC-000002", "publisher": "NIST", "rings": [1],
+      "name": "NIST Reference on Constants, Units, and Uncertainty",
+      "urls": ["https://www.nist.gov", "https://physics.nist.gov/cuu/"],
+      "editions": [],
       "labels": { "en": "National Institute of Standards and Technology" } },
     { "id": "SK-SRC-000003", "publisher": "BIPM", "rings": [1],
+      "name": "The International System of Units (SI Brochure)",
+      "urls": ["https://www.bipm.org"],
+      "editions": ["9th edition"],
       "labels": { "en": "Bureau International des Poids et Mesures" } }
   ]
 }

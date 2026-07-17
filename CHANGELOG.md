@@ -40,6 +40,13 @@ canonical-byte contract (SCHEMA.md s10).
   bytes, recipes by content hash, hash-at-seal only, per-fact files
   with batch_ref, Git history as the authoritative timeline,
   tool-versioned machine annotations.
+- Pre-loss originals recovered (2026-07-17): both zips found and hashed.
+  Locked inscription fields verified byte-identical against the
+  original; predicate definition wording, source metadata, directory
+  READMEs, and the original volume-test report restored; full
+  reconciliation worklist at docs/rebuild_divergence_report.md (major
+  divergences in SCHEMA s4, SCOPE, TAXONOMY, MISSION, PIPELINE_POLICY
+  pending founder decision).
 - DECISIONS.md added: the canonical founder decision register
   (FD-1..23 with commit audit trails, plus the explicitly-rejected
   list). The lost pre-push decision record lived outside the repo;

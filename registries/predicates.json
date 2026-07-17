@@ -3,8 +3,10 @@
   "predicates": [
     {
       "id": "SK-PRED-000001",
-      "definition": "subject has the quantity value given by object, under the stated conditions",
+      "definition": "The subject has the quantity value given by the object, under the stated conditions.",
+      "object_types": ["quantity"],
       "epistemic_hedge": null,
+      "status": "active",
       "labels": { "en": "has quantity value" }
     }
   ]
