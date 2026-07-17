@@ -15,6 +15,7 @@ verify any fact, forever, without trusting us.
 | `MISSION.md` | Why this exists and the six principles |
 | `SCHEMA.md` | The canonical specification of sealed records |
 | `SCOPE.md` | What we refuse, and why (rules S1-S7) |
+| `DECISIONS.md` | The founder decision register (FD-series, audit-trailed) |
 | `PIPELINE_POLICY.md` | How a fact gets in (rules P1-P11) |
 | `RING2.md` | The public rulebook for the next expansion |
 | `CONTRIBUTING.md` | How to propose facts and catch errors |

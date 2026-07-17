@@ -84,7 +84,8 @@ not drafts. Do not reword them.
 
 - **Stress-test before commit.** Pressure-test assumptions thoroughly;
   then lock decisions explicitly and record them. Decisions get names
-  (D1, D2… / P1…) and audit trails.
+  and audit trails: post-rebuild decisions are FD-entries in
+  DECISIONS.md, appended in the same commit that applies them.
 - **Only stop at genuine forks.** Mechanical derivations are not decisions
   needing ratification; do not pad reviews with fake choices.
 - **Public-facing English is simple and short.** SCHEMA.md may be precise

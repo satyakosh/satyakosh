@@ -40,6 +40,11 @@ canonical-byte contract (SCHEMA.md s10).
   bytes, recipes by content hash, hash-at-seal only, per-fact files
   with batch_ref, Git history as the authoritative timeline,
   tool-versioned machine annotations.
+- DECISIONS.md added: the canonical founder decision register
+  (FD-1..23 with commit audit trails, plus the explicitly-rejected
+  list). The lost pre-push decision record lived outside the repo;
+  this one lives inside it, appended in the same commit that applies
+  each decision.
 - Remaining founder forks settled 2026-07-17: Tier 3 boiling-point
   proposal will be held in review (never sealed with a placeholder
   condition); Tier 4 exhibit is the missing-condition refusal (no
