@@ -50,7 +50,10 @@ canonical-byte contract (SCHEMA.md s10).
   lineage seals with a liveness warning flag. SCHEMA documents retired
   status as a governance-era derived state, born-expired windows as
   intentional, and derivation.script artifact checks as an intake/CI
-  requirement. Ledger suite 52 -> 58 cases.
+  requirement. Ledger suite 52 -> 58 cases. Follow-up: the FD-25
+  collision check had quietly reintroduced O(n^2) sealing (973
+  seals/s at N=9000); a prefix-12 index restores flat scaling
+  (4400+ seals/s).
 - RING2.md original recovered (2026-07-09 draft rc1) and restored
   wholesale with the FD-19 parameter locks applied - including the
   seven source-admission criteria (S1-S7) that were the last marked

@@ -515,6 +515,7 @@ class Ledger:
     def _init_indexes(self):
         self._by_id = {}        # fact_id -> {version: record}
         self._by_triple = {}    # triple_hash -> [record, ...]
+        self._by_prefix12 = {}  # triple_hash[:12] -> {triple_hash, ...}
         self._superseded = set()  # {"fact_id@version", ...} named as targets
         self._np_units = {}     # near-dup key -> {unit, ...}
 
@@ -528,6 +529,8 @@ class Ledger:
             return
         self._by_id.setdefault(r["fact_id"], {})[r["version"]] = r
         self._by_triple.setdefault(r["triple_hash"], []).append(r)
+        self._by_prefix12.setdefault(r["triple_hash"][:12], set()).add(
+            r["triple_hash"])
         if isinstance(r.get("supersedes"), str):
             self._superseded.add(r["supersedes"])
         self._np_units.setdefault(self._np_key(r["triple"]), set()).add(
@@ -595,8 +598,7 @@ class Ledger:
         # otherwise re-seal at version 1 under the 16-char form with no
         # supersedes link (FD-25).
         id_hex = FACT_ID_RE.match(fid).group(3)
-        collision = any(other[:12] == th[:12]
-                        for other in self._by_triple if other != th)
+        collision = bool(self._by_prefix12.get(th[:12], set()) - {th})
         if len(id_hex) == 16 and not collision:
             raise ValidationError(
                 "SCHEMA s6: 16-char fact_id form is only permitted on a "

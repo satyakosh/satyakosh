@@ -11,9 +11,9 @@ founder-confirmed 2026-07-17).
 
 | Check | Result | Detail |
 |---|---|---|
-| seal | PASS | 9000 facts + genesis in 9.3s (967 seals/s) |
-| verify clean chain | PASS | 0 findings expected, got 0 in 0.5s |
-| verify(full) seal-time replay | PASS | 0 findings expected, got 0 in 9.6s |
+| seal | PASS | 9000 facts + genesis in 2.0s (4412 seals/s) |
+| verify clean chain | PASS | 0 findings expected, got 0 in 0.6s |
+| verify(full) seal-time replay | PASS | 0 findings expected, got 0 in 2.7s |
 | no near-duplicate flags | PASS | 0 flag(s) |
 | deterministic chain head | PASS | 77bf9a05a8487a28... |
 | duplicate refusal | PASS | 20/20 refused |
