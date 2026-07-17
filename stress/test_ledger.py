@@ -193,6 +193,8 @@ def run():
     check("K8b: version=-3 refused", mutated(version=-3), True, "version")
     check("K8c: truth_type='maybe' refused", mutated(truth_type="maybe"),
           True, "truth_type")
+    check("K8c2: unhashable truth_type gets citable rejection (fuzz find)",
+          mutated(truth_type={"x": 1}), True, "truth_type")
     check("K8d: valid_from='yesterday' refused",
           mutated(valid_from="yesterday"), True, "")
     check("K8e: inverted validity window refused",

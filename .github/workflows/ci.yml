@@ -35,6 +35,10 @@ jobs:
         run: python stress/test_ledger.py
       - name: Canonicalization property tests
         run: python stress/test_canonical_properties.py
+      - name: Validator mutation fuzzer (two seeds)
+        run: |
+          python stress/fuzz_validator.py 4000 20260707
+          python stress/fuzz_validator.py 4000 424242
       - name: Volume test (reduced N for CI)
         run: python stress/volume_test.py 2000
       - name: Genesis freeze readiness (informational pre-genesis)

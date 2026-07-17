@@ -253,7 +253,8 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
             "SCHEMA s4: status must be 'sealed' at seal time — "
             "superseded-ness is expressed by a later superseding record, "
             "never written into a sealed record")
-    if record["truth_type"] not in TRUTH_TYPES:
+    if not isinstance(record["truth_type"], str) or \
+            record["truth_type"] not in TRUTH_TYPES:
         raise ValidationError(
             f"SCHEMA s4: truth_type {record['truth_type']!r} not in "
             f"{sorted(TRUTH_TYPES)}")

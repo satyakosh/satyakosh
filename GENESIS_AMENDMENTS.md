@@ -148,7 +148,9 @@ Recorded invocation code points (NFC, 61 code points, confirmed
       unverifiable by third parties. Define the format (and how
       reviewer attestations are recorded) BEFORE the Genesis Window
       opens — the window's first sealed facts carry process hashes
-      that must be auditable.
+      that must be auditable. **A draft proposal exists at
+      docs/REVIEW_FILE_FORMAT.draft.md** with five open questions for
+      the founder to settle; once settled it folds into SCHEMA s7.4.
 
 ## Tracked, not blocking the freeze
 

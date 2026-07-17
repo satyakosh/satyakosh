@@ -24,6 +24,16 @@ canonical-byte contract (SCHEMA.md s10).
 - Committed test suite (stress/test_ledger.py), founding-document hash
   tool (tools/genesis_hashes.py, report-only), and CI running all
   checks on every push and pull request.
+- Mutation fuzzer (stress/fuzz_validator.py): random 1-3 field mutations
+  of valid records must always yield a clean seal or a citable
+  ValidationError, never a crash or a seal-but-invalid. Wired into CI
+  (two seeds). Its first run found one gap — an unhashable truth_type
+  crashed the enum membership test instead of a citable rejection; fixed
+  and pinned as regression K8c2. Now clean across 20,000 mutations / 5
+  seeds.
+- docs/REVIEW_FILE_FORMAT.draft.md: draft proposal for the canonical
+  review-file format that process_hash commits to (A18), with open
+  questions for founder review.
 - Validator hardening round 2 (2026-07-17, from an external adversarial
   review; all findings reproduced before fixing): supersession is now a
   full transaction (target must exist, be latest, be unsuperseded;
