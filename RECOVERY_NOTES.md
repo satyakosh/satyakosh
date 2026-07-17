@@ -33,9 +33,18 @@ identical; predicate wording + source metadata + directory READMEs +
 the original volume-test report restored; MAJOR divergences found in
 SCHEMA s4 / SCOPE / TAXONOMY / MISSION / PIPELINE_POLICY (rebuilds were
 based on earlier-draft fragments) — founder reconciliation required
-before the freeze. RING2.md was NOT in this package: the seven
-source-admission criteria remain outstanding (last lead: the
-2026-07-09 session).
+before the freeze. RING2.md was not in this package.
+
+**Recovered 2026-07-17: the original `RING2.md`** (12,351 bytes,
+SHA-256
+`5cbca97283f9d74953047daf0a7c99ccc05e44665b9e82781c809034501ffb12`,
+DRAFT rc1 of 2026-07-09) — restored wholesale with founder parameter
+locks (FD-19) applied. It closes the last marked gap: the seven
+source-admission criteria (S1 Primary, S2 Versioned, S3 Transparent,
+S4 Durable, S5 Language-neutral citability, S6 Independence audit
+incl. the state doctrine, S7 Domain viability). **With this, every
+lost founding document has been recovered or superseded by a
+founder-decided successor. The recovery is complete.**
 
 ## Provenance tiers
 
@@ -50,8 +59,8 @@ trust):**
   rebuilt from fragments; amendments A1-A5 applied
 - rulesets/mandatory_conditions.json — structure and wording recovered
   verbatim, placeholders preserved as in the original draft
-- RING2.md — sections 6-9 near-verbatim; 1-5 rebuilt (one marked gap:
-  the exact seven source-admission criteria)
+- RING2.md — fully recovered 2026-07-17 (see above); the rebuilt
+  partial version and its marked gap are superseded by original bytes
 - MISSION.md — principles 3-6, problem, and design text near-verbatim
 
 **Tier C — reconstructed from the locked decision record (content is

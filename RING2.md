@@ -1,65 +1,184 @@
-# RING2.md — The public rulebook for Ring 2 (draft skeleton)
+# Satyakosh — Ring 2 Framework (Public Draft)
+### Status: DRAFT rc1 · unsealed · published for public review · 9 July 2026
+### Repo path: `RING2.md` (root, beside SCOPE.md)
 
-**Status: partially recovered.** Sections 6–9 are near-verbatim from the
-2026-07-09 session transcript. Sections 1–5 are rebuilt from the session's
-decision summary and must be re-reviewed by the founder. Nothing in this
-document is sealed; that is the point — this is the one phase of Ring 2's
-life in which every rule is still negotiable in public.
+> *Restored 2026-07-17 from the recovered 2026-07-09 original (pre-loss bytes; see RECOVERY_NOTES.md); founder parameter locks FD-19 applied to s8.*
 
-Ring 1 (independently re-derivable facts) is open. Ring 2 (documented
-consensus) stays sealed-out until the rules below are locked and a
-governance record opens each domain's door. This document is the plan and
-the invitation.
+**What this document is:** the rulebook-in-progress for the next class of
+facts. Ring 2 is locked today not because the room is missing — the schema
+already holds `entity` and `date` objects in reserve — but because the
+rules for handling disagreement about history, statistics, and authorship
+are not written. This document writes them, in public, while no fact is at
+risk. Argue with the rules now; the facts come later.
 
-## 1. Why the door is closed
+**What this document is not:** it is not SCHEMA, it changes zero canonical
+bytes, and nothing in it binds. When a domain actually opens, the *final*
+version of its evidence framework and source whitelist are hashed into an
+activation `governance` record — the same draft → resolve → witness path
+`rulesets/mandatory_conditions.json` followed. Until that record seals,
+everything below is correctable prose.
 
-Opening Ring 2 without written disagreement rules would make every refusal
-a judgment call with the founder's name attached — and one arguable sealed
-fact breaks the guarantee for all facts. The door opens domain by domain,
-by witnessed governance record, only when the machinery below exists.
+---
 
-## 2. The record-scoped-claims doctrine (the core idea)
+## 1. What Ring 2 is — and is not
 
-Ring 2 facts are sealed as claims about **what documented records say** —
-"literacy rate *per the 2011 census method*," "the date whitelisted
-archives agree on" — never as the ledger's opinion about the world. The
-method and scope travel *inside* the fact as conditions. That is what lets
-a neutral project hold history and statistics without taking a side.
+Ring 2 admits facts established by **documented consensus** rather than
+independent re-derivation: documented historical events, statistical
+aggregates, provenance/authorship, biological and medical reference
+values, definitional code assignments, and stable jurisdictional
+assignments (TAXONOMY: the RING-2 PENDING table).
 
-## 3. Evidence rules per derivation type
+Ring 2 is **not**:
 
-- `documentary_evidence` — requires whitelisted archival sources; dates
-  carry calendar and precision explicitly.
-- **Conflict ladder for documentary date disagreements (three steps):**
-  (1) reconcile calendars — many conflicts are Julian/Gregorian artifacts;
-  (2) widen precision — seal at the precision level the sources agree on
-  (year, not day); (3) if disagreement survives both: **don't seal.**
-- `statistical_analysis` — requires a method condition (see the
-  mandatory-conditions ruleset, encoded dormant since genesis) and a
-  source that publishes its methodology.
-- **Contested-attribution rule** ("who actually said this?") — an
-  attribution seals only with a documented primary record; absence of
-  contest is checked in review, and contested attributions stay in review.
+- **Causal or institutional claims.** `causal_inference` and
+  `institutional_declaration` stay BLOCKED; each needs its own framework.
+  Ring 2 opening changes nothing for them.
+- **Current status.** "Who is PM now," known-counts, empirical negatives —
+  attestation layer, never sealed, unchanged.
+- **Out-of-scope categories.** SCOPE.md refusals (rules, fiction, lexicon,
+  feeds, identity, self-reference) survive Ring 2 untouched.
+- **A lower bar.** Same triple structure, same canonical bytes, same open
+  pipeline, same annotate-never-veto source check, same dispute-window
+  floor (§8, P5). Ring 2 raises the *evidence* requirements; it never
+  relaxes the *process*.
 
-## 4. Source admission criteria (S1–S7 for sources)
+## 2. The doctrine: record-scoped claims
 
-Seven criteria a source must pass to join a domain's whitelist — including
-independence, published methodology, correction policy, archival
-stability, and the **state-as-publisher doctrine**: a government agency
-can be a *publisher of records* (a census bureau publishing its own
-census) but never an *authority whose word makes things true*.
+The single idea that makes Ring 2 sealable at all:
 
-**[RECONSTRUCTION GAP: the lost original enumerated all seven criteria
-individually. The list above names five recoverable ones; the founder or
-a recovered copy of the original file must restore the exact seven before
-this document is relied on. If the original proves unrecoverable, the
-candidate re-derivations for the missing two (founder-endorsed
-2026-07-17, pending final wording) are: institutional longevity — a
-credible expectation that the source and its archives outlive a decade,
-or a named successor of record; and stable citable editions — the source
-publishes versioned, machine-accessible editions that can be pinned.]**
+> **Ring 2 facts seal as scoped claims about what documented processes and
+> records establish — never as bare world-truths the ledger personally
+> vouches for.**
 
-## 5. Candidate first domains
+The scoping is carried by machinery that already exists: conditions
+(method, jurisdiction, reference population, calendar), sources (which
+record), and predicate definitions (which carry any epistemic hedge — a
+documentary predicate says so in its registry definition; the triple never
+launders a hedged claim into a flat one, SCHEMA §3.2).
+
+Concretely: the ledger does not seal "literacy in India is 74.04%." It
+seals "literacy rate **per the 2011 census methodology** = 7.404e1 %" —
+the method is inside the claim. It does not adjudicate history; it
+witnesses that whitelisted documentary chains converge on 1947-08-15. The
+difference is what lets a neutral trust anchor hold contested-adjacent
+domains without taking sides.
+
+## 3. Evidence framework (draft)
+
+### 3.1 `statistical_analysis`
+
+Two claim shapes, two rules:
+
+- **World-quantities independently measurable** (e.g., a physical-anatomy
+  reference value): **≥2 independent whitelisted sources** agreeing within
+  stated uncertainty; reference-population and counting-convention
+  conditions mandatory (TAXONOMY).
+- **Record-scoped quantities** (e.g., a census figure — there is only one
+  2011 census): the documented process is part of the claim via the
+  mandatory **method condition**; the source requirement becomes primary
+  publication on the whitelist **plus independent archival verification**
+  that the record says what the proposal says it says. Independence
+  applies to *verifying the record*, not to re-running a census.
+
+Value/uncertainty transcription rules are Ring 1's, unchanged (§7.3
+grammar is frozen bytes).
+
+### 3.2 `documentary_evidence`
+
+**Documented events (dates).** Where whitelisted sources disagree, a
+three-step ladder — and only the ladder:
+
+1. **Calendar reconciliation.** If the disagreement is a calendar artifact
+   (Julian vs Gregorian), convert deterministically; the sealed `date`
+   object's `calendar` field and labels record the reconciliation.
+2. **Precision widening.** If sources agree at a coarser precision (year,
+   not day), seal at the **coarsest precision all whitelisted sources
+   support** — the `precision` field exists exactly for this.
+3. **No seal.** If conflict survives steps 1–2, the claim stays in public
+   review with the conflict documented. It never disappears and never
+   seals. *The ledger witnesses consensus; it never casts the deciding
+   vote.*
+
+**Provenance / attribution.** Seals only when whitelisted scholarship
+shows **stable consensus**; the predicate definition carries the hedge
+("documentary-consensus attribution"). A live scholarly dispute in
+whitelisted sources = stays in review. If consensus later shifts, the
+correction is a supersession — the old record is superseded, never erased,
+and the chain honestly witnesses that scholarship moved.
+
+### 3.3 Draft mandatory-condition additions
+(merged into the witnessed mandatory-conditions ruleset by the activation
+governance record — the second-lock mechanism, unchanged)
+
+| Claim class | Mandatory conditions |
+|---|---|
+| Statistical aggregate | method; reference population; epoch where applicable |
+| Biological/medical reference value | reference population; counting convention |
+| Jurisdictional assignment | jurisdiction (ISO 3166 entity condition) |
+| Documented event date | calendar condition whenever non-Gregorian ambiguity exists |
+
+### 3.4 Draft predicate additions
+(registered at activation via governance; definitions carry their hedges)
+
+`occurred_on` (event → date) · `authored_by` (work → entity;
+documentary-consensus hedge) · `is_assigned_code` (entity → entity via
+`standard`+`code`) · `instance_of` (already anticipated, SCHEMA §3.2).
+
+### 3.5 Entity scoping
+
+Ring 2 makes entity scoping load-bearing ("India" — the Republic? British
+India? the subcontinent?). Rules: Ring 2 subject entities require scoping
+review at registration; distinct temporal or legal scopes are **distinct
+entities** linked by registry relations, never one elastic entity; scoping
+text lives in the registry description (unsealed, correctable — SCHEMA
+§5), but a fact's *identity* binds to the entity ID, so scoping disputes
+are registry work, not chain surgery.
+
+## 4. Source admission criteria (per-domain whitelists)
+
+A source enters a domain whitelist only if it satisfies all of:
+
+- **S1 — Primary.** Publisher of the record itself, never an aggregator.
+- **S2 — Versioned.** Published, stable, citable editions (the CODATA
+  property, generalized).
+- **S3 — Transparent.** Methodology public.
+- **S4 — Durable.** Institutional permanence, or third-party archival
+  guarantee (Internet Archive / Zenodo class).
+- **S5 — Language-neutral citability.** IDs and editions, not prose.
+- **S6 — Independence audit.** The publisher's incentives relative to the
+  claims it would ground are assessed and documented. **The state doctrine:
+  a state statistical agency is admissible as the publisher of a
+  documented process** (census, survey — method-as-condition mandatory),
+  **never as an authority whose declaration constitutes the fact** — that
+  is `institutional_declaration`, and it stays BLOCKED. Publisher of
+  record: yes. Oracle: never.
+- **S7 — Domain viability.** A domain opens only when its whitelist holds
+  **≥2 independent institutions** [P7] — a one-source domain is a
+  single-point-of-capture domain.
+
+Whitelist membership changes remain governance records, exactly as in
+Ring 1. Each domain's whitelist is a separate ruleset artifact hashed at
+that domain's activation.
+
+## 5. The door: unlock conditions
+
+Ring 2 opens **per domain**, never wholesale. A domain's door opens when
+all five hold:
+
+| # | Condition | Proposed parameter |
+|---|---|---|
+| **D1** | Genesis Window closed clean **and** the Ring 1 pipeline has sealed real facts through the full process in production | ≥50 sealed facts [P1] |
+| **D2** | Demand is external and named: at least one committed design partner requests this domain in writing | ≥1 partner [P4] |
+| **D3** | The domain's evidence framework + source whitelist are drafted, published, and have survived their own public review window with all objections resolved — **rules face the same scrutiny facts do** | ≥60-day rules window [P2] |
+| **D4** | Reviewer capacity exists: independent domain reviewers registered with `SK-USR-` IDs, no two from the same institution | ≥3 reviewers [P3] |
+| **D5** | The activation itself seals as **one governance record**: domain identifier; evidence-framework hash; domain-whitelist hash; mandatory-condition ruleset delta; new predicate registrations; object-type activation; effective-from | — |
+
+Schema note: the first activation that enables `entity`/`date` objects is
+an additive minor version — the natural **v2.2** — announced via the same
+governance record, per the codified versioning rule. Old hashes untouched,
+by construction.
+
+## 6. Candidate first domains
 
 Final choice is demand-driven (D2). Current candidates, for argument:
 
@@ -68,23 +187,9 @@ Final choice is demand-driven (D2). Current candidates, for argument:
   evidence framework. The gentlest possible first door.
 - **Provenance / authorship** — named by the July 2026 external review as
   the highest-value Ring 2 domain for AI grounding ("who actually said
-  this?"); requires the contested-attribution rule in full.
+  this?"); requires the §3.2 contested-attribution rule in full.
 - **Documented events / statistical aggregates** — heaviest frameworks;
   later doors.
-
-## 6. Unlock conditions D1–D5
-
-Each domain's door opens by one witnessed governance record, only after:
-
-- **D1** — a minimum body of sealed Ring 1 facts demonstrates the pipeline
-  in production (parameter P1).
-- **D2** — demonstrated demand: the first domain is chosen by evidence of
-  need, not taste (parameter P6).
-- **D3** — this rulebook has survived a public review window (parameter
-  P2) with reviewer quorum (parameter P3).
-- **D4** — at least one design partner in writing (parameter P4).
-- **D5** — domain viability: the domain has the minimum number of
-  independent whitelisted institutions (parameter P7).
 
 ## 7. Ring 3 status
 
@@ -103,7 +208,7 @@ dispute handling in production. Ring 3 is the horizon, not the roadmap.
 | Causal/institutional stay BLOCKED; attestation boundary; SCOPE refusals | **Settled** |
 | Witnessed-ruleset mechanism for mandatory conditions & whitelists | **Settled** (locks of 9 July 2026) |
 | Record-scoped-claims doctrine (§2) | **Proposed here** (elaborates TAXONOMY) |
-| Conflict ladder; contested-attribution rule; state doctrine; source criteria; D1–D5 | **Proposed here** |
+| Conflict ladder; contested-attribution rule; state doctrine; S1–S7; D1–D5 | **Proposed here** |
 | **P1** minimum sealed Ring 1 facts (proposed 50) | **Locked** (founder, 2026-07-17; contestable per §9) |
 | **P2** rules review window (proposed ≥60 days) | **Locked** (founder, 2026-07-17; contestable per §9) |
 | **P3** reviewer quorum (proposed ≥3, institutionally independent) | **Locked** (founder, 2026-07-17; contestable per §9) |
@@ -120,7 +225,7 @@ Open a GitHub issue or PR against `RING2.md`. Most wanted:
   wrongly refuse. Breaking the rules now is the contribution; that is how
   the value grammar got fixed.
 - **Source candidates** — nominate an institution for a domain whitelist
-  with evidence against the source criteria.
+  with evidence against S1–S7.
 - **Edge cases** — calendar and precision pathologies, contested
   attributions, entity-scoping traps.
 

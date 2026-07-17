@@ -40,6 +40,12 @@ canonical-byte contract (SCHEMA.md s10).
   bytes, recipes by content hash, hash-at-seal only, per-fact files
   with batch_ref, Git history as the authoritative timeline,
   tool-versioned machine annotations.
+- RING2.md original recovered (2026-07-09 draft rc1) and restored
+  wholesale with the FD-19 parameter locks applied - including the
+  seven source-admission criteria (S1-S7) that were the last marked
+  reconstruction gap. The recovery of the lost working copy is
+  complete: every founding document is now original bytes or a
+  founder-decided successor.
 - Reconciliation (FD-24, 2026-07-17): the recovered originals of
   SCHEMA, SCOPE, TAXONOMY, MISSION, CONTRIBUTING, and PIPELINE_POLICY
   restored as the base with all post-loss amendments re-applied. The

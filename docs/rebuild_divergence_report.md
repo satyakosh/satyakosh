@@ -113,9 +113,10 @@ fragments; the originals are the final pre-loss state.
 
 ## Still missing after this recovery
 
-- **RING2.md original** (with the exact seven source-admission
-  criteria) was not part of the first-commit package — it lived in the
-  2026-07-09 session. The gap and its candidate re-derivations stand.
+- ~~RING2.md original~~ — recovered separately later on 2026-07-17
+  (the 2026-07-09 draft rc1, sha256 5cbca972...01ffb12) and restored wholesale
+  with FD-19 applied; the seven source-admission criteria S1-S7 are now
+  original bytes and the candidate re-derivations are retired.
 - The original `ledger.py` (internal v2.1), `volume_test.py`,
   `mandatory_conditions.draft.json`, and seed proposals were never in
   this package (the checklist said to add them from the machine — they
