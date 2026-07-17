@@ -104,13 +104,13 @@ dispute handling in production. Ring 3 is the horizon, not the roadmap.
 | Witnessed-ruleset mechanism for mandatory conditions & whitelists | **Settled** (locks of 9 July 2026) |
 | Record-scoped-claims doctrine (§2) | **Proposed here** (elaborates TAXONOMY) |
 | Conflict ladder; contested-attribution rule; state doctrine; source criteria; D1–D5 | **Proposed here** |
-| **P1** minimum sealed Ring 1 facts (proposed 50) | **Open — founder lock** |
-| **P2** rules review window (proposed ≥60 days) | **Open — founder lock** |
-| **P3** reviewer quorum (proposed ≥3, institutionally independent) | **Open — founder lock** |
-| **P4** design-partner threshold (proposed ≥1, in writing) | **Open — founder lock** |
-| **P5** Ring 2 fact dispute-window floor (proposed: same ≥30 days; domains may set longer, never shorter) | **Open — founder lock** |
-| **P6** first-domain selection rule (proposed: demand-driven per D2) | **Open — founder lock** |
-| **P7** domain-viability source minimum (proposed ≥2 institutions) | **Open — founder lock** |
+| **P1** minimum sealed Ring 1 facts (proposed 50) | **Locked** (founder, 2026-07-17; contestable per §9) |
+| **P2** rules review window (proposed ≥60 days) | **Locked** (founder, 2026-07-17; contestable per §9) |
+| **P3** reviewer quorum (proposed ≥3, institutionally independent) | **Locked** (founder, 2026-07-17; contestable per §9) |
+| **P4** design-partner threshold (proposed ≥1, in writing) | **Locked** (founder, 2026-07-17; contestable per §9) |
+| **P5** Ring 2 fact dispute-window floor (proposed: same ≥30 days; domains may set longer, never shorter) | **Locked** (founder, 2026-07-17; contestable per §9) |
+| **P6** first-domain selection rule (proposed: demand-driven per D2) | **Locked** (founder, 2026-07-17; contestable per §9) |
+| **P7** domain-viability source minimum (proposed ≥2 institutions) | **Locked** (founder, 2026-07-17; contestable per §9) |
 
 ## 9. How to argue with this document (please do)
 

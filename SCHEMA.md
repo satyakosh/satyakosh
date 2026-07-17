@@ -282,7 +282,9 @@ exponent := "0" | ["-"] nonzero-digit digits*
 
 `triple_hash` = SHA-256(JCS(triple)) ·
 `content_hash` = SHA-256(JCS(record − {content_hash, prev_record_hash})) ·
-`process_hash` = SHA-256(raw review-file bytes).
+`process_hash` = SHA-256(JCS(review file)) — the canonical review-file
+format is `docs/review_file_format.md` (versioned inside each review
+file; evolves by governance record).
 
 ---
 

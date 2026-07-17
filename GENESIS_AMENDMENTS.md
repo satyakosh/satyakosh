@@ -138,19 +138,37 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 
 ## Still owed by the founder (no one else can write these)
 
-1. Mission prose passage (MISSION.md opening is the starting point).
+1. Mission prose passage: **working draft chosen 2026-07-17** (the
+   plain-institutional register; now in genesis_record.draft.json).
+   Founder's final read — after at least 48 hours and one read-aloud —
+   locks it at the freeze; until then it is a draft, not a decision.
 2. ~~Final read of the dedication wording (current draft is locked unless
    you change it).~~ Confirmed 2026-07-17.
 
-- [ ] **A18 — Specify the canonical review-file format.** process_hash
-      is "SHA-256 of the raw review-file bytes" (SCHEMA s7.4), but no
-      canonical review-file format exists, so the hash is currently
-      unverifiable by third parties. Define the format (and how
-      reviewer attestations are recorded) BEFORE the Genesis Window
-      opens — the window's first sealed facts carry process hashes
-      that must be auditable. **A draft proposal exists at
+- [x] **A18 — Specify the canonical review-file format.**
+      **Settled 2026-07-17 (founder):** format 1.0.0 at
+      docs/review_file_format.md — JCS + SHA-256 canonical bytes;
+      recipes referenced by content hash (mirrored alongside review
+      files); process_hash computed only at seal (held proposals stay
+      live and unsealed); one review file per fact with batch_ref
+      (P11); Git history is the authoritative timeline; machine
+      annotations carry tool_version. SCHEMA s7.4 updated to point at
+      the format doc. Not genesis-hashed by design — evolves by
+      governance record, versioned inside each review file. **A draft proposal exists at
       docs/REVIEW_FILE_FORMAT.draft.md** with five open questions for
       the founder to settle; once settled it folds into SCHEMA s7.4.
+
+## Window scheduling (locked 2026-07-17, founder)
+
+The Genesis Window is **readiness-gated, not scheduled**. It opens only
+after ALL of: (1) founder line-by-line re-read of every Tier B/C
+document; (2) founder digit-by-digit verification of the Tier 1 seed
+values against the sources; (3) the dedication-consent note recorded;
+(4) the mission prose confirmed after the 48-hour final read;
+(5) founder-string / founding-date corroboration checks;
+(6) tools/genesis_hashes.py green. No date is announced before those
+are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
+(with the verifier), per the existing versioning rule.
 
 ## Tracked, not blocking the freeze
 

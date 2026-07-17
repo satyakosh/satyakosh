@@ -34,6 +34,18 @@ canonical-byte contract (SCHEMA.md s10).
 - docs/REVIEW_FILE_FORMAT.draft.md: draft proposal for the canonical
   review-file format that process_hash commits to (A18), with open
   questions for founder review.
+- Genesis mission prose: working draft chosen and placed in the genesis
+  draft (founder's final read locks it at the freeze). Review-file
+  format 1.0.0 settled (A18, docs/review_file_format.md): JCS+SHA-256
+  bytes, recipes by content hash, hash-at-seal only, per-fact files
+  with batch_ref, Git history as the authoritative timeline,
+  tool-versioned machine annotations.
+- Remaining founder forks settled 2026-07-17: Tier 3 boiling-point
+  proposal will be held in review (never sealed with a placeholder
+  condition); Tier 4 exhibit is the missing-condition refusal (no
+  planted errors); RING2 parameters P1-P7 locked as proposed (still
+  contestable per RING2 s9); Genesis Window is readiness-gated with no
+  announced date; PyPI 1.0.0rc1 defers until genesis seals clean.
 - Validator hardening round 2 (2026-07-17, from an external adversarial
   review; all findings reproduced before fixing): supersession is now a
   full transaction (target must exist, be latest, be unsuperseded;

@@ -20,11 +20,11 @@
       "derivation": "laboratory_measurement",
       "conditions": [
         { "property": "SK-ENT-000006", "value": "1.01325e2", "unit": "kPa", "note": "standard atmosphere" },
-        { "property": "SK-ENT-000007", "note": "ITS-90 - entity-valued condition; requires v-next entity condition type OR seal with scale documented in review + quantity placeholder per founder decision. FLAGGED: resolve before window." }
+        { "property": "SK-ENT-000007", "note": "ITS-90 is entity-valued; v1 conditions are quantity-only, so this requirement cannot be expressed yet. FOUNDER DECISION 2026-07-17: propose and HOLD IN REVIEW (P6) as a living exhibit - the citable refusal demonstrates the gate; never seal with a placeholder condition. Seals only after a governance record activates the entity condition type." }
       ],
       "label_hint": "boiling temperature of water at standard pressure - exercises Dimension D" }
   ],
   "tier_4_deliberate_rejection": {
-    "description": "One proposal designed to be permanently held in review, demonstrating that the review zone works and rejections are visible forever. Candidate: a proposal missing its mandatory pressure condition, or a value with a deliberate last-digit transcription error for the window crowd to catch. FOUNDER TO CHOOSE."
+    "description": "One proposal designed to be permanently refused, demonstrating that refusals are principled, citable, and visible forever. FOUNDER DECISION 2026-07-17: a boiling-temperature proposal missing its mandatory pressure condition - deterministic, honest, refused at the intake gate citing the mandatory-conditions ruleset. No planted value errors: the scoreboard rewards real catches only."
   }
 }

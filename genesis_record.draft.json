@@ -2,7 +2,7 @@
   "record_type": "genesis",
 
   "inscription": {
-    "mission": "<<PLACEHOLDER: founder's final mission prose — NFC UTF-8, sealed once>>",
+    "mission": "Satyakosh exists so that a fact, once verified, can be checked by anyone, forever, without trusting whoever keeps it. It is a public ledger of verified facts: each one sealed in language-neutral form, carrying its sources, its derivation, and the record of its own review, protected by cryptography from silent change. It was founded in an age when machines began to mediate what humanity knows, so that people and machines alike would have neutral ground to stand on. It asserts no authority. It shows its working. What it seals, it keeps.",
     "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
     "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
     "founder": "Shubhankar Patil",
