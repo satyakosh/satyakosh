@@ -161,7 +161,7 @@ reference models, and methods are all expressible).
 | `sources` | array | `{source: "SK-SRC-…", edition, retrieved}`; sorted by source ID; every source must be whitelist-active *at this chain position* |
 | `derivation` | object | §4.1 |
 | `process_hash` | string | SHA-256 of the frozen review file (§7.4) |
-| `status` | `"sealed" \| "superseded" \| "retired"` | `sealed` at seal time; later states are expressed by later records, never by editing |
+| `status` | `"sealed" \| "superseded" \| "retired"` | always `sealed` at seal time; `superseded` and `retired` are *derived*, never written into a sealed record (see below) |
 | `created` | UTC `YYYY-MM-DDTHH:MM:SSZ` | |
 | `content_hash`, `prev_record_hash` | strings | §8 |
 
@@ -178,6 +178,25 @@ reference models, and methods are all expressible).
   classification is a derived consumer view
   (`docs/derived_views/claim_class.md`).
 
+**Derived status (never a written verb).** A sealed record's `status` is
+always `sealed`; it is never edited. The other two states are read off
+the chain:
+- **superseded** — a later sealed record names this one in `supersedes`
+  (`fact_id@version`). This mechanism exists and is validated (§6, §11).
+- **retired** — a later `governance` retraction record names this fact
+  (a `retires: "fact_id@version"` payload, derived exactly as
+  supersession is). Retirement is a governance-era mechanism: it ships
+  with the governance engine (SCHEMA §10 / PIPELINE_POLICY), which is
+  not yet implemented. Until then no fact can become retired, and the
+  enum value is a forward declaration — like the reserved object types.
+  `ledger.py` therefore refuses `retired` as a *seal-time input*.
+
+A born-with-a-closed-window fact (a `valid_until` already in the past at
+seal time) is **valid and intentional**: it records a quantity that held
+over a bounded historical window (the common shape of a value later
+revised by supersession). The validator does not reject it — a rule that
+did would refuse legitimate historical facts.
+
 ### 4.1 Derivation
 ```json
 { "type": "laboratory_measurement", "script": null, "derived_from": [] }
@@ -189,7 +208,11 @@ reference models, and methods are all expressible).
   verdict — only the first five can seal in v1/Ring 1).
 - `script`: null, or SHA-256 of a runnable verification script at
   `derivations/<triple_hash>.py` (sealing the hash freezes the file; the
-  review file also pins it — docs/review_file_format.md).
+  review file also pins it — docs/review_file_format.md). `ledger.py`
+  validates only the hash *form* (a record is bytes, not a filesystem);
+  that the artifact **exists, matches the hash, and runs clean** is an
+  intake-pipeline requirement (PIPELINE_POLICY P3; CI runs every pinned
+  recipe) so no fact seals pointing at a missing or drifted recipe.
 - `derived_from`: fact_ids this fact's value/exactness inherits from
   (e.g. R ← {N_A, k}). Seals the dependency graph; `derived_exact`
   requires it non-empty, and every referenced fact must already be

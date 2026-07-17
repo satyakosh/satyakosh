@@ -40,6 +40,17 @@ canonical-byte contract (SCHEMA.md s10).
   bytes, recipes by content hash, hash-at-seal only, per-fact files
   with batch_ref, Git history as the authoritative timeline,
   tool-versioned machine annotations.
+- Validator hardening round 3 (2026-07-17, second external review; all
+  findings reproduced first): verify() never raises — corrupt/hostile
+  stored bytes (float, lone surrogate, retyped field) become CORRUPT/
+  INVALID findings, and a verifier-side fuzzer enforces it in CI (found
+  228 residual crash paths on the first run, all closed); the 16-char
+  fact_id form is now permitted only on a real 12-char collision (FD-25),
+  closing a retired-triple re-entry channel; derived_from to a dead
+  lineage seals with a liveness warning flag. SCHEMA documents retired
+  status as a governance-era derived state, born-expired windows as
+  intentional, and derivation.script artifact checks as an intake/CI
+  requirement. Ledger suite 52 -> 58 cases.
 - RING2.md original recovered (2026-07-09 draft rc1) and restored
   wholesale with the FD-19 parameter locks applied - including the
   seven source-admission criteria (S1-S7) that were the last marked

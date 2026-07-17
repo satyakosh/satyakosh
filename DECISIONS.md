@@ -170,6 +170,33 @@ FD-16/A18, the UCUM whitelist wording, and the A16 seed restructure.
 Validator, fixtures, and cross-references aligned; pipeline-rule
 citations now use the restored numbering. *Applied: this commit.*
 
+## Validator hardening round 3 (2026-07-17, second external review)
+
+**FD-25 — fact_id form is deterministic; no re-entry of a retired
+triple.** The 16-char fact_id form is permitted *only* on a real
+12-char prefix collision with a different sealed triple; the 12-char
+form is mandatory otherwise and must escalate on collision. This closes
+the gap where a fully-superseded triple (retired by a triple-changing
+supersession) could re-seal at version 1 under the 16-char form with no
+supersedes link — re-entry semantics, if ever wanted, arrive by
+governance; accidental semantics could not be removed. *Applied: this
+commit.*
+
+**FD-26 — verify() never raises.** Auditing a hostile or corrupt store
+is verify()'s entire purpose, so bytes that trip the canonicalizer (a
+stored float, a lone surrogate, a retyped field) are reported as
+`CORRUPT`/`INVALID` findings, never propagated as exceptions. The load
+path surfaces the same as a clean "ledger file corrupt at record i"
+error. A verifier-side fuzzer (mutate a stored record, assert
+findings-not-raises) runs in CI. *Applied: this commit.*
+
+Also this round (mechanical, no decision): `derived_from` to a
+dead-lineage fact seals but raises a liveness warning flag (like the
+near-duplicate flag); SCHEMA documents that `retired` status is a
+governance-era derived state (no seal-time verb), that a born-expired
+validity window is intentional, and that `derivation.script` artifact
+existence/lint is an intake-pipeline + CI requirement, not a byte rule.
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates

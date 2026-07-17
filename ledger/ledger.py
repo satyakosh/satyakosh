@@ -496,8 +496,16 @@ class Ledger:
         if self.path is not None and self.path.exists():
             data = json.loads(self.path.read_text(encoding="utf-8"))
             self.records = data["records"]
-            for r in self.records:
-                self._index(r)
+            for i, r in enumerate(self.records):
+                # a hostile/corrupt store may hold bytes that trip the
+                # canonicalizer (a float, a lone surrogate); indexing must
+                # not crash — surface it as a clean, citable load error
+                try:
+                    self._index(r)
+                except ValidationError as e:
+                    raise ValidationError(
+                        f"ledger file corrupt at record {i} "
+                        f"({r.get('fact_id', r.get('record_type'))}): {e}")
             stored = data.get("chain_head")
             if stored is not None and stored != self.chain_head():
                 raise ValidationError(
@@ -579,11 +587,41 @@ class Ledger:
                 f"SCHEMA s11: duplicate triple_hash of non-superseded "
                 f"fact {r['fact_id']}@{r['version']}")
 
-        # derived_from must reference sealed facts
-        for x in record["derivation"].get("derived_from") or []:
-            if x not in self._by_id:
+        # fact_id form is deterministic, not a free choice (SCHEMA s6):
+        # the 12-char form is default; the 16-char form is permitted ONLY
+        # when this triple's 12-char prefix actually collides with an
+        # already-sealed DIFFERENT triple. Enforcing this removes the
+        # accidental re-entry channel: a fully-superseded triple could
+        # otherwise re-seal at version 1 under the 16-char form with no
+        # supersedes link (FD-25).
+        id_hex = FACT_ID_RE.match(fid).group(3)
+        collision = any(other[:12] == th[:12]
+                        for other in self._by_triple if other != th)
+        if len(id_hex) == 16 and not collision:
+            raise ValidationError(
+                "SCHEMA s6: 16-char fact_id form is only permitted on a "
+                "real 12-char prefix collision with a different triple; "
+                "use the 12-char form")
+        if len(id_hex) == 12 and collision:
+            raise ValidationError(
+                "SCHEMA s6: 12-char prefix collides with a different "
+                "sealed triple — this fact must use the 16-char form")
+
+        # derived_from must reference sealed facts; a reference to a
+        # superseded fact is legitimate (you derive from the record you
+        # derived from) but flagged so a verifier walking the graph knows
+        # the target is no longer live (N8; warn, never refuse)
+        for x in record["derivation"]["derived_from"]:
+            versions = self._by_id.get(x)
+            if not versions:
                 raise ValidationError(
                     f"SCHEMA s11: derived_from references unknown fact {x}")
+            latest = max(versions)
+            if f"{x}@{latest}" in self._superseded:
+                self.flags.append(
+                    f"derived_from liveness: {fid} derives from {x}, whose "
+                    f"latest version @{latest} is superseded — the "
+                    f"dependency does not resolve to a live fact")
 
         # near-duplicate flag (s11: same subject+predicate+conditions,
         # different unit -> human review; a warning, never a refusal)
@@ -636,35 +674,52 @@ class Ledger:
         Default mode is tamper-evidence: hash links and content hashes.
         full=True additionally replays every record through seal-time
         validation (fraud-evidence): field validity, duplicate rule
-        against derived status, supersession linkage, genesis-first."""
+        against derived status, supersession linkage, genesis-first.
+
+        verify() NEVER raises: auditing a hostile or corrupt store is its
+        entire job, so bytes that would trip the canonicalizer (a stored
+        float, a lone surrogate) are reported as findings, not crashes."""
         findings = []
         prev = GENESIS_PREV
         for i, r in enumerate(self.records):
-            if r.get("prev_record_hash") != prev:
-                findings.append(f"record {i}: broken chain link")
-            if content_hash(r) != r.get("content_hash"):
-                fid = r.get("fact_id", r.get("record_type"))
-                findings.append(f"TAMPERED: {fid} (record {i})")
-            if r.get("record_type") == "fact":
-                if triple_hash(r["triple"]) != r["triple_hash"]:
-                    findings.append(
-                        f"TAMPERED TRIPLE: {r['fact_id']} (record {i})")
-            prev = r.get("content_hash")
+            fid = r.get("fact_id", r.get("record_type")) \
+                if isinstance(r, dict) else "<non-object>"
+            # any exception here means the stored record is corrupt or
+            # hostile — report it, never propagate (verify()'s contract)
+            try:
+                if r.get("prev_record_hash") != prev:
+                    findings.append(f"record {i}: broken chain link")
+                if content_hash(r) != r.get("content_hash"):
+                    findings.append(f"TAMPERED: {fid} (record {i})")
+                if r.get("record_type") == "fact":
+                    if triple_hash(r["triple"]) != r["triple_hash"]:
+                        findings.append(
+                            f"TAMPERED TRIPLE: {fid} (record {i})")
+            except Exception as e:  # noqa: BLE001 - see contract above
+                findings.append(
+                    f"CORRUPT record {i} ({fid}): "
+                    f"{type(e).__name__}: {str(e)[:80]}")
+            prev = r.get("content_hash") if isinstance(r, dict) else None
 
         if full:
             shadow = Ledger(None, self.registries, self.rulesets)
             for i, r in enumerate(self.records):
-                body = {k: v for k, v in r.items() if k != "content_hash"}
                 try:
+                    body = {k: v for k, v in r.items() if k != "content_hash"}
                     shadow.seal(dict(body))
-                except ValidationError as e:
-                    findings.append(
-                        f"INVALID record {i} "
-                        f"({r.get('fact_id', r.get('record_type'))}): {e}")
+                except Exception as e:  # noqa: BLE001 - see contract above
+                    fid = r.get("fact_id", r.get("record_type")) \
+                        if isinstance(r, dict) else "<non-object>"
+                    findings.append(f"INVALID record {i} ({fid}): "
+                                    f"{type(e).__name__}: {str(e)[:80]}")
                     # keep the replay coherent so later records can still
-                    # resolve supersedes/derived_from targets
-                    shadow.records.append(dict(r))
-                    shadow._index(r)
+                    # resolve supersedes/derived_from targets — but only if
+                    # the record is well-formed enough to index
+                    try:
+                        shadow.records.append(dict(r))
+                        shadow._index(r)
+                    except Exception:  # noqa: BLE001
+                        pass
         return findings
 
     def save(self):

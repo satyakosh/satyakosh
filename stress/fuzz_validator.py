@@ -138,6 +138,33 @@ def fresh_ledger(genesis_records):
     return led
 
 
+def verifier_fuzz(rng, genesis_records, trials):
+    """Second invariant: verify() must never RAISE. Build an honest
+    chain, mutate a stored record arbitrarily, and assert verify()
+    returns findings instead of crashing (auditing a hostile store is
+    its whole job)."""
+    base = fresh_ledger(genesis_records)
+    for i in range(8):
+        base.seal(make_fact(i))
+    failures = 0
+    for _ in range(trials):
+        led = L.Ledger(None, REG, RS)
+        led.records = [copy.deepcopy(r) for r in base.records]
+        idx = rng.randrange(1, len(led.records))
+        rec = led.records[idx]
+        sites = paths(rec)
+        prefix, key = rng.choice(sites)
+        resolve(rec, prefix)[key] = copy.deepcopy(rng.choice(JUNK))
+        try:
+            led.verify()          # default mode must not raise
+            led.verify(full=True)  # full mode must not raise
+        except Exception as e:  # noqa: BLE001
+            failures += 1
+            print(f"  VERIFY RAISED on mutated record {idx}: "
+                  f"{type(e).__name__}: {str(e)[:70]}")
+    return failures
+
+
 def main():
     trials = int(sys.argv[1]) if len(sys.argv) > 1 else 2000
     seed = int(sys.argv[2]) if len(sys.argv) > 2 else 20260707
@@ -172,10 +199,14 @@ def main():
           f"{rejected} citable rejections, {len(failures)} failures")
     for i, kind, detail in failures[:20]:
         print(f"  FAIL trial {i}: {kind}: {detail}")
-    if failures:
+
+    v_fail = verifier_fuzz(rng, genesis_records, trials // 2)
+    print(f"verifier fuzz ({trials // 2} mutated stores): "
+          f"{v_fail} raise-failures (verify() must only return findings)")
+    if failures or v_fail:
         print(f"\nreproduce: python3 stress/fuzz_validator.py "
               f"{trials} {seed}")
-    return 1 if failures else 0
+    return 1 if (failures or v_fail) else 0
 
 
 if __name__ == "__main__":

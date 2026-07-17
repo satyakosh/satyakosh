@@ -296,6 +296,64 @@ def run():
                     f"plain={len(plain)}, full={len(full)}"))
     led.records.pop()
 
+    # ---------------- N-series: 2026-07-17 review round 2
+    # N3/#3: verify() must REPORT, never RAISE, on a store the
+    # canonicalizer chokes on (a stored float). The auditor's job is
+    # hostile stores.
+    ln = L.Ledger(None, REGISTRIES, rulesets())
+    ln.seal(make_genesis()); ln.seal(make_fact(value="3.3e3"))
+    ln.records[1]["version"] = 1.0  # inject a float post-seal
+    try:
+        fnd = ln.verify()
+        RESULTS.append((any("CORRUPT" in f for f in fnd),
+                        "N3: verify() reports (not raises) on stored float",
+                        f"{len(fnd)} finding(s)"))
+    except Exception as e:  # noqa: BLE001
+        RESULTS.append((False, "N3: verify() reports (not raises) on float",
+                        f"RAISED {type(e).__name__}"))
+    ln.records[1]["version"] = 1
+
+    # N2/#2 (FD-25): the 16-char fact_id form is deterministic — only on a
+    # real 12-char collision, never a free choice.
+    led_f = L.Ledger(None, REGISTRIES, rulesets())
+    led_f.seal(make_genesis())
+    g = make_fact(value="4.4e4")
+    check("N2a: bare 16-char fact_id (no collision) refused",
+          lambda: led_f.seal(make_fact(value="4.4e4",
+              fact_id="SK-R1-PHYS-" + L.triple_hash(g["triple"])[:16])),
+          True, "16-char fact_id form is only permitted")
+
+    # N2b: a fully-retired triple (triple-changing supersession) cannot
+    # re-enter — 12-char blocked by id reuse, 16-char blocked by FD-25.
+    led_r = L.Ledger(None, REGISTRIES, rulesets())
+    led_r.seal(make_genesis())
+    a = make_fact(value="5.5e5"); led_r.seal(a)
+    b = make_fact(value="6.6e6"); b["supersedes"] = a["fact_id"] + "@1"
+    led_r.seal(b)  # triple-changing: retires a's triple entirely
+    thA = a["triple_hash"]
+    check("N2b-12: re-entry of retired triple (12-char) refused",
+          lambda: led_r.seal(make_fact(value="5.5e5")), True, "already sealed")
+    check("N2b-16: re-entry of retired triple (16-char) refused",
+          lambda: led_r.seal(make_fact(value="5.5e5",
+              fact_id="SK-R1-PHYS-" + thA[:16])),
+          True, "16-char fact_id form is only permitted")
+
+    # N8: derived_from a dead lineage seals but raises a liveness flag;
+    # derived_from a metadata-superseded fact (still live at latest) does not.
+    led_d = L.Ledger(None, REGISTRIES, rulesets())
+    led_d.seal(make_genesis())
+    p1 = make_fact(value="7.7e7"); led_d.seal(p1)
+    p2 = make_fact(value="8.8e8"); p2["supersedes"] = p1["fact_id"] + "@1"
+    led_d.seal(p2)  # p1's lineage now dead (triple-changing)
+    nf = len(led_d.flags)
+    check("N8: derived_from a dead lineage still seals",
+          lambda: led_d.seal(make_fact(value="9.1e9",
+              derivation={"type": "derived_exact", "script": None,
+                          "derived_from": [p1["fact_id"]]})), False)
+    RESULTS.append((len(led_d.flags) == nf + 1,
+                    "N8: derived_from-liveness flag raised on dead lineage",
+                    f"{len(led_d.flags) - nf} new flag(s)"))
+
     # ---------------- tamper detection
     led.records[1]["triple"]["object"]["value"] = "9e9"
     findings = led.verify()

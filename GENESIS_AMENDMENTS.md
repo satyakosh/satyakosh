@@ -184,7 +184,15 @@ are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
   governance-payload validation; the reference implementation validates
   against in-memory rulesets only. The engine must exist before the
   FIRST governance record seals — nothing may enter the chain that a
-  verifier cannot re-derive rules for.
+  verifier cannot re-derive rules for. **Retirement** (the `retires`
+  retraction record that derives `status: retired`) ships with it.
+- **Intake artifact checks.** The intake pipeline (and CI) must verify,
+  for every proposal carrying a `derivation.script`, that the recipe
+  file exists at `derivations/<triple_hash>.py`, its SHA-256 matches,
+  and it runs clean — so no fact seals pointing at a missing or drifted
+  recipe. Out of scope for `ledger.py` (which validates bytes, not the
+  filesystem); belongs to the proposal-intake tooling built for the
+  Genesis Window.
 
 - **Legal wrapper.** Decide the long-term legal form (foundation or
   trust whose sole mandate is perpetual maintenance of the public
