@@ -8,8 +8,21 @@ file came from and what it needs before the genesis freeze.
 ## FIRST: try to recover the originals
 
 If any pre-loss original file is recovered (from downloads, backups, or
-sync copies of `satyakosh-v0.zip` / `satyakosh-first-commit.zip`), **diff
-it against the rebuilt file here and prefer the original.**
+sync copies of `satyakosh-v0.zip` / `satyakosh-first-commit.zip`), diff
+it against the rebuilt file here. NOTE (2026-07-17): "prefer the
+original" no longer applies wholesale — the rebuilt line now carries
+founder-locked decisions (see DECISIONS.md) that postdate the originals;
+recovered files are read-only references for the founder re-review.
+
+**Recovered 2026-07-17: `satyakosh-v0.zip`** (7,691 bytes, SHA-256
+`630e214688293d09d0d82beff89c8c7ae1a64408a66c3df30984e692b93002e0`) —
+the 2026-07-06 "Fact Anchor" v0.1 prototype: SCHEMA.md, ledger.py,
+seed_facts.json, sealed 5-record demo ledger (chain verifies intact).
+Pure prehistory; kept locally, not imported (CHANGELOG: never public,
+preserved for the record). It independently corroborates three Tier 1
+seed values (c, h, N_A) and contains nothing the current line lacks.
+Still outstanding: `satyakosh-first-commit.zip` (2026-07-10) — the only
+artifact that can close the RING2 s4 seven-criteria gap verbatim.
 
 ## Provenance tiers
 
