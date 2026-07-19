@@ -395,19 +395,26 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
                 not DATE_RE.match(s["retrieved"]):
             raise ValidationError(
                 "SCHEMA s7.2.2: source retrieved must be YYYY-MM-DD")
-    # per-derivation-type minimum source counts: dormant capability the
-    # Ring-2 activation governance record sets values for (issue #5 F3);
-    # v1 founding ruleset declares none, so the default of 1 applies
-    min_src = mc.get("source_count_rules", {}).get(
-        record["derivation"]["type"], 1)
-    if len(sources) < min_src:
-        raise ValidationError(
-            f"rulesets/mandatory_conditions.json: derivation type "
-            f"{record['derivation']['type']!r} requires >= {min_src} "
-            f"whitelisted sources, got {len(sources)}")
     src_ids = [s["source"] for s in sources]
     if src_ids != sorted(src_ids):
         raise ValidationError("SCHEMA s7.2.5: sources not sorted")
+    # a source listed twice is meaningless (and, pre-Ring-2, a way to
+    # inflate any future source count) — refuse duplicate entries (v1
+    # hardening; issue #6)
+    if len(set(src_ids)) != len(src_ids):
+        raise ValidationError("SCHEMA s7.2.5: duplicate source entries")
+    # per-derivation-type minimum DISTINCT-INSTITUTION counts: dormant
+    # capability the Ring-2 activation record sets values for (issue #5
+    # F3). RING2 s3.1 requires INDEPENDENT sources, so the count is over
+    # distinct source IDs, never entries (issue #6). v1 founding ruleset
+    # declares none, so the default of 1 applies.
+    min_src = mc.get("source_count_rules", {}).get(
+        record["derivation"]["type"], 1)
+    if len(set(src_ids)) < min_src:
+        raise ValidationError(
+            f"rulesets/mandatory_conditions.json: derivation type "
+            f"{record['derivation']['type']!r} requires >= {min_src} "
+            f"distinct whitelisted sources, got {len(set(src_ids))}")
     for sid in src_ids:
         if sid not in srcs:
             raise ValidationError(f"SCHEMA s11: source {sid} not whitelisted")

@@ -362,9 +362,11 @@ declaration is enforced — a predicate admitting only dates never seals
 a quantity); value &
 uncertainty grammar (§7.3); UCUM code check (v1: a closed whitelist of
 founding-scope codes in the reference implementation, expanded with
-proposals); per-derivation-type minimum source counts when the
-mandatory-conditions ruleset declares `source_count_rules` (v1: none
-declared, default 1; Ring-2 activation sets values by governance);
+proposals); per-derivation-type minimum **distinct-institution** source counts
+when the mandatory-conditions ruleset declares `source_count_rules`
+(RING2 §3.1 independence — the count is over distinct source IDs,
+never entries; v1: none declared, default 1; Ring-2 activation sets
+values by governance); no duplicate source entries;
 condition sort + tie-break (duplicate condition properties are
 legitimate for ranges and raise a review flag, never a refusal);
 source sort; date/timestamp

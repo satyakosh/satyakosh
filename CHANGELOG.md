@@ -54,6 +54,14 @@ canonical-byte contract (SCHEMA.md s10).
   collision check had quietly reintroduced O(n^2) sealing (973
   seals/s at N=9000); a prefix-12 index restores flat scaling
   (4400+ seals/s).
+- Issue #6 (Ring-2 campaign, 2026-07-19): the F3 source-count fix
+  counted array ENTRIES, not distinct institutions - two editions
+  of one publisher, or a byte-identical duplicate entry, satisfied
+  '>= 2 independent sources'. Now: duplicate source IDs are refused
+  outright (a source appears at most once - v1 hardening, catches
+  both bypasses), and source_count_rules counts distinct source IDs
+  per RING2 s3.1's independence requirement. Pinned as F5/F5b/F6;
+  ledger suite 66 -> 69.
 - Standalone verifier CLI (2026-07-19, verify.py at repo root): one
   pure-ASCII file, stdlib only, zero imports from the engine -- the
   independent second implementation as a downloadable tool. Verifies

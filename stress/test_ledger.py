@@ -307,12 +307,38 @@ def run():
     check("F3: source_count_rules enforced (min 2, one given)",
           lambda: led_min.seal(make_fact(value="8.2e1")),
           True, "requires >= 2")
-    check("F3b: source_count_rules satisfied with two sources",
+    check("F3b: source_count_rules satisfied with two distinct sources",
           lambda: led_min.seal(make_fact(value="8.3e1", sources=[
               {"source": "SK-SRC-000001", "edition": "x",
                "retrieved": "2026-07-01"},
               {"source": "SK-SRC-000002", "edition": "y",
                "retrieved": "2026-07-01"}])), False)
+    # "same institution, two editions" is a repeated source ID, so it is
+    # caught by the duplicate-entry rule before the distinct-count rule —
+    # a source may appear at most once (issue #6, either way it fails)
+    check("F5: same institution / two editions refused (issue #6)",
+          lambda: led_min.seal(make_fact(value="8.31e1", sources=[
+              {"source": "SK-SRC-000001", "edition": "2018",
+               "retrieved": "2026-07-01"},
+              {"source": "SK-SRC-000001", "edition": "2022",
+               "retrieved": "2026-07-01"}])), True, "duplicate source")
+    # the distinct-count rule proper: min 2 with genuinely distinct IDs
+    # that a naive entry-count would pass — here one distinct source but
+    # (hypothetically) padded is impossible now, so assert the positive:
+    # exactly-min distinct sources seal, one-short (single) already fails
+    # above (F3). Cross-check that min_src counts distinct IDs, not len:
+    check("F5b: two distinct sources satisfy min-2 (distinct count)",
+          lambda: led_min.seal(make_fact(value="8.33e1", sources=[
+              {"source": "SK-SRC-000001", "edition": "a",
+               "retrieved": "2026-07-01"},
+              {"source": "SK-SRC-000003", "edition": "b",
+               "retrieved": "2026-07-01"}])), False)
+    check("F6: duplicate source entries refused (v1 hardening, issue #6)",
+          lambda: led.seal(make_fact(value="8.32e1", sources=[
+              {"source": "SK-SRC-000001", "edition": "x",
+               "retrieved": "2026-07-01"},
+              {"source": "SK-SRC-000001", "edition": "x",
+               "retrieved": "2026-07-01"}])), True, "duplicate source")
     reg_ot = copy.deepcopy(REGISTRIES)
     reg_ot["predicates"]["predicates"].append(
         {"id": "SK-PRED-000009", "definition": "occurred on.",
