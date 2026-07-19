@@ -44,3 +44,5 @@ jobs:
       - name: Genesis freeze readiness (informational pre-genesis)
         continue-on-error: true
         run: python tools/genesis_hashes.py
+      - name: Genesis seal rehearsal (staging chain + independent verifier)
+        run: python stress/rehearse_genesis.py

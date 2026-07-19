@@ -54,6 +54,15 @@ canonical-byte contract (SCHEMA.md s10).
   collision check had quietly reintroduced O(n^2) sealing (973
   seals/s at N=9000); a prefix-12 index restores flat scaling
   (4400+ seals/s).
+- Genesis seal rehearsal (2026-07-18): stress/rehearse_genesis.py
+  runs the full freeze-day ceremony on a staging chain in CI -
+  computes the six hashes, fills a draft copy, seals, verifies,
+  and re-derives content_hash and chain head with an independent
+  stdlib-only second implementation that must agree. FD-28: founded
+  month convention locked purnimanta (Ashadha; amanta name Jyeshtha
+  recorded); documents freeze as 1.0.0 with rc.1 as the pre-freeze
+  drafting label. Invocation re-verified byte-for-byte against the
+  FD-13 sequence; Saptami-at-sunrise verified for Delhi and Pune.
 - Genesis inscription (2026-07-18, FD-27): founded field now dual-
   calendar (Vikram Samvat first, then Gregorian, calendars named;
   panchang-verified, NFC-stable, single ISO machine anchor enforced

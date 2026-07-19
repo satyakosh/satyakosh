@@ -133,7 +133,13 @@ the real local bytes directly; do not regenerate documents from memory.
       — Ashtami begins later that civil day); NFC-stable, 91 code
       points; the single embedded ISO date is the machine anchor the
       validator now requires and the trademark-priority corroboration
-      keys on.
+      keys on. **Month convention founder-locked 2026-07-18:
+      pūrṇimānta** (the reckoning customarily paired with the Vikram
+      Samvat era) — hence Āshādha; the amānta reckoning names the same
+      fortnight Jyeshtha (what a Maharashtra panchang shows). Saptami
+      at sunrise verified for both New Delhi and Pune (tithi turns to
+      Ashtami at ~13:24 IST that day); the tithi itself is
+      convention-safe, only the month name forked.
 - [x] Anaya's informed consent: **granted, recorded 2026-07-18**
       (permanence + erasure waiver explained; the dedication seals
       forever and no future erasure is possible). To be transcribed

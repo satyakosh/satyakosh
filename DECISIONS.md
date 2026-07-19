@@ -207,6 +207,18 @@ machine anchor (corroboration keys on it). The mission prose gained
 its remembrance sentence in the same session; the 48-hour final-read
 clock restarted. *Applied: this commit.*
 
+**FD-28 — Version strings and the month convention.** (a) The founded
+inscription uses the **pūrṇimānta** month reckoning (Āshādha), the
+convention customarily paired with the Vikram Samvat era; the amānta
+name for the same fortnight (Jyeshtha) is recorded in the transcription
+checklist so no future reader mistakes the fork for an error. Saptami
+at sunrise verified for both Delhi and Pune. (b) The founding documents
+freeze as **1.0.0** — their headers already carry 1.0.0 with
+release-candidate status prose; "rc.1" is the pre-freeze drafting
+label, and the genesis record seals `schema_version`/
+`pipeline_policy_version` as "1.0.0". The rc→1.0.0 promotion is noted
+in CHANGELOG at the freeze. *Applied: this commit.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates
