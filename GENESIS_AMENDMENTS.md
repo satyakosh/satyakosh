@@ -158,9 +158,11 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 094D 092F 094B 0930 094D 092E 093E 0020 0905 092E 0943 0924 0902 0020
 0917 092E 092F 0020 0965
 ```
-- [ ] Founder string "Shubhankar Patil" matches trademark filings.
-- [ ] Founding date 2026-07-07 = trademark priority date (independent
-      corroboration).
+- [x] Founder string "Shubhankar Patil" matches trademark filings —
+      **confirmed by founder against the filing, 2026-07-19.**
+- [x] Founding date 2026-07-07 = trademark priority date (independent
+      corroboration) — **confirmed by founder against the filing,
+      2026-07-19.**
 
 ## Still owed by the founder (no one else can write these)
 
@@ -198,7 +200,10 @@ machine pre-checks and the recovered v0 corroboration are on record);
 (3) the dedication-consent note recorded — **DONE 2026-07-18**;
 (4) the mission prose confirmed after the 48-hour final read (clock
 runs from the 2026-07-18 revision; earliest 2026-07-20);
-(5) founder-string / founding-date corroboration checks;
+(5) founder-string / founding-date corroboration checks — **DONE
+2026-07-19** (founder confirmed both against the SATYAKOSH
+trademark filing: applicant name matches the inscription bytes
+exactly; priority date is 7 July 2026, the founded anchor);
 (6) tools/genesis_hashes.py green with founder sign-off. No date is
 announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
 (with the verifier), per the existing versioning rule.
