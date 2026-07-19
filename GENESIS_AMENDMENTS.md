@@ -134,8 +134,11 @@ the real local bytes directly; do not regenerate documents from memory.
       points; the single embedded ISO date is the machine anchor the
       validator now requires and the trademark-priority corroboration
       keys on.
-- [ ] Anaya's informed consent (permanence + erasure waiver explained)
-      noted in the review file.
+- [x] Anaya's informed consent: **granted, recorded 2026-07-18**
+      (permanence + erasure waiver explained; the dedication seals
+      forever and no future erasure is possible). To be transcribed
+      into the genesis review file when it is created at the freeze —
+      readiness gate 3 is satisfied.
 
 Recorded invocation code points (NFC, 61 code points, confirmed
 2026-07-17 — the genesis review file must match this sequence exactly):
