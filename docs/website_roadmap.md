@@ -10,7 +10,8 @@
 
 Settled in discussion 2026-07-19: volume (thousands to millions of facts)
 comes from batch ingest pipelines with recipe-by-hash review
-(`tools/ingest_codata.py` and successors, PIPELINE_POLICY P11), never from
+(`tools/ingest_codata.py` — to be written, an audit target of the batch
+review — and successors, PIPELINE_POLICY P11), never from
 humans typing into forms. The website's job is therefore not intake at
 scale. Its job is:
 
@@ -48,7 +49,8 @@ scale. Its job is:
 ## Phase 0 — Now (pre-genesis, current phase)
 
 Expected on the website now: **almost nothing.** Nothing web-related may
-delay gates G1/G4/G6 or the freeze.
+delay the remaining readiness gates (G4/G6; G1 closed 2026-07-19) or
+the freeze.
 
 - [x] A single static page (GitHub Pages, repo `satyakosh/website`,
       domain satyakosh.org): what Satyakosh is (from MISSION.md), link

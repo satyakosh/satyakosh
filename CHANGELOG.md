@@ -1,7 +1,7 @@
 # Changelog
 
 Public versioning starts at 1.0.0. Version numbers track the
-canonical-byte contract (SCHEMA.md s10).
+canonical-byte contract (SCHEMA.md, Versioning rule in the preamble).
 
 ## 1.0.0-rc.1 (Genesis Window candidate) — 2026-07
 - First public version. Internal draft lineage renumbered.
@@ -22,6 +22,21 @@ canonical-byte contract (SCHEMA.md s10).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Final pre-v1 diligence sweep (2026-07-19): every suite re-run from
+  scratch (ledger 69, governance 41, properties 9, adversarial 24+3,
+  rehearsal + independent-implementation agreement, expressiveness,
+  intake 16, recipes 6, volume 9/9 at N=9000, 8000 fuzz trials + 4000
+  mutated stores, 0 failures; verifier exit semantics confirmed) plus
+  two independent audits: a data audit (all seven SI defining
+  constants digit-exact with correct entity mappings; registries,
+  rulesets, and the genesis draft verified clean) and a cross-document
+  staleness audit (six fixes: stale 25-case count in the live
+  governance tracker; A15/A16 checkboxes closed as long-implemented;
+  ingest_codata.py marked to-be-written in the roadmap; gates list
+  updated to G4/G6; versioning-rule citation corrected). One open
+  founder question: RECOVERY_NOTES dates the v0 prototype 2026-07-06,
+  this changelog's v0 milestone says 2026-07-07 — possibly two events,
+  founder to arbitrate. No genesis-hashed document needed changes.
 - Issue #8 (gate-1 re-read findings) resolved pre-freeze
   (2026-07-19): F1 — SCHEMA s4 and GENESIS_AMENDMENTS contradicted
   each other and the code on retirement ("ships with the governance

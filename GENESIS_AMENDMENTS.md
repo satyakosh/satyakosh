@@ -114,18 +114,24 @@ the real local bytes directly; do not regenerate documents from memory.
       refuses to seal (SCHEMA s11 exact-lookup rule); (d) malformed
       proposals are rejected with citable ValidationErrors, never
       crashes.
-- [ ] **A15 — Scope the ASCII validator** per A1: enforce
+- [x] **A15 — Scope the ASCII validator** per A1: enforce
       pure-ASCII on fact records; enforce NFC UTF-8 (not ASCII) on the
-      genesis record.
+      genesis record. **Done (implemented in the rebuilt validator;
+      checkbox closed 2026-07-19 final sweep):** `_ascii_guard` runs on
+      every fact seal (with per-character governance exemptions,
+      s7.2), genesis validates as NFC UTF-8, and the adversarial
+      battery's homoglyph cases pin both.
 
 ## Seed proposals (local file)
 
-- [ ] **A16 — Restructure to the tiered plan**: (1) seven SI defining
+- [x] **A16 — Restructure to the tiered plan**: (1) seven SI defining
       constants, hand-proposed, individually reviewed, facts #1–7;
       (2) full CODATA 2022 recommended set (~350) as one batch proposal
       per A8; (3) a handful of condition-bearing facts exercising
       Dimension D; (4) one deliberate permanent rejection demonstrating
-      the review zone.
+      the review zone. **Done (seed_proposals.draft.json is the tiered
+      structure; MISSION and FD-24 already recorded it — checkbox
+      closed 2026-07-19 final sweep).**
 
 ## Genesis transcription checklist (for the review file)
 
@@ -272,7 +278,8 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   governance records (reconstructible from the chain alone, incl. the
   load-path replay). Five governance kinds; strict deltas that cannot
   no-op or double-apply; full simulated Ring-2 activation and the
-  ASCII-narrowing dry-run in stress/test_governance.py (25 cases). Not
+  ASCII-narrowing dry-run in stress/test_governance.py (41 cases as of
+  the issue #7/#8 hardening; 25 at FD-30 build). Not
   a freeze gate; nothing at the window uses it, and a flaw found in it
   during the window is a fix, not a restart. **Retirement** (the `retires`
   retraction record that derives `status: retired`) is NOT among the
