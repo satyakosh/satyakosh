@@ -163,6 +163,12 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 - [x] Founding date 2026-07-07 = trademark priority date (independent
       corroboration) — **confirmed by founder against the filing,
       2026-07-19.**
+- [ ] At the freeze (FD-33): stamp the sealed genesis record's
+      content hash with OpenTimestamps and commit the `.ots` proof
+      alongside the first anchor row in `anchors/ANCHORS.md`; then
+      push both remotes and request a Software Heritage save, so the
+      genesis moment exists in every archive with a trust-free
+      existence proof.
 
 ## Still owed by the founder (no one else can write these)
 
@@ -237,19 +243,15 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   a freeze gate; nothing at the window uses it, and a flaw found in it
   during the window is a fix, not a restart. **Retirement** (the `retires`
   retraction record that derives `status: retired`) ships with it.
-- **Durability & anchoring (2026-07-19, drafted).** The trust root is
-  host-independent (bare clone + verify.py), but availability has a
-  single point of failure today, and wholesale chain substitution is
-  refuted by independent copies + anchored heads, not by any internal
-  check (records are hash-chained, not signed). Policy drafted at
-  docs/durability.draft.md — mirrors (Software Heritage, independent
-  forge, Zenodo at rc1, founder offline copy), per-batch chain-head
-  anchor log (anchors/ANCHORS.md) propagated to archives, and the
-  two-chains dispute doctrine. Four founder decisions open in the
-  draft. RECOMMENDED before the window opens (not a gate): the
-  Software Heritage save and the forge mirror — both are minutes of
-  founder-account work, and window reviewers will ask the
-  single-point-of-failure question.
+- **Durability & anchoring — SETTLED 2026-07-19 (FD-33,
+  docs/durability.md).** Mirrors live before the window: Software
+  Heritage archived (snapshot c65a549a…) and the GitLab push mirror
+  public at gitlab.com/satyakosh/satyakosh (full signed history;
+  session workflow pushes both remotes). OpenTimestamps adopted —
+  the genesis hash gets its .ots stamp at freeze (add to the freeze
+  checklist); per-batch anchoring plus a quarterly heartbeat floor
+  with a written tightening path. Remaining activation-era item:
+  Zenodo versioned DOI at rc1, as already sequenced.
 
 - **Post-freeze hash gating (issue #7 follow-up, 2026-07-19).** The repo
   tree is mixed CRLF/LF, including genesis-hashed prose documents.

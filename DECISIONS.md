@@ -297,6 +297,32 @@ state. *Applied: commits 1daf5bf / 195480b / aa4881d plus the two
 ported regression cases (this commit); drafted in a parallel unpushed
 G1-only patch, reconciled on issue #7.*
 
+**FD-33 — Durability & anchoring policy (2026-07-19).** The
+GitHub-dependency triage concluded: the trust root is host-independent
+(bare clone + verify.py; review records are committed content per
+A18), but availability had a single always-on copy, and wholesale
+chain substitution — records are hash-chained, not signed — is refuted
+only by independent copies and anchored heads. Policy settled at
+docs/durability.md: (1) forge mirror = GitLab
+(gitlab.com/satyakosh/satyakosh, founder-held, full signed history);
+(2) both Software Heritage archival and the mirror live BEFORE the
+Genesis Window (done same day — snapshot c65a549a…); (3)
+OpenTimestamps ADOPTED — committed .ots proofs per anchor, first stamp
+is the genesis hash at freeze; operator-only tooling, zero runtime
+dependency, the one anchor requiring no institution's honesty; (4)
+anchor cadence = per sealed batch plus a QUARTERLY heartbeat floor,
+sized to be keepable solo forever (every beat is a founder-signed
+commit, FD-1 — no bot holds the key; a missed beat is publicly
+visible, so the promise must not outrun the operator), with an
+explicit tightening path (monthly → weekly by ordinary doc change
+once the ledger carries live reliance; tightening is always
+permitted, loosening below the published floor is the credibility
+cost). The policy document is deliberately NOT genesis-hashed —
+mirrors and cadences evolve with infrastructure. Weekly floor was
+considered and set aside for now: 52 personally-signed ops/year is a
+promise a solo founder will visibly break, and the log displays every
+miss. *Applied: this commit; mirrors live in 6546fef.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates

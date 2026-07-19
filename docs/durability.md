@@ -1,12 +1,15 @@
-# Durability & external anchoring 1.0.0 (DRAFT)
+# Durability & external anchoring 1.0.0
 
-**Status: drafted 2026-07-19, pending founder review.** This defines
-the availability and anchoring layer — how the ledger survives the
-loss of any single host, and how "which chain is the real one?" stays
-answerable without trusting any platform. It is deliberately NOT one
-of the genesis-hashed documents: mirrors and cadences are operational
-choices that evolve with the infrastructure, recorded here and in Git
-history, not sealed. Open founder decisions are listed at the end.
+**Status: settled by founder decision 2026-07-19 (FD-33; decision
+record in DECISIONS.md).** This defines the availability and anchoring
+layer — how the ledger survives the loss of any single host, and how
+"which chain is the real one?" stays answerable without trusting any
+platform. It is deliberately NOT one of the genesis-hashed documents:
+mirrors and cadences are operational choices that evolve with the
+infrastructure, recorded here and in Git history, not sealed —
+tightening the cadence is always permitted by ordinary doc change;
+loosening below the published floor is the only move that costs
+credibility.
 
 ## What this layer is — and is not
 
@@ -63,10 +66,17 @@ batch:
 3. Snapshot the repository page or release with the Internet Archive
    (save-page-now), so the anchor row exists in an archive that is not
    a Git host.
-4. (Optional, founder decision 3 below) stamp the chain head with
-   OpenTimestamps for a blockchain-anchored proof of existence at a
-   cost of one small file — the only step that would introduce a
-   non-Git external format.
+4. Stamp the anchor with OpenTimestamps (adopted, FD-33): the `.ots`
+   proof for the chain head is committed alongside the anchor row.
+   This is the one anchor that depends on no institution's honesty —
+   verifying it reduces to Bitcoin block-header math, checkable
+   forever even if every forge and archive disappears. The `ots`
+   client is an OPERATOR tool (like the test-only dependencies):
+   it never touches the runtime, and a verifier who ignores the
+   `.ots` files loses nothing else. The first stamp is the genesis
+   record's hash at freeze. Scope note: an `.ots` proves existence
+   BY a date, not canonicality — chain choice still resolves by the
+   dispute doctrine below.
 
 The anchor log is corroboration, not authority: the chain remains
 self-verifying, and a verifier who distrusts the log simply ignores
@@ -101,19 +111,28 @@ convenience (every check it runs is a committed script anyone can run
 locally). Discovery (stars, search) is replaceable. Loss of any of it
 is an inconvenience, never an integrity event.
 
-## Open founder decisions
+## Cadence
 
-1. ~~Which forge for the push mirror~~ **Settled by founder action
-   2026-07-19: GitLab** (`gitlab.com/satyakosh/satyakosh`, public,
-   full history pushed and verified same day). A second forge remains
-   cheap if ever wanted.
-2. ~~Timing~~ **Done 2026-07-19, before the window**: Software
-   Heritage archived and the GitLab mirror live — the
-   single-point-of-availability-failure question now has an answer
-   predating genesis.
-3. **OpenTimestamps** — adopt, or rely on mirror-plus-archive
-   diversity alone? (Zero runtime dependency either way; the .ots
-   proof is just a committed file.)
-4. **Anchor cadence floor** — per sealed batch is the natural event;
-   is a calendar floor (e.g. quarterly even with no new batches)
-   wanted so archives see liveness?
+Anchoring happens after every sealed batch (the natural event), with a
+**quarterly heartbeat floor**: in any quarter with no new batch, a
+heartbeat row re-anchors the unchanged chain head with a new date and
+propagates it — proving continued custody and that nothing moved. The
+floor is a public promise sized to be keepable by a solo founder
+indefinitely; every heartbeat is a founder-signed commit (FD-1 — no
+bot holds the key), and a missed beat is publicly visible in the log,
+so the promise must never outrun the operator. **Tightening path:**
+when the ledger carries facts people actively rely on, the floor
+tightens (monthly, then weekly if warranted) by ordinary doc change —
+ratcheting tighter over time is the intended direction.
+
+## Founder decisions (all settled 2026-07-19, FD-33)
+
+1. **Forge = GitLab** (`gitlab.com/satyakosh/satyakosh`, public, full
+   history pushed and verified same day). A second forge remains cheap
+   if ever wanted.
+2. **Timing = before the window** — Software Heritage archived and the
+   GitLab mirror live pre-genesis.
+3. **OpenTimestamps = adopted** — first stamp is the genesis hash at
+   freeze; operator-only tooling, committed `.ots` proofs.
+4. **Cadence floor = quarterly heartbeat** on top of per-batch
+   anchoring, with the tightening path above.

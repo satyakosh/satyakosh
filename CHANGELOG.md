@@ -22,13 +22,17 @@ canonical-byte contract (SCHEMA.md s10).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
-- Durability & anchoring policy drafted (2026-07-19,
-  docs/durability.draft.md, pending founder review): mirror targets
-  (Software Heritage, independent forge, Zenodo DOI at rc1, founder
-  offline copy), per-batch chain-head anchor log propagated to
-  archives, and the two-chains dispute doctrine — closing the
-  availability single-point-of-failure while keeping the trust root
-  host-independent. Four founder decisions open in the draft.
+- Durability & anchoring policy SETTLED (2026-07-19, FD-33,
+  docs/durability.md): mirrors live before the window — Software
+  Heritage archived (first full visit same day) and GitLab push
+  mirror public at gitlab.com/satyakosh/satyakosh with the full
+  signed history; per-batch chain-head anchor log (anchors/ANCHORS.md
+  from genesis) propagated to archives; OpenTimestamps adopted
+  (committed .ots proofs, first stamp = genesis hash at freeze,
+  operator-only tooling); quarterly heartbeat floor with a written
+  tightening path; and the two-chains dispute doctrine. The trust
+  root stays host-independent — this layer is availability and
+  existence-proof, never authority.
 - Issue #7 follow-up (same day): the genesis sources-file agreement
   check is seal-time only — on audit replay the inline whitelist is
   authoritative, so a sources file later regenerated to mirror a
