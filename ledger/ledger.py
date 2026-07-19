@@ -464,8 +464,13 @@ def validate_genesis(record: dict, rulesets: dict):
     for f in sorted(INSCRIPTION_FIELDS):
         if not isinstance(insc.get(f), str) or not insc[f].strip():
             raise ValidationError(f"SCHEMA s9: empty inscription field {f!r}")
-    if not DATE_RE.match(insc["founded"]):
-        raise ValidationError("SCHEMA s9: founded must be YYYY-MM-DD")
+    # founded is inscription prose (dual-calendar, FD-27) but must carry
+    # exactly one Gregorian ISO date as the machine-readable anchor —
+    # external corroboration (trademark priority) keys on it
+    if len(re.findall(r"\d{4}-\d{2}-\d{2}", insc["founded"])) != 1:
+        raise ValidationError(
+            "SCHEMA s9: founded must contain exactly one Gregorian ISO "
+            "date (YYYY-MM-DD) as the machine anchor")
     if not isinstance(record["created"], str) or \
             not TS_RE.match(record["created"]):
         raise ValidationError("SCHEMA s7.2.2: genesis created not UTC "

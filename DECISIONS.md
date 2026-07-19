@@ -197,6 +197,16 @@ governance-era derived state (no seal-time verb), that a born-expired
 validity window is intentional, and that `derivation.script` artifact
 existence/lint is an intake-pipeline + CI requirement, not a byte rule.
 
+**FD-27 — The founding date seals in dual-calendar form.** The
+`founded` inscription reads Vikram Samvat first, then Gregorian, both
+calendars named: "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram
+Samvat) — 7 July 2026, 2026-07-07 (Gregorian)". Verified against
+published panchang sources (sunrise-tithi convention); NFC-stable.
+The validator requires exactly one embedded Gregorian ISO date as the
+machine anchor (corroboration keys on it). The mission prose gained
+its remembrance sentence in the same session; the 48-hour final-read
+clock restarted. *Applied: this commit.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates

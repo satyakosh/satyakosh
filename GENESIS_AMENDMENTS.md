@@ -126,6 +126,14 @@ the real local bytes directly; do not regenerate documents from memory.
       (simplified romanization — deliberate choice over IAST).
 - [x] Dedication exact bytes: **confirmed 2026-07-17 (founder)** —
       wording final; em dash (U+2014) kept by explicit decision.
+- [x] Founded inscription in dual-calendar form (**FD-27, 2026-07-18**):
+      "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July
+      2026, 2026-07-07 (Gregorian)". Verified against published
+      panchang sources (Drik Panchang et al.; sunrise-tithi convention
+      — Ashtami begins later that civil day); NFC-stable, 91 code
+      points; the single embedded ISO date is the machine anchor the
+      validator now requires and the trademark-priority corroboration
+      keys on.
 - [ ] Anaya's informed consent (permanence + erasure waiver explained)
       noted in the review file.
 
@@ -145,10 +153,11 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 
 ## Still owed by the founder (no one else can write these)
 
-1. Mission prose passage: **working draft chosen 2026-07-17** (the
-   plain-institutional register; now in genesis_record.draft.json).
-   Founder's final read — after at least 48 hours and one read-aloud —
-   locks it at the freeze; until then it is a draft, not a decision.
+1. Mission prose passage: **working draft revised 2026-07-18** — the
+   remembrance sentence added at founder request ("let this be the
+   place the world remembers to return to — not for a verdict, but to
+   check"). The 48-hour final-read clock restarts from this revision;
+   the founder's read-aloud locks it at the freeze.
 2. ~~Final read of the dedication wording (current draft is locked unless
    you change it).~~ Confirmed 2026-07-17.
 

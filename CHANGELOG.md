@@ -54,6 +54,11 @@ canonical-byte contract (SCHEMA.md s10).
   collision check had quietly reintroduced O(n^2) sealing (973
   seals/s at N=9000); a prefix-12 index restores flat scaling
   (4400+ seals/s).
+- Genesis inscription (2026-07-18, FD-27): founded field now dual-
+  calendar (Vikram Samvat first, then Gregorian, calendars named;
+  panchang-verified, NFC-stable, single ISO machine anchor enforced
+  by the validator); mission prose gained the remembrance sentence
+  (48-hour final-read clock restarted).
 - RING2.md original recovered (2026-07-09 draft rc1) and restored
   wholesale with the FD-19 parameter locks applied - including the
   seven source-admission criteria (S1-S7) that were the last marked
