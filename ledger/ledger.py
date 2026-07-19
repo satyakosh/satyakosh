@@ -31,6 +31,7 @@ non-superseded facts", SCHEMA s11) is enforced against that derived
 state at seal time and re-checked by verify(full=True).
 """
 
+import copy
 import hashlib
 import json
 import os
@@ -921,7 +922,9 @@ class Ledger:
         # replay rebinds self.rulesets to end state. verify(full) must
         # replay from here, or records sealed before a ruleset_change
         # are judged by rules that did not exist yet (issue #7 G1).
-        self._genesis_rulesets = dict(rulesets)
+        # Deep copy: caller-side mutation of the passed rulesets must
+        # not drift the audit baseline.
+        self._genesis_rulesets = copy.deepcopy(rulesets)
         self.records = []
         self.flags = []  # near-duplicate warnings (s11: warn, not a byte rule)
         self._init_indexes()
