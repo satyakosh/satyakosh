@@ -1,4 +1,6 @@
 # Canonical bytes are law (SCHEMA s7): founding-document hashes are
 # computed over exact file bytes. Git must never rewrite line endings
-# on any platform. All files are committed with LF and stay LF.
+# on any platform. Files are committed exactly as they are (the
+# tree is mixed LF/CRLF by history); git stores them untouched,
+# forever.
 * -text

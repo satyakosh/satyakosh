@@ -142,7 +142,7 @@ def verify_repo_bindings(records, repo):
 
     Chain governance is honored: the latest doc_supersession for a
     prose document, or ruleset_change for a JSON ruleset, replaces the
-    expected hash — the chain, not the file, is authoritative.
+    expected hash -- the chain, not the file, is authoritative.
     Findings-only; hostile input never crashes (same contract as
     verify_chain)."""
     import os.path
@@ -179,7 +179,7 @@ def verify_repo_bindings(records, repo):
         if actual != declared:
             findings.append(
                 f"REPO BINDING MISMATCH: {label} hashes to {actual[:16]}"
-                f"..., but the chain declares {str(declared)[:16]}... — "
+                f"..., but the chain declares {str(declared)[:16]}... -- "
                 f"the file is not the one the chain binds")
 
     def file_sha(rel):
@@ -214,7 +214,7 @@ def verify_repo_bindings(records, repo):
 
     # recipe artifacts (s4.1): every sealed fact whose derivation.script
     # pins a recipe must have derivations/<triple_hash>.py present with
-    # byte-matching sha256 — the "seal but broken" path (G1 re-read)
+    # byte-matching sha256 -- the "seal but broken" path (G1 re-read)
     for i, r in enumerate(records):
         if not isinstance(r, dict) or r.get("record_type") != "fact":
             continue
@@ -255,7 +255,7 @@ def verify_repo_bindings(records, repo):
             if file_proj != inline_proj:
                 findings.append(
                     "REPO BINDING MISMATCH: registries/sources.json "
-                    "diverges from the genesis inline whitelist — the "
+                    "diverges from the genesis inline whitelist -- the "
                     "inline enumeration is authoritative (s9)")
         except Exception as e:  # noqa: BLE001
             findings.append(f"REPO BINDING: cannot read "
@@ -318,7 +318,7 @@ def main():
     if args.repo:
         findings.extend(verify_repo_bindings(records, args.repo))
 
-    # the fact lookup is a grounding query, not a chain property — its
+    # the fact lookup is a grounding query, not a chain property -- its
     # outcome reports separately from chain findings (G1 re-read note)
     fact_report = None
     fact_missing = False
