@@ -337,6 +337,50 @@ def run():
          f"{len(rd.verify(full=True))} findings")
     tmp3.unlink()
 
+    # G1c (ported from the FD-32 parallel patch): a hash-valid forgery
+    # violating its era's rules — default verify() stays CLEAN (the
+    # well-formed lie, by design: hashes are intact) while verify(full)
+    # flags exactly it. Pins the division of labor between the modes.
+    led8 = L.Ledger(None, REG, copy.deepcopy(RS))
+    led8.seal(genesis())
+    led8.seal(fact(value="6.1e0"))          # era 0: founding rules
+    tight8 = copy.deepcopy(RS["mandatory_conditions"])
+    tight8["subject_rules"] = list(tight8.get("subject_rules", [])) + [
+        {"subject": "SK-ENT-000001", "requires": ["SK-ENT-000006"]}]
+    led8.seal(gov("ruleset_change", {"target": "mandatory_conditions",
+                                     "content": tight8}))
+    cond6 = [{"property": "SK-ENT-000006",
+              "object": {"type": "quantity", "value": "1e0", "unit": "1",
+                         "exact": True, "uncertainty": None}}]
+    led8.seal(fact(value="6.2e0", conds=cond6))   # era 1, compliant
+    forged = dict(fact(value="6.3e0"))      # era 1, missing the condition
+    forged["prev_record_hash"] = led8.records[-1]["content_hash"]
+    forged["content_hash"] = L.content_hash(forged)
+    led8.records.append(forged)
+    note("G1c: default verify CLEAN on hash-valid forgery (by design)",
+         led8.verify() == [], f"{len(led8.verify())} findings")
+    f8 = led8.verify(full=True)
+    note("G1c: era-violating forgery flagged by verify(full) alone",
+         len(f8) == 1 and "INVALID" in f8[0], f"{len(f8)} finding(s)")
+    led8.records.pop()
+
+    # G1d (ported from the FD-32 parallel patch): an invalid governance
+    # record planted in the store is flagged and its fold is NOT
+    # applied — replay state is not poisoned for later records
+    led8.seal(gov("ucum_expansion", {"add_codes": ["%"]}))
+    badgov = dict(gov("ucum_expansion", {"add_codes": ["%"]}))
+    badgov["prev_record_hash"] = led8.records[-1]["content_hash"]
+    badgov["content_hash"] = L.content_hash(badgov)
+    led8.records.append(badgov)
+    f8 = led8.verify(full=True)
+    note("G1d: planted double-apply governance flagged, fold unapplied",
+         len(f8) == 1 and "already in force" in f8[0],
+         f"{len(f8)} finding(s)")
+    led8.records.pop()
+    note("G1d: chain verifies CLEAN again after removing the plant",
+         led8.verify(full=True) == [],
+         f"{len(led8.verify(full=True))} findings")
+
     # G5: UCUM codes get a syntax check; '<<' markers never enter force
     check("G5: '<<TBD>>' code refused (placeholder marker in delta)",
           lambda: led3.seal(gov("ucum_expansion",

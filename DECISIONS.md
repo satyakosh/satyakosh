@@ -272,6 +272,31 @@ public's first impression; (5) hosting is GitHub Pages — static-first,
 deploys from committed bytes only. *Applied: this commit; site
 published separately in satyakosh/website.*
 
+**FD-32 — verify(full) replay is position-correct; genesis state is
+not inlined (2026-07-19).** Issue #7 G1: verify(full) built its replay
+shadow from `self.rulesets` — the END state, since the load path folds
+every governance record — so a tightening ruleset_change retroactively
+condemned facts sealed under earlier rules, contradicting s10/P9 ("the
+ruleset governing any fact is genesis state plus all preceding
+governance records") and verify's own seal-time-replay contract. The
+fix snapshots the genesis ruleset baseline at construction
+(`_genesis_rulesets`, deep-copied so caller-side mutation cannot drift
+it) and replays from it; whitelist and UCUM already had
+genesis-equivalent baselines. **Considered and deferred: inlining the
+founding rulesets INTO the genesis record** (full chain
+self-containment) — hash-binding the provided rulesets to the
+genesis-declared digests (issue #7 G3) gives the same assurance
+without bloating genesis, and the whitelist branch of the same disease
+(G4) is covered by inline-whitelist authority. Recorded so chain
+self-containment is not re-litigated without new evidence. Pinned in
+stress/test_governance.py by the G-series battery, including an
+era-violating hash-valid forgery flagged only by verify(full) (default
+verify stays CLEAN on the well-formed lie, by design) and an invalid
+mid-chain governance record flagged without its fold poisoning replay
+state. *Applied: commits 1daf5bf / 195480b / aa4881d plus the two
+ported regression cases (this commit); drafted in a parallel unpushed
+G1-only patch, reconciled on issue #7.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates

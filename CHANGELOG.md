@@ -28,7 +28,12 @@ canonical-byte contract (SCHEMA.md s10).
   governance-added source no longer retroactively condemns the chain
   (reviewer-demonstrated whitelist baseline drift). Post-freeze
   CI-gating of the genesis document hashes tracked in
-  GENESIS_AMENDMENTS. Governance suite 37 cases.
+  GENESIS_AMENDMENTS. FD-32 recorded (position-correct replay;
+  genesis-inlining of rulesets considered and deferred in favor of
+  G3's hash binding), with two regression cases ported from its
+  parallel patch: an era-violating hash-valid forgery flagged only by
+  verify(full), and a planted invalid governance record flagged
+  without its fold poisoning replay state. Governance suite 41 cases.
 - P11 batch-proposal mechanism added to the pipeline policy.
 - ASCII invariant scoped to fact records; genesis defined as NFC UTF-8.
 - Genesis record enumerates six founding-document hashes plus the inline
