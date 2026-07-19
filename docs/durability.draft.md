@@ -38,13 +38,13 @@ cannot answer alone:
 
 ## Mirrors
 
-Target state (each item is independent of the others):
+State (each item is independent of the others):
 
-| Mirror | What it holds | Trigger |
+| Mirror | What it holds | Status / trigger |
 |---|---|---|
-| Software Heritage | Full repository history, permanently archived | "Save code now" request at each release; SWH also crawls autonomously |
-| Independent forge (Codeberg or GitLab) | Live push mirror of `main` | Push-mirror on every push, or manual push after each session |
-| Zenodo (versioned DOI) | Release snapshots, citable | Each tagged release from rc1 onward (aligns with the existing "PyPI at rc1" sequencing) |
+| Software Heritage | Full repository history, permanently archived | **LIVE 2026-07-19** — first full visit archived (snapshot `c65a549a5840b8776f480be1162d719886b33b8f`); founder re-requests a save at each release, SWH also re-crawls autonomously |
+| GitLab — `gitlab.com/satyakosh/satyakosh` | Live push mirror of `main`, full signed history | **LIVE 2026-07-19** — public project under the founder-held `satyakosh` group; pushed from the local `mirror` remote after every session, in the same act as the GitHub push |
+| Zenodo (versioned DOI) | Release snapshots, citable | Planned: each tagged release from rc1 onward (aligns with the existing "PyPI at rc1" sequencing) |
 | Founder offline copy | Full clone + the two recovery zips | Refreshed after every session (already practiced since the 2026-07-15 loss) |
 
 Mirror accounts are founder-held. No mirror is load-bearing for
@@ -103,13 +103,14 @@ is an inconvenience, never an integrity event.
 
 ## Open founder decisions
 
-1. **Which forge for the push mirror** — Codeberg (nonprofit,
-   Forgejo) or GitLab (larger, commercial)? One is enough; two is
-   cheap.
-2. **Timing** — recommendation: Software Heritage save + forge mirror
-   live BEFORE the Genesis Window opens (both are minutes of work);
-   Zenodo at rc1 as already sequenced. The window's reviewers will ask
-   the single-point-of-failure question.
+1. ~~Which forge for the push mirror~~ **Settled by founder action
+   2026-07-19: GitLab** (`gitlab.com/satyakosh/satyakosh`, public,
+   full history pushed and verified same day). A second forge remains
+   cheap if ever wanted.
+2. ~~Timing~~ **Done 2026-07-19, before the window**: Software
+   Heritage archived and the GitLab mirror live — the
+   single-point-of-availability-failure question now has an answer
+   predating genesis.
 3. **OpenTimestamps** — adopt, or rely on mirror-plus-archive
    diversity alone? (Zero runtime dependency either way; the .ots
    proof is just a committed file.)
