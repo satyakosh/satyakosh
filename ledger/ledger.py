@@ -5,8 +5,10 @@ Satyakosh ledger engine — RECONSTRUCTED reference implementation.
 STATUS: rebuilt 2026-07-15 after loss of the local copy, from SCHEMA.md
 1.0.0-rc.1 and the locked decision record. Functionally specified by the
 schema; NOT byte-identical to the lost original. The volume test
-(volume_test.py) and the mandatory-conditions self-test must be re-run
-and their reports regenerated before any Genesis Window claim cites them.
+(stress/volume_test.py) and the mandatory-conditions self-test were
+re-run on this reconstruction and their reports regenerated
+(2026-07-16); both run in CI on every push, alongside the genesis seal
+rehearsal, the Ring-2 expressiveness battery, and two fuzzers.
 
 Canonicalization note: RFC 8785 (JCS) reduces, for Satyakosh's data shape,
 to: lexicographically sorted keys, minimal escaping, UTF-8, no
