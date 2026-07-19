@@ -322,7 +322,10 @@ verifier can reconstruct the rules governing fact #1 from the chain alone
 - the founding **inscription** — the one deliberate prose exception on the
   chain (a monument, not a fact; sealed once, never edited): mission
   passage, cultural invocation with citation, founder name, dedication,
-  founding date. NFC UTF-8.
+  founding date. NFC UTF-8. The founding date is inscription prose in
+  dual-calendar form (Vikram Samvat first, then Gregorian, calendars
+  named — FD-27) and must contain exactly one embedded Gregorian ISO
+  date (`YYYY-MM-DD`) as the machine-readable anchor.
 - `schema_version` + `schema_hash` (SHA-256 of frozen SCHEMA.md)
 - `pipeline_policy_version` + `pipeline_policy_hash`
 - `scope_hash` (frozen SCOPE.md)

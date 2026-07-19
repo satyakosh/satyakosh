@@ -106,6 +106,17 @@ def run():
     led_g = L.Ledger(None, REGISTRIES, rulesets())
     check("genesis with garbage created refused", lambda: led_g.seal(g_bad),
           True, "timestamp")
+    g_noiso = make_genesis()
+    g_noiso["inscription"]["founded"] = \
+        "Ashadha Krishna Saptami, Vikram Samvat 2083"
+    check("genesis founded without ISO anchor refused",
+          lambda: L.Ledger(None, REGISTRIES, rulesets()).seal(g_noiso),
+          True, "ISO")
+    g_twoiso = make_genesis()
+    g_twoiso["inscription"]["founded"] = "2026-07-07 or maybe 2026-07-08"
+    check("genesis founded with two ISO dates refused",
+          lambda: L.Ledger(None, REGISTRIES, rulesets()).seal(g_twoiso),
+          True, "exactly one")
 
     # ---------------- duplicates & supersession (SCHEMA s6/s11)
     base_id = make_fact()["fact_id"]
