@@ -316,6 +316,27 @@ def run():
          {e["id"] for e in genesis()["whitelist"]},
          f"{sorted(led6._whitelist)}")
 
+    # G4 follow-up (issue #7 comment): a sources FILE later regenerated
+    # to mirror a governance-added source must not retroactively condemn
+    # the chain — the file-agreement guard is seal-time only; on audit
+    # the inline enumeration is authoritative
+    led7 = L.Ledger(None, REG, RS)
+    led7.seal(genesis())
+    led7.seal(gov("whitelist_change",
+                  {"add": [{"id": "SK-SRC-000004",
+                            "publisher": "Census Bureau", "rings": [2]}]}))
+    tmp3 = Path(_tf.gettempdir()) / "gov_g4_drift.json"
+    led7.path = tmp3
+    led7.save()
+    reg_drift = copy.deepcopy(REG)
+    reg_drift["sources"]["sources"].append(
+        {"id": "SK-SRC-000004", "publisher": "Census Bureau", "rings": [2]})
+    rd = L.Ledger(tmp3, reg_drift, RS)
+    note("G4b: file regenerated to mirror governance stays CLEAN on audit",
+         rd.verify(full=True) == [],
+         f"{len(rd.verify(full=True))} findings")
+    tmp3.unlink()
+
     # G5: UCUM codes get a syntax check; '<<' markers never enter force
     check("G5: '<<TBD>>' code refused (placeholder marker in delta)",
           lambda: led3.seal(gov("ucum_expansion",

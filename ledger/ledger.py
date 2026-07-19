@@ -509,7 +509,8 @@ INSCRIPTION_FIELDS = frozenset({
     "dedication", "founded"})
 
 
-def validate_genesis(record: dict, rulesets: dict, registries: dict = None):
+def validate_genesis(record: dict, rulesets: dict, registries: dict = None,
+                     sources_file_agreement: bool = True):
     """SCHEMA s9. NFC UTF-8 (not ASCII); refuses placeholders anywhere,
     including operative fields of hash-enumerated rulesets.
 
@@ -619,8 +620,13 @@ def validate_genesis(record: dict, rulesets: dict, registries: dict = None):
                 f"not enumerate")
     # the sources file must agree with the inline enumeration (issue #7
     # G4) — the file carries descriptive extras (name, urls, labels);
-    # the operative projection {id, publisher, rings} must be identical
-    if registries is not None:
+    # the operative projection {id, publisher, rings} must be identical.
+    # SEAL-TIME ONLY (sources_file_agreement=False on audit replay): once
+    # genesis is on the chain the inline enumeration is authoritative and
+    # the file is scenery — a file later regenerated to mirror
+    # governance-added sources must not retroactively condemn the chain
+    # (issue #7 follow-up finding: whitelist baseline drift)
+    if registries is not None and sources_file_agreement:
         file_proj = {s["id"]: (s["publisher"], tuple(s["rings"]))
                      for s in registries["sources"]["sources"]}
         inline_proj = {e["id"]: (e["publisher"], tuple(e["rings"]))
@@ -1161,7 +1167,10 @@ class Ledger:
         elif rt == "genesis":
             if self.records:
                 raise ValidationError("genesis must be record zero")
-            validate_genesis(record, self.rulesets, self.registries)
+            validate_genesis(
+                record, self.rulesets, self.registries,
+                sources_file_agreement=not getattr(
+                    self, "_audit_replay", False))
         elif rt == "governance":
             # SCHEMA s10/P9: validate the payload against the rules in
             # force at this chain position, then fold it in so every
@@ -1235,6 +1244,12 @@ class Ledger:
             # retroactively condemned history)
             shadow = Ledger(None, self.registries,
                             dict(self._genesis_rulesets))
+            # audit replay: the genesis file-agreement guard is a
+            # seal-time authoring check only — on audit, the inline
+            # whitelist is authoritative and file drift is not a chain
+            # defect (the --repo binding of the standalone verifier
+            # reports file drift separately, with governance honored)
+            shadow._audit_replay = True
             for i, r in enumerate(self.records):
                 try:
                     body = {k: v for k, v in r.items() if k != "content_hash"}

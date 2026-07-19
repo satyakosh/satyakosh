@@ -237,6 +237,20 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   a freeze gate; nothing at the window uses it, and a flaw found in it
   during the window is a fix, not a restart. **Retirement** (the `retires`
   retraction record that derives `status: retired`) ships with it.
+- **Post-freeze hash gating (issue #7 follow-up, 2026-07-19).** The repo
+  tree is mixed CRLF/LF, including genesis-hashed prose documents.
+  Functionally safe under `.gitattributes * -text` (committed bytes are
+  canonical and genesis hashes compute over them), but one future
+  "normalize line endings" commit after the freeze would silently
+  invalidate every genesis-declared document hash — today the only
+  guard is `tools/genesis_hashes.py`, which is report-only. After the
+  freeze: (1) make the genesis-hash check CI-GATING for the
+  hash-enumerated files (fail the build if any frozen document's bytes
+  no longer match its genesis-declared digest, honoring
+  doc_supersession records); (2) record the explicit decision NOT to
+  clean up the mixed endings. `verify.py --repo` already provides the
+  check mechanism.
+
 - **Intake artifact checks.** The intake pipeline (and CI) must verify,
   for every proposal carrying a `derivation.script`, that the recipe
   file exists at `derivations/<triple_hash>.py`, its SHA-256 matches,

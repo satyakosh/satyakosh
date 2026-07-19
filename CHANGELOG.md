@@ -22,6 +22,13 @@ canonical-byte contract (SCHEMA.md s10).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Issue #7 follow-up (same day): the genesis sources-file agreement
+  check is seal-time only — on audit replay the inline whitelist is
+  authoritative, so a sources file later regenerated to mirror a
+  governance-added source no longer retroactively condemns the chain
+  (reviewer-demonstrated whitelist baseline drift). Post-freeze
+  CI-gating of the genesis document hashes tracked in
+  GENESIS_AMENDMENTS. Governance suite 37 cases.
 - P11 batch-proposal mechanism added to the pipeline policy.
 - ASCII invariant scoped to fact records; genesis defined as NFC UTF-8.
 - Genesis record enumerates six founding-document hashes plus the inline
