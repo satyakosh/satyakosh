@@ -49,6 +49,15 @@ def make_genesis():
     for k, v in list(g.items()):
         if isinstance(v, str) and "PLACEHOLDER" in v:
             g[k] = "e" * 64 if k.endswith("_hash") else "2026-07-18T00:00:00Z"
+    # the declared digests BIND the provided artifacts (issue #7 G3):
+    # JSON hashes as JCS, computed from the rulesets/registries actually
+    # handed to the Ledger under test
+    g["mandatory_conditions_hash"] = L.sha256_hex(
+        L.jcs(RAW_RULESETS["mandatory_conditions"]))
+    g["admissibility_map_hash"] = L.sha256_hex(
+        L.jcs(RAW_RULESETS["admissibility_map"]))
+    g["predicates_founding_hash"] = L.sha256_hex(
+        L.jcs(REGISTRIES["predicates"]))
     g["inscription"]["mission"] = "Test mission prose (synthetic genesis)."
     return g
 

@@ -178,6 +178,12 @@ def main():
         for k, v in list(g.items()):
             if isinstance(v, str) and "PLACEHOLDER" in v:
                 g[k] = "e" * 64 if k.endswith("_hash") else "2026-07-18T00:00:00Z"
+        # declared digests bind the provided artifacts (issue #7 G3)
+        g["mandatory_conditions_hash"] = L.sha256_hex(
+            L.jcs(RS["mandatory_conditions"]))
+        g["admissibility_map_hash"] = L.sha256_hex(
+            L.jcs(RS["admissibility_map"]))
+        g["predicates_founding_hash"] = L.sha256_hex(L.jcs(REG["predicates"]))
         led = L.Ledger(None, REG, RS)
         led.seal(g)
         return led

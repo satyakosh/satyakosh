@@ -5,6 +5,23 @@ canonical-byte contract (SCHEMA.md s10).
 
 ## 1.0.0-rc.1 (Genesis Window candidate) — 2026-07
 - First public version. Internal draft lineage renumbered.
+- Governance-engine hardening (2026-07-19, issue #7 — all five findings
+  reproduced first): `verify(full)` replays from a position-zero ruleset
+  snapshot so a tightening `ruleset_change` no longer retroactively
+  condemns history (G1); `ruleset_change` content is structurally
+  validated at governance-seal time against exactly the shape
+  `validate_fact` indexes into, with a citable in-force backstop, so a
+  malformed ruleset can neither seal nor brick later fact seals with a
+  raw KeyError (G2); the genesis-declared digests now BIND — the engine
+  hashes the rulesets and predicates registry it is handed (JSON as JCS)
+  and refuses on mismatch, and `verify.py --repo DIR` binds all six
+  digests plus the inline whitelist against a repository checkout,
+  honoring later doc_supersession/ruleset_change records (G3); the
+  genesis inline whitelist is authoritative — it becomes the in-force
+  founding whitelist and the sources file must agree with it on
+  {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
+  syntax check and governance deltas refuse any `<<` marker, so
+  `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
 - P11 batch-proposal mechanism added to the pipeline policy.
 - ASCII invariant scoped to fact records; genesis defined as NFC UTF-8.
 - Genesis record enumerates six founding-document hashes plus the inline

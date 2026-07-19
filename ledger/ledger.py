@@ -48,6 +48,11 @@ SRC_RE = re.compile(r"^SK-SRC-\d{6}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 HASH_RE = re.compile(r"^[0-9a-f]{64}$")
+# UCUM code syntax: the ASCII characters UCUM's grammar can produce
+# (case-sensitive codes, annotations in {}, powers, solidus). Anything
+# else — angle brackets, spaces, control characters — is not a unit
+# (issue #7 G5: '<<TBD>>' must never become an in-force code).
+UCUM_CHAR_RE = re.compile(r"^[0-9A-Za-z%\[\]{}./*^()'_-]$")
 FACT_ID_RE = re.compile(r"^SK-R([1-9]\d*)-([A-Z][A-Z0-9]*)-([0-9a-f]{12}|[0-9a-f]{16})$")
 SUPERSEDES_RE = re.compile(
     r"^(SK-R[1-9]\d*-[A-Z][A-Z0-9]*-(?:[0-9a-f]{12}|[0-9a-f]{16}))@([1-9]\d*)$")
@@ -378,8 +383,26 @@ def validate_fact(record: dict, registries: dict, rulesets: dict, *,
         operative = {k: v for k, v in rs.items() if not k.startswith("_")}
         _placeholder_guard(operative, f"ruleset {name} (operative fields)")
 
-    # mandatory conditions (map in force at chain position; v1: founding map)
-    mc = rulesets["mandatory_conditions"]
+    # mandatory conditions (map in force at chain position; v1: founding
+    # map). Backstop behind the governance-seal structural check (issue
+    # #7 G2): a structurally broken ruleset in force is a citable
+    # refusal, never a KeyError escaping the seal-path error contract.
+    mc = rulesets.get("mandatory_conditions")
+    am = rulesets.get("admissibility_map")
+    try:
+        if mc is not None:
+            _validate_ruleset_structure("mandatory_conditions", mc)
+        if am is not None:
+            _validate_ruleset_structure("admissibility_map", am)
+    except ValidationError as e:
+        raise ValidationError(
+            f"ruleset in force is structurally invalid — governance "
+            f"defect, no fact can seal until a corrective ruleset_change "
+            f"seals: {e}")
+    if mc is None or am is None:
+        raise ValidationError(
+            "rulesets in force must include mandatory_conditions and "
+            "admissibility_map")
     required = list(mc["derivation_type_rules"].get(
         record["derivation"]["type"]) or [])
     for rule in mc.get("subject_rules", []):
@@ -486,9 +509,23 @@ INSCRIPTION_FIELDS = frozenset({
     "dedication", "founded"})
 
 
-def validate_genesis(record: dict, rulesets: dict):
+def validate_genesis(record: dict, rulesets: dict, registries: dict = None):
     """SCHEMA s9. NFC UTF-8 (not ASCII); refuses placeholders anywhere,
-    including operative fields of hash-enumerated rulesets."""
+    including operative fields of hash-enumerated rulesets.
+
+    The genesis-declared artifact hashes BIND (issue #7 G3): the
+    provided rulesets (and, when registries are given, the predicates
+    registry) are hashed per the s9 doctrine — JSON hashes as JCS — and
+    a mismatch refuses. The declared digests are enumeration, not
+    decoration: a chain sealed under rulesets that do not match its own
+    genesis is refused at seal and condemned by verify(full).
+
+    The inline whitelist is authoritative (issue #7 G4): entries are
+    structurally validated here, and when registries are given the
+    sources file must agree with the inline enumeration on
+    {id, publisher, rings} — a source present only in the file must
+    never seal, because a verifier reconstructing from the chain alone
+    would refuse it."""
     if record.get("record_type") != "genesis":
         raise ValidationError("not a genesis record")
     if record.get("prev_record_hash") != GENESIS_PREV:
@@ -525,12 +562,79 @@ def validate_genesis(record: dict, rulesets: dict):
                "predicates_founding_hash"):
         if not isinstance(record.get(hf), str) or not HASH_RE.match(record[hf]):
             raise ValidationError(f"SCHEMA s9: {hf} is not a sha256 hex digest")
-    if not record.get("whitelist"):
+    wl = record.get("whitelist")
+    if not wl:
         raise ValidationError("SCHEMA s9: whitelist must be enumerated inline")
+    if not isinstance(wl, list):
+        raise ValidationError("SCHEMA s9: whitelist must be an array")
+    seen_ids = set()
+    for e in wl:
+        if not isinstance(e, dict) or set(e) != {"id", "publisher", "rings"}:
+            raise ValidationError(
+                "SCHEMA s9: whitelist entries need exactly "
+                "{id, publisher, rings}")
+        if not isinstance(e["id"], str) or not SRC_RE.match(e["id"]):
+            raise ValidationError(
+                f"SCHEMA s9: malformed whitelist source ID {e['id']!r}")
+        if e["id"] in seen_ids:
+            raise ValidationError(
+                f"SCHEMA s9: duplicate whitelist entry {e['id']}")
+        seen_ids.add(e["id"])
+        if not isinstance(e["publisher"], str) or not e["publisher"].strip():
+            raise ValidationError("SCHEMA s9: whitelist publisher required")
+        if not isinstance(e["rings"], list) or not e["rings"] or \
+                not all(isinstance(r, int) and not isinstance(r, bool)
+                        and r >= 1 for r in e["rings"]):
+            raise ValidationError(
+                "SCHEMA s9: whitelist rings must be a non-empty list of "
+                "integers >= 1")
     # operative placeholders inside hash-enumerated rulesets
     for name, rs in rulesets.items():
         operative = {k: v for k, v in rs.items() if not k.startswith("_")}
         _placeholder_guard(operative, f"ruleset {name} (operative fields)")
+    # the declared digests bind the provided artifacts (issue #7 G3):
+    # JSON hashes as JCS per the s9 doctrine. Prose documents (SCHEMA.md,
+    # PIPELINE_POLICY.md, SCOPE.md) hash as file bytes and are bound by
+    # the standalone verifier, which has the repository; the engine binds
+    # everything it is handed.
+    bindings = [("mandatory_conditions_hash",
+                 rulesets.get("mandatory_conditions"),
+                 "rulesets/mandatory_conditions.json"),
+                ("admissibility_map_hash",
+                 rulesets.get("admissibility_map"),
+                 "rules/admissibility_map.json")]
+    if registries is not None:
+        bindings.append(("predicates_founding_hash",
+                         registries.get("predicates"),
+                         "registries/predicates.json"))
+    for field, artifact, basis in bindings:
+        if artifact is None:
+            raise ValidationError(
+                f"SCHEMA s9: {basis} not provided — cannot bind {field}")
+        if sha256_hex(jcs(artifact)) != record[field]:
+            raise ValidationError(
+                f"SCHEMA s9: {field} does not match sha256(JCS({basis})) "
+                f"— the genesis-declared digest binds the artifact in "
+                f"force; refusing to seal under rules the genesis does "
+                f"not enumerate")
+    # the sources file must agree with the inline enumeration (issue #7
+    # G4) — the file carries descriptive extras (name, urls, labels);
+    # the operative projection {id, publisher, rings} must be identical
+    if registries is not None:
+        file_proj = {s["id"]: (s["publisher"], tuple(s["rings"]))
+                     for s in registries["sources"]["sources"]}
+        inline_proj = {e["id"]: (e["publisher"], tuple(e["rings"]))
+                       for e in wl}
+        if file_proj != inline_proj:
+            diverging = sorted(
+                set(file_proj) ^ set(inline_proj) |
+                {k for k in set(file_proj) & set(inline_proj)
+                 if file_proj[k] != inline_proj[k]})
+            raise ValidationError(
+                f"SCHEMA s9: registries/sources.json diverges from the "
+                f"genesis inline whitelist on {diverging} — the inline "
+                f"enumeration is authoritative; a source only in the "
+                f"file must never seal")
 
 
 # -------------------------------------------------------- governance (s10)
@@ -543,6 +647,92 @@ GOV_KINDS = frozenset({
     "ascii_exemption", "doc_supersession"})
 GOV_DOCS = frozenset({"SCHEMA.md", "PIPELINE_POLICY.md", "SCOPE.md"})
 RULESET_TARGETS = frozenset({"mandatory_conditions", "admissibility_map"})
+
+
+def _validate_ruleset_structure(target: str, content: dict):
+    """Issue #7 G2: a ruleset entering force must expose exactly the
+    structure validate_fact indexes into. This is the canary — it
+    exercises every lookup the seal path performs, so a garbage ruleset
+    is refused citably at governance-seal time instead of discovered as
+    a KeyError on the next fact (a witnessed liveness kill). Underscore-
+    prefixed keys are non-operative commentary and unconstrained."""
+    operative = {k for k in content if not k.startswith("_")}
+    if target == "mandatory_conditions":
+        allowed = {"semantics", "derivation_type_rules", "subject_rules",
+                   "source_count_rules"}
+        unknown = operative - allowed
+        if unknown:
+            raise ValidationError(
+                f"SCHEMA s10: unknown operative key(s) {sorted(unknown)} "
+                f"in mandatory_conditions content")
+        dtr = content.get("derivation_type_rules")
+        if not isinstance(dtr, dict):
+            raise ValidationError(
+                "SCHEMA s10: mandatory_conditions content must carry "
+                "derivation_type_rules as an object — validate_fact "
+                "indexes into it on every seal")
+        for k, v in dtr.items():
+            if not isinstance(k, str) or (v is not None and (
+                    not isinstance(v, list) or
+                    not all(isinstance(x, str) and ENT_RE.match(x)
+                            for x in v))):
+                raise ValidationError(
+                    f"SCHEMA s10: derivation_type_rules[{k!r}] must be "
+                    f"null or a list of SK-ENT condition property IDs")
+        # "semantics" is descriptive commentary (prose/objects) that
+        # validate_fact never indexes — allowed, unconstrained
+        sr = content.get("subject_rules", [])
+        if not isinstance(sr, list):
+            raise ValidationError("SCHEMA s10: subject_rules must be a list")
+        for rule in sr:
+            if not isinstance(rule, dict) or \
+                    not {"subject", "requires"} <= set(rule) or \
+                    not set(rule) <= {"subject", "requires", "rationale"}:
+                raise ValidationError(
+                    "SCHEMA s10: subject_rules entries need {subject, "
+                    "requires} (optional rationale)")
+            if not isinstance(rule["subject"], str) or \
+                    not ENT_RE.match(rule["subject"]):
+                raise ValidationError(
+                    "SCHEMA s10: subject_rules subject must be an SK-ENT ID")
+            if not isinstance(rule["requires"], list) or \
+                    not all(isinstance(x, str) and ENT_RE.match(x)
+                            for x in rule["requires"]):
+                raise ValidationError(
+                    "SCHEMA s10: subject_rules requires must be a list of "
+                    "SK-ENT condition property IDs")
+        scr = content.get("source_count_rules", {})
+        if not isinstance(scr, dict) or not all(
+                isinstance(k, str) and isinstance(v, int)
+                and not isinstance(v, bool) and v >= 1
+                for k, v in scr.items()):
+            raise ValidationError(
+                "SCHEMA s10: source_count_rules must map derivation types "
+                "to integer minimum distinct-source counts >= 1")
+    elif target == "admissibility_map":
+        unknown = operative - {"map"}
+        if unknown:
+            raise ValidationError(
+                f"SCHEMA s10: unknown operative key(s) {sorted(unknown)} "
+                f"in admissibility_map content")
+        amap = content.get("map")
+        if not isinstance(amap, dict) or not amap:
+            raise ValidationError(
+                "SCHEMA s10: admissibility_map content must carry a "
+                "non-empty map object — validate_fact indexes into it on "
+                "every seal")
+        entry_key = re.compile(r"^(ring_[1-9]\d*|notes)$")
+        for dtype, entry in amap.items():
+            if not isinstance(dtype, str) or not isinstance(entry, dict):
+                raise ValidationError(
+                    f"SCHEMA s10: map[{dtype!r}] must be an object of "
+                    f"ring verdicts")
+            for k, v in entry.items():
+                if not isinstance(k, str) or not entry_key.match(k) or \
+                        not isinstance(v, str):
+                    raise ValidationError(
+                        f"SCHEMA s10: map[{dtype!r}] keys must be ring_N "
+                        f"or notes with string values, got {k!r}")
 
 
 def validate_governance(record: dict, state: dict):
@@ -579,6 +769,14 @@ def validate_governance(record: dict, state: dict):
     delta = record["delta"]
     if not isinstance(delta, dict) or not delta:
         raise ValidationError("SCHEMA s10: delta must be a non-empty object")
+    # wider placeholder net for deltas (issue #7 G5): a delta is operative
+    # by definition, and '<<' appears in no legitimate ruleset, source, or
+    # unit — any angle-bracket marker ('<<TBD>>', '<<FIXME>>') is a
+    # placeholder that must never enter force
+    if "<<" in json.dumps(delta, ensure_ascii=False):
+        raise ValidationError(
+            "SCHEMA s10: placeholder-style marker '<<' in governance "
+            "delta — refusing to seal")
 
     if kind == "ucum_expansion":
         codes = delta.get("add_codes")
@@ -596,11 +794,18 @@ def validate_governance(record: dict, state: dict):
             # precede it) — the tripwire is narrowed before, never by,
             # the code that needs it
             for ch in c:
-                if ord(ch) > 127 and ch not in state["ascii_exempt"]:
+                if ord(ch) > 127:
+                    if ch not in state["ascii_exempt"]:
+                        raise ValidationError(
+                            f"SCHEMA s10: UCUM code {c!r} contains "
+                            f"non-ASCII U+{ord(ch):04X} not yet exempted "
+                            f"— seal an ascii_exemption record first")
+                elif not UCUM_CHAR_RE.match(ch):
+                    # issue #7 G5: codes get a syntax check, not just
+                    # non-empty stringhood
                     raise ValidationError(
-                        f"SCHEMA s10: UCUM code {c!r} contains non-ASCII "
-                        f"U+{ord(ch):04X} not yet exempted — seal an "
-                        f"ascii_exemption record first")
+                        f"SCHEMA s10: {c!r} is not valid UCUM code "
+                        f"syntax (character {ch!r})")
         if len(set(codes)) != len(codes):
             raise ValidationError("SCHEMA s10: duplicate codes in delta")
         already = set(codes) & state["ucum"]
@@ -678,6 +883,9 @@ def validate_governance(record: dict, state: dict):
         operative = {k: v for k, v in content.items()
                      if not k.startswith("_")}
         _placeholder_guard(operative, "governance ruleset content")
+        # issue #7 G2: the content must expose the structure the seal
+        # path indexes into, or the next fact seal crashes uncitably
+        _validate_ruleset_structure(delta["target"], content)
 
     elif kind == "doc_supersession":
         if set(delta) != {"document", "new_version", "new_hash"}:
@@ -703,6 +911,11 @@ class Ledger:
         self.path = Path(path) if path is not None else None
         self.registries = registries
         self.rulesets = rulesets
+        # position-zero ruleset snapshot, taken BEFORE any governance
+        # replay rebinds self.rulesets to end state. verify(full) must
+        # replay from here, or records sealed before a ruleset_change
+        # are judged by rules that did not exist yet (issue #7 G1).
+        self._genesis_rulesets = dict(rulesets)
         self.records = []
         self.flags = []  # near-duplicate warnings (s11: warn, not a byte rule)
         self._init_indexes()
@@ -715,8 +928,12 @@ class Ledger:
                 # not crash — surface it as a clean, citable load error
                 try:
                     self._index(r)
-                    # replay governance so in-force state (whitelist,
-                    # UCUM, exemptions, rulesets) matches the chain
+                    # replay genesis + governance so in-force state
+                    # (whitelist, UCUM, exemptions, rulesets) matches
+                    # the chain — the chain alone, never the files
+                    if isinstance(r, dict) and \
+                            r.get("record_type") == "genesis":
+                        self._apply_genesis(r)
                     if isinstance(r, dict) and \
                             r.get("record_type") == "governance":
                         self._apply_governance(r)
@@ -742,9 +959,23 @@ class Ledger:
         # the chain alone.
         self._ucum = set(UCUM_V1)
         self._ascii_exempt = set()
+        # pre-genesis default only: once genesis seals, _apply_genesis
+        # replaces this with the genesis record's inline enumeration —
+        # the chain-authoritative founding whitelist (issue #7 G4). The
+        # file projection must match the inline one (validate_genesis),
+        # so nothing can seal that a chain-alone verifier would refuse.
         base_wl = {s["id"]: s for s in
                    self.registries["sources"]["sources"]}
         self._whitelist = {k: dict(v) for k, v in base_wl.items()}
+
+    def _apply_genesis(self, record):
+        """The genesis record's inline whitelist becomes the in-force
+        founding whitelist (issue #7 G4) — state reconstructible from
+        the chain alone, invariant 6."""
+        self._whitelist = {
+            e["id"]: {"id": e["id"], "publisher": e["publisher"],
+                      "rings": list(e["rings"])}
+            for e in record["whitelist"]}
 
     def rules_in_force(self) -> dict:
         """The rules governing the next fact — a snapshot, for
@@ -930,7 +1161,7 @@ class Ledger:
         elif rt == "genesis":
             if self.records:
                 raise ValidationError("genesis must be record zero")
-            validate_genesis(record, self.rulesets)
+            validate_genesis(record, self.rulesets, self.registries)
         elif rt == "governance":
             # SCHEMA s10/P9: validate the payload against the rules in
             # force at this chain position, then fold it in so every
@@ -950,6 +1181,8 @@ class Ledger:
         record["content_hash"] = content_hash(record)
         self.records.append(record)
         self._index(record)
+        if rt == "genesis":
+            self._apply_genesis(record)
         if applied_gov is not None:
             self._apply_governance(record)
         return record
@@ -994,7 +1227,14 @@ class Ledger:
             prev = r.get("content_hash") if isinstance(r, dict) else None
 
         if full:
-            shadow = Ledger(None, self.registries, self.rulesets)
+            # the shadow replays from the POSITION-ZERO ruleset snapshot,
+            # never from self.rulesets — by now that is end state (load
+            # already folded every governance record), and replaying from
+            # it judges pre-change records by rules that did not exist
+            # when they sealed (issue #7 G1: a tightening ruleset_change
+            # retroactively condemned history)
+            shadow = Ledger(None, self.registries,
+                            dict(self._genesis_rulesets))
             for i, r in enumerate(self.records):
                 try:
                     body = {k: v for k, v in r.items() if k != "content_hash"}

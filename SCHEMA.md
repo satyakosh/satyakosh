@@ -344,6 +344,27 @@ or in the *operative* fields of any hash-enumerated ruleset (commentary
 fields exempt). The draft genesis lives at `genesis_record.draft.json`
 (repo root) until the Genesis Window opens.
 
+**The declared digests bind (issue #7 G3).** The genesis hash fields are
+enumeration with teeth, not decoration: at genesis-seal time the engine
+hashes the rulesets and predicates registry it was handed (JSON as JCS,
+per the doctrine above) and refuses on mismatch with the declared
+digests, and `verify(full)` re-checks the binding on replay — a chain
+built under rulesets its own genesis does not enumerate is refused at
+seal and condemned on audit. The standalone verifier binds all six
+digests (including the three prose documents, which hash as frozen file
+bytes) plus the inline whitelist against a repository checkout via
+`verify.py CHAIN.json --repo DIR`, honoring later `doc_supersession` /
+`ruleset_change` records as the in-force expectation.
+
+**The inline whitelist is authoritative (issue #7 G4).** Whitelist
+entries are structurally validated (`{id, publisher, rings}` exactly),
+and once genesis seals, the in-force founding whitelist IS the inline
+enumeration — never the `registries/sources.json` file, whose
+`{id, publisher, rings}` projection must agree with the inline list at
+genesis-seal time (descriptive extras like names and URLs live only in
+the file). A source present only in the file can never seal a fact,
+because a verifier reconstructing from the chain alone would refuse it.
+
 ## 10. Governance records
 
 Sealed on: whitelist add/remove/ring-change · pipeline policy version
@@ -365,15 +386,24 @@ reference something absent:
 | `governance_kind` | delta | effect on in-force rules |
 |---|---|---|
 | `whitelist_change` | `{add[], remove[], set_rings[]}` | edits the source whitelist (add needs `{id, publisher, rings}`; remove/set_rings must name a present source) |
-| `ruleset_change` | `{target, content}` | replaces `admissibility_map` or `mandatory_conditions` with the full new ruleset, **inline** (the chain stays self-contained; content is placeholder-checked) |
-| `ucum_expansion` | `{add_codes[]}` | admits UCUM codes to the whitelist in force; a non-ASCII code requires its characters already exempted |
+| `ruleset_change` | `{target, content}` | replaces `admissibility_map` or `mandatory_conditions` with the full new ruleset, **inline** (the chain stays self-contained; content is placeholder-checked **and structurally validated** — the content must expose exactly the structure `validate_fact` indexes into, so a malformed ruleset is refused citably at governance-seal time instead of bricking every later fact seal with an uncitable error; issue #7 G2) |
+| `ucum_expansion` | `{add_codes[]}` | admits UCUM codes to the whitelist in force; codes get a **syntax check** (UCUM grammar characters only — angle brackets, spaces, and control characters refuse; issue #7 G5); a non-ASCII code requires its characters already exempted |
 | `ascii_exemption` | `{exempt_chars[]}` | narrows the §7.2 fact-record ASCII tripwire for the named characters — the mechanism referenced in §7.2, exercised in `stress/test_governance.py` |
 | `doc_supersession` | `{document, new_version, new_hash}` | records a new frozen hash for SCHEMA/PIPELINE_POLICY/SCOPE on the chain (A4) |
+
+Delta strings admit no `<<` marker anywhere (a wider placeholder net
+than the genesis guard: a delta is operative by definition, and `<<`
+appears in no legitimate ruleset, source, or unit — issue #7 G5).
 
 A verifier resolves the rules for any fact by folding these deltas in
 chain order onto the genesis state — `Ledger.rules_in_force()` and the
 load-path replay do exactly this, so state is reconstructible from the
-chain alone (invariant 6).
+chain alone (invariant 6). **Audit replays from position zero (issue #7
+G1):** `verify(full)` rebuilds its shadow ledger from the genesis-time
+ruleset snapshot (taken before any governance folding) and replays the
+chain forward, so every record is judged by the rules in force *when it
+sealed* — a tightening `ruleset_change` never retroactively condemns
+history, and a loosening one never retroactively legitimizes it.
 
 ## 11. Validation & admissibility (enforced by `ledger.py`)
 

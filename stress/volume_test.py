@@ -54,6 +54,11 @@ def make_genesis():
     for k, v in list(g.items()):
         if isinstance(v, str) and "PLACEHOLDER" in v:
             g[k] = "e" * 64 if k.endswith("_hash") else CREATED
+    # declared digests bind the provided artifacts (issue #7 G3)
+    g["mandatory_conditions_hash"] = L.sha256_hex(
+        L.jcs(load("rulesets/mandatory_conditions.json")))
+    g["admissibility_map_hash"] = L.sha256_hex(L.jcs(load("rules/admissibility_map.json")))
+    g["predicates_founding_hash"] = L.sha256_hex(L.jcs(load("registries/predicates.json")))
     g["inscription"]["mission"] = "Synthetic genesis for the volume test."
     return g
 

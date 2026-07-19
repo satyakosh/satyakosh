@@ -11,7 +11,13 @@ Exercises the witnessed-governance machinery end to end:
   - rules-in-force resolution from the chain alone (reload reproduces
     state), and verify(full=True) replaying governance;
   - a negative battery: malformed / no-op / unknown-kind deltas refused
-    with citable errors.
+    with citable errors;
+  - the issue #7 regression battery (G1-G5): tightening ruleset_change
+    leaves history CLEAN under verify(full); garbage ruleset content
+    refused at governance seal and citable if ever in force; genesis
+    digests bind the provided artifacts; the inline whitelist is
+    authoritative over the sources file; UCUM syntax + '<<' marker
+    refusals.
 
 Nothing here touches the real chain; all rulesets are synthetic. This
 is a Genesis-Window review target: the governance FORMAT benefits from
@@ -62,6 +68,11 @@ def genesis():
     for k, v in list(g.items()):
         if isinstance(v, str) and "PLACEHOLDER" in v:
             g[k] = "e" * 64 if k.endswith("_hash") else "2026-07-19T00:00:00Z"
+    # declared digests bind the provided artifacts (issue #7 G3)
+    g["mandatory_conditions_hash"] = L.sha256_hex(
+        L.jcs(RS["mandatory_conditions"]))
+    g["admissibility_map_hash"] = L.sha256_hex(L.jcs(RS["admissibility_map"]))
+    g["predicates_founding_hash"] = L.sha256_hex(L.jcs(REG["predicates"]))
     g["inscription"]["mission"] = "Governance test genesis."
     return g
 
@@ -226,6 +237,93 @@ def run():
                                  {"document": "SCHEMA.md",
                                   "new_version": "1.1.0",
                                   "new_hash": "a" * 64})), False)
+
+    # ---------- issue #7 regression battery ----------
+    # G1: a TIGHTENING ruleset_change must not retroactively condemn
+    # history — verify(full) replays from the position-zero snapshot,
+    # judging every record by the rules in force when it sealed
+    led4 = L.Ledger(None, REG, RS)
+    led4.seal(genesis())
+    led4.seal(fact(value="6e0"))  # valid under founding rules
+    tight = copy.deepcopy(RS["mandatory_conditions"])
+    tight["subject_rules"] = list(tight.get("subject_rules", [])) + [
+        {"subject": "SK-ENT-000001", "requires": ["SK-ENT-000006"],
+         "rationale": "issue 7 G1 regression: a tightening change"}]
+    led4.seal(gov("ruleset_change", {"target": "mandatory_conditions",
+                                     "content": tight}))
+    import tempfile as _tf
+    tmp = Path(_tf.gettempdir()) / "gov_g1.json"
+    led4.path = tmp
+    led4.save()
+    rl = L.Ledger(tmp, REG, RS)  # pristine founding files, real load path
+    note("G1: tightening ruleset_change leaves history CLEAN",
+         rl.verify(full=True) == [],
+         f"{len(rl.verify(full=True))} findings")
+    check("G1: NEW fact refused under the tightened rule in force",
+          lambda: rl.seal(fact(value="7e0")), True, "required condition")
+    tmp.unlink()
+
+    # G2: garbage ruleset content refused at governance-seal time, and
+    # a structurally broken in-force ruleset is citable, never a KeyError
+    check("G2: garbage ruleset content refused at governance seal",
+          lambda: led3.seal(gov("ruleset_change",
+                                 {"target": "mandatory_conditions",
+                                  "content": {"nonsense": 1}})),
+          True, "unknown operative key")
+    check("G2: ruleset without the indexed structure refused",
+          lambda: led3.seal(gov("ruleset_change",
+                                 {"target": "admissibility_map",
+                                  "content": {"map": "not-an-object"}})),
+          True, "map")
+    check("G2: in-force garbage ruleset is citable, never a KeyError",
+          lambda: L.validate_fact(
+              fact(value="9e0"), REG,
+              {"mandatory_conditions": {"nonsense": 1},
+               "admissibility_map": RS["admissibility_map"]}),
+          True, "structurally invalid")
+
+    # G3: the genesis-declared digests bind the artifacts in force
+    g_bad = genesis()
+    g_bad["mandatory_conditions_hash"] = "f" * 64
+    check("G3: genesis with wrong ruleset digest refused",
+          lambda: L.Ledger(None, REG, RS).seal(g_bad),
+          True, "does not match")
+    led5 = L.Ledger(None, REG, RS)
+    led5.seal(genesis())
+    led5.seal(fact(value="8e0"))
+    tmp2 = Path(_tf.gettempdir()) / "gov_g3.json"
+    led5.path = tmp2
+    led5.save()
+    rs_t = copy.deepcopy(RS)
+    rs_t["mandatory_conditions"]["subject_rules"] = []  # tampered file
+    rt = L.Ledger(tmp2, REG, rs_t)
+    note("G3: tampered ruleset file condemned by verify(full)",
+         any("INVALID record 0" in f for f in rt.verify(full=True)),
+         f"findings: {rt.verify(full=True)[:1]}")
+    tmp2.unlink()
+
+    # G4: the genesis inline whitelist is authoritative
+    reg_x = copy.deepcopy(REG)
+    reg_x["sources"]["sources"].append(
+        {"id": "SK-SRC-000099", "publisher": "FileOnly", "rings": [1]})
+    check("G4: sources file diverging from inline whitelist refused",
+          lambda: L.Ledger(None, reg_x, RS).seal(genesis()),
+          True, "diverges")
+    led6 = L.Ledger(None, REG, RS)
+    led6.seal(genesis())
+    note("G4: in-force whitelist is the genesis inline enumeration",
+         set(led6._whitelist) ==
+         {e["id"] for e in genesis()["whitelist"]},
+         f"{sorted(led6._whitelist)}")
+
+    # G5: UCUM codes get a syntax check; '<<' markers never enter force
+    check("G5: '<<TBD>>' code refused (placeholder marker in delta)",
+          lambda: led3.seal(gov("ucum_expansion",
+                                 {"add_codes": ["<<TBD>>"]})),
+          True, "placeholder")
+    check("G5: angle-bracket unit refused by UCUM syntax check",
+          lambda: led3.seal(gov("ucum_expansion", {"add_codes": ["kg>"]})),
+          True, "syntax")
 
     fails = sum(1 for ok, _, _ in RESULTS if not ok)
     w = max(len(n) for _, n, _ in RESULTS)

@@ -12,6 +12,12 @@ Usage:
     python verify.py CHAIN.json                 verify the whole chain
     python verify.py CHAIN.json --fact FACT_ID  one fact + its status
     python verify.py CHAIN.json --json          machine-readable output
+    python verify.py CHAIN.json --repo DIR      additionally bind the
+        genesis-declared founding-document hashes and inline whitelist
+        against the repository files at DIR (s9: prose documents hash as
+        file bytes, JSON documents as their JCS serialization; a later
+        doc_supersession or ruleset_change governance record updates the
+        expected hash for its document)
 
 Exit codes: 0 chain intact | 1 findings | 2 cannot read input.
 
@@ -128,6 +134,108 @@ def verify_chain(records):
     return findings, link
 
 
+def verify_repo_bindings(records, repo):
+    """Bind the genesis-declared digests to the repository's actual
+    files (s9; issue #7 G3/G4). The declared hashes are enumeration
+    with teeth: a repo whose rulesets do not hash to what its own
+    genesis declares is not the repo the chain was sealed under.
+
+    Chain governance is honored: the latest doc_supersession for a
+    prose document, or ruleset_change for a JSON ruleset, replaces the
+    expected hash — the chain, not the file, is authoritative.
+    Findings-only; hostile input never crashes (same contract as
+    verify_chain)."""
+    import os.path
+    findings = []
+    genesis = records[0] if records and isinstance(records[0], dict) and \
+        records[0].get("record_type") == "genesis" else None
+    if genesis is None:
+        return ["REPO BINDING SKIPPED: record 0 is not a genesis record"]
+
+    # fold governance: latest supersession/change per document wins
+    doc_hash = {}      # prose filename -> superseding hash
+    ruleset_new = {}   # ruleset target -> superseding content
+    saw_wl_change = False
+    for r in records[1:]:
+        if not isinstance(r, dict) or r.get("record_type") != "governance":
+            continue
+        kind, delta = r.get("governance_kind"), r.get("delta")
+        if not isinstance(delta, dict):
+            continue
+        if kind == "doc_supersession":
+            doc_hash[delta.get("document")] = delta.get("new_hash")
+        elif kind == "ruleset_change":
+            ruleset_new[delta.get("target")] = delta.get("content")
+        elif kind == "whitelist_change":
+            saw_wl_change = True
+
+    def check(label, declared, actual_fn):
+        try:
+            actual = actual_fn()
+        except Exception as e:  # noqa: BLE001 -- missing/hostile file
+            findings.append(f"REPO BINDING: cannot read {label}: "
+                            f"{type(e).__name__}: {e}")
+            return
+        if actual != declared:
+            findings.append(
+                f"REPO BINDING MISMATCH: {label} hashes to {actual[:16]}"
+                f"..., but the chain declares {str(declared)[:16]}... — "
+                f"the file is not the one the chain binds")
+
+    def file_sha(rel):
+        with open(os.path.join(repo, rel), "rb") as f:
+            return sha(f.read())
+
+    def jcs_sha(rel):
+        with open(os.path.join(repo, rel), encoding="utf-8") as f:
+            return sha(jcs(json.load(f)))
+
+    prose = [("SCHEMA.md", "schema_hash"),
+             ("PIPELINE_POLICY.md", "pipeline_policy_hash"),
+             ("SCOPE.md", "scope_hash")]
+    for fname, field in prose:
+        declared = doc_hash.get(fname, genesis.get(field))
+        check(fname, declared, lambda rel=fname: file_sha(rel))
+
+    rulesets = [("rules/admissibility_map.json", "admissibility_map",
+                 "admissibility_map_hash"),
+                ("rulesets/mandatory_conditions.json", "mandatory_conditions",
+                 "mandatory_conditions_hash")]
+    for rel, target, field in rulesets:
+        if target in ruleset_new:
+            declared = sha(jcs(ruleset_new[target]))
+        else:
+            declared = genesis.get(field)
+        check(rel, declared, lambda r=rel: jcs_sha(r))
+
+    check("registries/predicates.json",
+          genesis.get("predicates_founding_hash"),
+          lambda: jcs_sha("registries/predicates.json"))
+
+    # inline whitelist vs sources file ({id, publisher, rings}
+    # projection). Only meaningful while no whitelist_change has sealed:
+    # after one, the chain alone carries the in-force whitelist.
+    if not saw_wl_change:
+        try:
+            with open(os.path.join(repo, "registries/sources.json"),
+                      encoding="utf-8") as f:
+                srcs = json.load(f)["sources"]
+            file_proj = {s["id"]: (s["publisher"], tuple(s["rings"]))
+                         for s in srcs}
+            inline_proj = {e["id"]: (e["publisher"], tuple(e["rings"]))
+                           for e in genesis.get("whitelist", [])}
+            if file_proj != inline_proj:
+                findings.append(
+                    "REPO BINDING MISMATCH: registries/sources.json "
+                    "diverges from the genesis inline whitelist — the "
+                    "inline enumeration is authoritative (s9)")
+        except Exception as e:  # noqa: BLE001
+            findings.append(f"REPO BINDING: cannot read "
+                            f"registries/sources.json: "
+                            f"{type(e).__name__}: {e}")
+    return findings
+
+
 def derive_status(records, fact_id):
     """Supersession state, derived from the chain alone."""
     versions = {}
@@ -160,6 +268,9 @@ def main():
     ap.add_argument("--fact", help="verify and report one fact_id")
     ap.add_argument("--json", action="store_true",
                     help="machine-readable output")
+    ap.add_argument("--repo", help="repository directory: bind the "
+                    "genesis-declared document hashes and inline "
+                    "whitelist against its files (s9)")
     args = ap.parse_args()
 
     try:
@@ -176,6 +287,8 @@ def main():
     if stored_head is not None and stored_head != head:
         findings.append("CHAIN HEAD MISMATCH: stored head does not match "
                         "the recomputed head")
+    if args.repo:
+        findings.extend(verify_repo_bindings(records, args.repo))
 
     fact_report = None
     if args.fact:
