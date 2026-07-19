@@ -230,7 +230,10 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   governance-payload validation; the reference implementation validates
   against in-memory rulesets only. The engine must exist before the
   FIRST governance record seals — nothing may enter the chain that a
-  verifier cannot re-derive rules for. **Retirement** (the `retires`
+  verifier cannot re-derive rules for.
+  (FD-29: required before the first governance record, i.e. Ring-2
+  activation after the window — NOT a window-open gate, since the
+  window seals only genesis + Ring-1 seed facts.) **Retirement** (the `retires`
   retraction record that derives `status: retired`) ships with it.
 - **Intake artifact checks.** The intake pipeline (and CI) must verify,
   for every proposal carrying a `derivation.script`, that the recipe

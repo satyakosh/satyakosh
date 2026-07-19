@@ -360,9 +360,9 @@ object/condition typing per §3.3–3.4 (v1 gate: `quantity` only);
 predicate object-type admission (the registry's `object_types`
 declaration is enforced — a predicate admitting only dates never seals
 a quantity); value &
-uncertainty grammar (§7.3); UCUM code check (v1: a closed whitelist of
-founding-scope codes in the reference implementation, expanded with
-proposals); per-derivation-type minimum **distinct-institution** source counts
+uncertainty grammar (§7.3); UCUM code check (v1: a closed whitelist of exactly the
+founding-scope codes in the reference implementation — no Ring-2
+corpus units; expanded at Ring-2 activation by governance record); per-derivation-type minimum **distinct-institution** source counts
 when the mandatory-conditions ruleset declares `source_count_rules`
 (RING2 §3.1 independence — the count is over distinct source IDs,
 never entries; v1: none declared, default 1; Ring-2 activation sets

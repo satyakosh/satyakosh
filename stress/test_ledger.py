@@ -274,7 +274,9 @@ def run():
           True, "malformed condition entry")
 
     # ---------------- issue #5 findings (F1-F4), pinned
-    check("F1: percent unit seals (UCUM whitelist)",
+    # FD-29: % is a Ring-2-corpus unit, not in the founding closed set;
+    # refused now, added at Ring-2 activation by governance record.
+    check("F1: percent unit refused (closed-by-default, FD-29)",
           lambda: led.seal(make_fact(value="7.404e1",
                                      triple={"subject": "SK-ENT-000002",
                                              "predicate": "SK-PRED-000001",
@@ -284,7 +286,8 @@ def run():
                                                         "exact": False,
                                                         "uncertainty": None},
                                              "conditions": []},
-                                     triple_hash=None, fact_id=None)), False)
+                                     triple_hash=None, fact_id=None)),
+          True, "UCUM")
     n_flags2 = len(led.flags)
     QA = {"type": "quantity", "value": "1e0", "unit": "kPa",
           "exact": True, "uncertainty": None}

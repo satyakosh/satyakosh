@@ -62,6 +62,13 @@ canonical-byte contract (SCHEMA.md s10).
   both bypasses), and source_count_rules counts distinct source IDs
   per RING2 s3.1's independence requirement. Pinned as F5/F5b/F6;
   ledger suite 66 -> 69.
+- Synthesis security review triaged (2026-07-19): most findings
+  confirmed already-done (rfc8785 cross-check + seal rehearsal in
+  CI, chain-rule pins from issues #1-6) or a stale docstring (H2,
+  fixed). Two founder calls (FD-29): the governance engine is a
+  pre-Ring-2 prerequisite, not a window-open gate; and % / a are
+  removed from the founding UCUM whitelist (closed by default —
+  inert for v1, re-added at Ring-2 activation by governance).
 - Standalone verifier CLI (2026-07-19, verify.py at repo root): one
   pure-ASCII file, stdlib only, zero imports from the engine -- the
   independent second implementation as a downloadable tool. Verifies

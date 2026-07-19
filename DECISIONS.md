@@ -219,6 +219,23 @@ label, and the genesis record seals `schema_version`/
 `pipeline_policy_version` as "1.0.0". The rc→1.0.0 promotion is noted
 in CHANGELOG at the freeze. *Applied: this commit.*
 
+**FD-29 — Governance-engine timing, and closed-by-default UCUM
+(from a synthesis security review, 2026-07-19).** (a) The governance
+engine (payload validation + chain-position ruleset resolution) is
+required before the FIRST governance record seals — Ring-2 activation,
+after the window — NOT before the Genesis Window opens: the window
+seals only the genesis record (its own type) and Ring-1 seed facts
+(plain facts), and a hash-breaking flaw restarts the window rather than
+needing a governance record. It stays the tracked pre-Ring-2
+prerequisite; the window is not blocked. (b) The founding UCUM
+whitelist admits exactly the founding-scope codes — `%` and `a`, added
+2026-07-18 for Ring-2 expressibility (issue #5 F1), are removed: no
+Ring-1 seed uses them, they are inert while Ring 2 is sealed out, and
+UCUM_V1 is not a genesis-hashed artifact, so they return at Ring-2
+activation by governance record. Reverses the issue-#5 F1 seal
+behaviour; the F1 test now pins refusal. Ring-2 stress harnesses extend
+the set locally. *Applied: this commit.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates

@@ -78,10 +78,12 @@ DERIVATION_FIELDS = frozenset({"type", "script", "derived_from"})
 UCUM_V1 = frozenset({
     "1", "m", "s", "g", "kg", "A", "K", "mol", "cd", "Hz", "N", "Pa",
     "kPa", "J", "W", "C", "V", "Ohm", "lm", "lx", "Cel", "eV",
-    "m/s", "m/s2", "m2", "m3", "J.s", "J/K", "mol-1", "lm/W", "kg/m3",
-    "%", "a"})  # % (rates) and a (year) pre-added: the Ring-2 corpus's
-                # commonest units; the dimensionless workaround for a
-                # rate seals but is semantically wrong (issue #5 F1)
+    "m/s", "m/s2", "m2", "m3", "J.s", "J/K", "mol-1", "lm/W", "kg/m3"})
+    # Closed by default (FD-29): exactly the founding-scope codes — no
+    # Ring-1 seed uses %, a, or other Ring-2-corpus units, and they are
+    # inert for v1 (Ring 2 is sealed out). UCUM_V1 is not a genesis-hashed
+    # artifact, so codes are added at Ring-2 activation by governance
+    # record. Ring-2 stress harnesses extend this set locally.
 
 SEALABLE_DERIVATIONS = {
     "si_exact_definition", "defined_convention", "mathematical_proof",
