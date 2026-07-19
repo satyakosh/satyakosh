@@ -7,5 +7,7 @@ The sealed chain itself will also live here — and it is **empty on
 purpose**: nothing seals until the Genesis Window completes, because
 every record, including record 0, must pass its process in public.
 
-When the chain exists, verify it with `Ledger(...).verify(full=True)`
-(a standalone verifier CLI ships with the Genesis Window).
+When the chain exists, verify it with the standalone verifier:
+`python verify.py <chain.json>` (repo root -- one file, stdlib only,
+independent of this engine), or in depth via
+`Ledger(...).verify(full=True)`.

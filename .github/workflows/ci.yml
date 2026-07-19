@@ -48,3 +48,19 @@ jobs:
         run: python stress/rehearse_genesis.py
       - name: Ring 2/3 expressiveness battery (frozen-surface dry-run)
         run: python stress/ring2_expressiveness.py
+      - name: Standalone verifier CLI (clean, tamper, fact lookup)
+        run: |
+          python verify.py .cache/volume_ledger.json
+          FID=$(python -c "import json;print(json.load(open('.cache/volume_ledger.json',encoding='utf-8'))['records'][1]['fact_id'])")
+          python verify.py .cache/volume_ledger.json --fact "$FID" --json > /dev/null
+          python - <<'PYEOF'
+          import json
+          d = json.load(open('.cache/volume_ledger.json', encoding='utf-8'))
+          d['records'][3]['triple']['object']['value'] = '9.999e9'
+          json.dump(d, open('.cache/tampered.json', 'w', encoding='utf-8'), ensure_ascii=False)
+          PYEOF
+          if python verify.py .cache/tampered.json > /dev/null; then
+            echo "tamper NOT caught"; exit 1
+          else
+            echo "tamper caught by standalone verifier"
+          fi

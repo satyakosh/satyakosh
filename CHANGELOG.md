@@ -54,6 +54,14 @@ canonical-byte contract (SCHEMA.md s10).
   collision check had quietly reintroduced O(n^2) sealing (973
   seals/s at N=9000); a prefix-12 index restores flat scaling
   (4400+ seals/s).
+- Standalone verifier CLI (2026-07-19, verify.py at repo root): one
+  pure-ASCII file, stdlib only, zero imports from the engine -- the
+  independent second implementation as a downloadable tool. Verifies
+  content hashes, triple hashes, fact_id prefixes, chain linkage and
+  head; derives supersession status from the chain alone; --fact and
+  --json modes for grounding receipts; hostile input yields findings,
+  never crashes. Exercised in CI: clean chain, tamper detection, fact
+  lookup.
 - Issue #5 (fifth external review, simulated Ring-2 activation; all
   four findings reproduced then closed, 2026-07-19): UCUM whitelist
   gains % and a (the Ring-2 corpus's commonest units; the
