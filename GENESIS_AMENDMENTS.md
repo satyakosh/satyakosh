@@ -192,11 +192,15 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 The Genesis Window is **readiness-gated, not scheduled**. It opens only
 after ALL of: (1) founder line-by-line re-read of every Tier B/C
 document; (2) founder digit-by-digit verification of the Tier 1 seed
-values against the sources; (3) the dedication-consent note recorded;
-(4) the mission prose confirmed after the 48-hour final read;
+values against the sources — **DONE 2026-07-19** (founder verified all
+seven defining constants against the SI Brochure / CODATA table;
+machine pre-checks and the recovered v0 corroboration are on record);
+(3) the dedication-consent note recorded — **DONE 2026-07-18**;
+(4) the mission prose confirmed after the 48-hour final read (clock
+runs from the 2026-07-18 revision; earliest 2026-07-20);
 (5) founder-string / founding-date corroboration checks;
-(6) tools/genesis_hashes.py green. No date is announced before those
-are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
+(6) tools/genesis_hashes.py green with founder sign-off. No date is
+announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
 (with the verifier), per the existing versioning rule.
 
 ## Tracked, not blocking the freeze
