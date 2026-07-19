@@ -353,6 +353,28 @@ ruleset change (admissibility map; mandatory-condition map) ·
 Payload: machine-readable delta + effective-from. The rules governing any
 fact = genesis state ⊕ all governance records preceding it.
 
+**Record shape** (enforced by `validate_governance`; unknown fields
+refused): `{record_type: "governance", governance_kind, delta,
+effective_from (YYYY-MM-DD, the declared decision date — chain position
+governs when the change binds), created, content_hash,
+prev_record_hash}`. Each `governance_kind` has a strict delta shape, and
+every delta is validated against the rules *in force at that chain
+position* so a governance record can never no-op, double-apply, or
+reference something absent:
+
+| `governance_kind` | delta | effect on in-force rules |
+|---|---|---|
+| `whitelist_change` | `{add[], remove[], set_rings[]}` | edits the source whitelist (add needs `{id, publisher, rings}`; remove/set_rings must name a present source) |
+| `ruleset_change` | `{target, content}` | replaces `admissibility_map` or `mandatory_conditions` with the full new ruleset, **inline** (the chain stays self-contained; content is placeholder-checked) |
+| `ucum_expansion` | `{add_codes[]}` | admits UCUM codes to the whitelist in force; a non-ASCII code requires its characters already exempted |
+| `ascii_exemption` | `{exempt_chars[]}` | narrows the §7.2 fact-record ASCII tripwire for the named characters — the mechanism referenced in §7.2, exercised in `stress/test_governance.py` |
+| `doc_supersession` | `{document, new_version, new_hash}` | records a new frozen hash for SCHEMA/PIPELINE_POLICY/SCOPE on the chain (A4) |
+
+A verifier resolves the rules for any fact by folding these deltas in
+chain order onto the genesis state — `Ledger.rules_in_force()` and the
+load-path replay do exactly this, so state is reconstructible from the
+chain alone (invariant 6).
+
 ## 11. Validation & admissibility (enforced by `ledger.py`)
 
 **Structural:** required fields; types; registry existence of all IDs;

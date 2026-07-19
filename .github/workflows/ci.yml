@@ -33,6 +33,8 @@ jobs:
         run: python tools/check_mandatory_conditions.py
       - name: Ledger test suite
         run: python stress/test_ledger.py
+      - name: Governance engine test suite
+        run: python stress/test_governance.py
       - name: Canonicalization property tests
         run: python stress/test_canonical_properties.py
       - name: Validator mutation fuzzer (two seeds)

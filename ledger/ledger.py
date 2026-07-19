@@ -164,18 +164,21 @@ def chain_link(curr_content_hash: str, prev_link: str) -> str:
 
 # ---------------------------------------------------------------- validation
 
-def _ascii_guard(record: dict):
+def _ascii_guard(record: dict, exempt=frozenset()):
     """Fact records must be pure ASCII in canonical form (SCHEMA s7.2.1).
     A non-ASCII byte in a fact record is an attack signature. Kept as a
     backstop behind the per-field checks: it catches anything a future
-    field or free-text slot (e.g. source edition) lets through."""
+    field or free-text slot (e.g. source edition) lets through.
+    `exempt`: characters legitimized by ascii_exemption governance
+    records (the s7.2 tripwire-narrowing mechanism)."""
     raw = jcs(record)
-    try:
-        raw.decode("ascii")
-    except UnicodeDecodeError as e:
-        raise ValidationError(
-            f"SCHEMA s7.2: non-ASCII byte in fact canonical form at "
-            f"offset {e.start} — homoglyph/invisible-character tripwire")
+    text = raw.decode("utf-8")
+    for ch in text:
+        if ord(ch) > 127 and ch not in exempt:
+            raise ValidationError(
+                f"SCHEMA s7.2: non-ASCII character U+{ord(ch):04X} in "
+                f"fact canonical form — homoglyph/invisible-character "
+                f"tripwire (not exempted by any governance record)")
 
 
 def _placeholder_guard(obj, context: str):
@@ -195,9 +198,12 @@ def _require_int(value, name, minimum=1):
             f"got {value!r}")
 
 
-def _validate_quantity(obj, where):
+def _validate_quantity(obj, where, ucum=None):
     """Shared s3.3 validation for the object and every condition value —
-    conditions use the same typed union (s3.4)."""
+    conditions use the same typed union (s3.4). `ucum` is the whitelist
+    in force at this chain position (defaults to the founding set)."""
+    if ucum is None:
+        ucum = UCUM_V1
     if not isinstance(obj, dict):
         raise ValidationError(
             f"SCHEMA s3.3: {where} must be a typed union object")
@@ -220,10 +226,10 @@ def _validate_quantity(obj, where):
     if not isinstance(unit, str) or not unit:
         raise ValidationError(
             f"SCHEMA s3.3: {where} unit required ('1' if dimensionless)")
-    if unit not in UCUM_V1:
+    if unit not in ucum:
         raise ValidationError(
-            f"SCHEMA s11: {where} unit {unit!r} is not in the v1 UCUM "
-            f"code whitelist")
+            f"SCHEMA s11: {where} unit {unit!r} is not in the UCUM "
+            f"code whitelist in force")
     if not isinstance(obj["exact"], bool):
         raise ValidationError(f"SCHEMA s3.3: {where} exact must be boolean")
     unc = obj["uncertainty"]
@@ -240,10 +246,14 @@ def _validate_quantity(obj, where):
                 f"cannot carry uncertainty")
 
 
-def validate_fact(record: dict, registries: dict, rulesets: dict):
+def validate_fact(record: dict, registries: dict, rulesets: dict, *,
+                  whitelist=None, ucum=None, ascii_exempt=frozenset()):
     """SCHEMA s11 structural + admissibility checks. Raises on violation.
     Chain-dependent rules (duplicates, supersession linkage,
-    derived_from existence) live in Ledger.seal."""
+    derived_from existence) live in Ledger.seal. The keyword arguments
+    carry the rules IN FORCE at this chain position (genesis state plus
+    preceding governance records, SCHEMA s10/P9); defaults are the
+    founding state."""
     if record.get("record_type") != "fact":
         raise ValidationError("validate_fact called on non-fact record")
     unknown = set(record) - FACT_FIELDS
@@ -313,13 +323,14 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
 
     ents = {e["id"] for e in registries["entities"]["entities"]}
     preds = {p["id"]: p for p in registries["predicates"]["predicates"]}
-    srcs = {s["id"]: s for s in registries["sources"]["sources"]}
+    srcs = whitelist if whitelist is not None else \
+        {s["id"]: s for s in registries["sources"]["sources"]}
     if triple["subject"] not in ents:
         raise ValidationError("SCHEMA s11: subject not in entity registry")
     if triple["predicate"] not in preds:
         raise ValidationError("SCHEMA s11: predicate not in registry")
 
-    _validate_quantity(triple["object"], "object")
+    _validate_quantity(triple["object"], "object", ucum=ucum)
 
     # the predicate registry's object_types declaration is load-bearing
     # (s3.2): a predicate admitting only dates must never seal a quantity
@@ -342,7 +353,8 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
             raise ValidationError(
                 f"SCHEMA s11: condition property {c['property']} not in "
                 f"entity registry")
-        _validate_quantity(c["object"], f"condition {c['property']} value")
+        _validate_quantity(c["object"], f"condition {c['property']} value",
+                           ucum=ucum)
     sorted_conds = sorted(conds, key=lambda c: (c["property"], jcs(c["object"])))
     if conds != sorted_conds:
         raise ValidationError("SCHEMA s7.2.4: conditions not in canonical order")
@@ -460,7 +472,7 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
     if not th.startswith(m.group(3)):
         raise ValidationError("SCHEMA s6: fact_id suffix != triple_hash prefix")
 
-    _ascii_guard(record)
+    _ascii_guard(record, exempt=ascii_exempt)
 
 
 GENESIS_FIELDS = frozenset({
@@ -521,6 +533,169 @@ def validate_genesis(record: dict, rulesets: dict):
         _placeholder_guard(operative, f"ruleset {name} (operative fields)")
 
 
+# -------------------------------------------------------- governance (s10)
+
+GOV_FIELDS = frozenset({
+    "record_type", "governance_kind", "delta", "effective_from",
+    "created", "content_hash", "prev_record_hash"})
+GOV_KINDS = frozenset({
+    "whitelist_change", "ruleset_change", "ucum_expansion",
+    "ascii_exemption", "doc_supersession"})
+GOV_DOCS = frozenset({"SCHEMA.md", "PIPELINE_POLICY.md", "SCOPE.md"})
+RULESET_TARGETS = frozenset({"mandatory_conditions", "admissibility_map"})
+
+
+def validate_governance(record: dict, state: dict):
+    """SCHEMA s10: a witnessed change with a machine-readable delta.
+    Validated against the rules currently in force (`state`) so a
+    governance record can never no-op, double-apply, or reference
+    something that is not there. Chain position governs when it binds;
+    effective_from is the declared date of decision."""
+    if record.get("record_type") != "governance":
+        raise ValidationError("not a governance record")
+    unknown = set(record) - GOV_FIELDS
+    if unknown:
+        raise ValidationError(
+            f"SCHEMA s10: unknown field(s) {sorted(unknown)} in "
+            f"governance record")
+    missing = GOV_FIELDS - {"content_hash", "prev_record_hash"} - set(record)
+    if missing:
+        raise ValidationError(f"SCHEMA s10: missing field(s) {sorted(missing)}")
+    kind = record["governance_kind"]
+    if kind not in GOV_KINDS:
+        raise ValidationError(
+            f"SCHEMA s10: unknown governance_kind {kind!r} — kinds are "
+            f"{sorted(GOV_KINDS)}")
+    if not isinstance(record["effective_from"], str) or \
+            not DATE_RE.match(record["effective_from"]):
+        raise ValidationError(
+            "SCHEMA s10: effective_from must be YYYY-MM-DD (chain "
+            "position governs binding; this is the declared date)")
+    if not isinstance(record["created"], str) or \
+            not TS_RE.match(record["created"]):
+        raise ValidationError("SCHEMA s7.2.2: created not UTC timestamp form")
+    _placeholder_guard(record, "governance record")
+
+    delta = record["delta"]
+    if not isinstance(delta, dict) or not delta:
+        raise ValidationError("SCHEMA s10: delta must be a non-empty object")
+
+    if kind == "ucum_expansion":
+        codes = delta.get("add_codes")
+        if set(delta) != {"add_codes"} or not isinstance(codes, list) \
+                or not codes:
+            raise ValidationError(
+                "SCHEMA s10: ucum_expansion delta is {add_codes: [...]} "
+                "(non-empty)")
+        for c in codes:
+            if not isinstance(c, str) or not c:
+                raise ValidationError(
+                    "SCHEMA s10: each UCUM code must be a non-empty string")
+            # a non-ASCII code may enter only once each of its non-ASCII
+            # characters is exempted (an ascii_exemption record must
+            # precede it) — the tripwire is narrowed before, never by,
+            # the code that needs it
+            for ch in c:
+                if ord(ch) > 127 and ch not in state["ascii_exempt"]:
+                    raise ValidationError(
+                        f"SCHEMA s10: UCUM code {c!r} contains non-ASCII "
+                        f"U+{ord(ch):04X} not yet exempted — seal an "
+                        f"ascii_exemption record first")
+        if len(set(codes)) != len(codes):
+            raise ValidationError("SCHEMA s10: duplicate codes in delta")
+        already = set(codes) & state["ucum"]
+        if already:
+            raise ValidationError(
+                f"SCHEMA s10: code(s) {sorted(already)} already in force "
+                f"— a governance record never no-ops")
+
+    elif kind == "ascii_exemption":
+        chars = delta.get("exempt_chars")
+        if set(delta) != {"exempt_chars"} or not isinstance(chars, list) \
+                or not chars:
+            raise ValidationError(
+                "SCHEMA s10: ascii_exemption delta is {exempt_chars: "
+                "[...]} (non-empty single characters)")
+        for c in chars:
+            if not isinstance(c, str) or len(c) != 1 or ord(c) < 128:
+                raise ValidationError(
+                    f"SCHEMA s10: exempt_chars entries must be single "
+                    f"non-ASCII characters, got {c!r}")
+        if set(chars) & state["ascii_exempt"]:
+            raise ValidationError(
+                "SCHEMA s10: character(s) already exempted — never no-op")
+
+    elif kind == "whitelist_change":
+        allowed_ops = {"add", "remove", "set_rings"}
+        if not set(delta) <= allowed_ops:
+            raise ValidationError(
+                f"SCHEMA s10: whitelist_change delta ops are "
+                f"{sorted(allowed_ops)}")
+        wl = state["whitelist"]
+        for e in delta.get("add", []):
+            if not isinstance(e, dict) or \
+                    set(e) != {"id", "publisher", "rings"}:
+                raise ValidationError(
+                    "SCHEMA s10: whitelist add entries need exactly "
+                    "{id, publisher, rings}")
+            if not isinstance(e["id"], str) or not SRC_RE.match(e["id"]):
+                raise ValidationError("SCHEMA s10: malformed source ID")
+            if e["id"] in wl:
+                raise ValidationError(
+                    f"SCHEMA s10: source {e['id']} already whitelisted")
+            if not isinstance(e["rings"], list) or not e["rings"] or \
+                    not all(isinstance(r, int) and not isinstance(r, bool)
+                            and r >= 1 for r in e["rings"]):
+                raise ValidationError(
+                    "SCHEMA s10: rings must be a non-empty list of "
+                    "integers >= 1")
+        for sid in delta.get("remove", []):
+            if sid not in wl:
+                raise ValidationError(
+                    f"SCHEMA s10: cannot remove {sid!r} — not whitelisted")
+        for e in delta.get("set_rings", []):
+            if not isinstance(e, dict) or set(e) != {"id", "rings"}:
+                raise ValidationError(
+                    "SCHEMA s10: set_rings entries need exactly {id, rings}")
+            if e["id"] not in wl:
+                raise ValidationError(
+                    f"SCHEMA s10: cannot set rings for {e['id']!r} — "
+                    f"not whitelisted")
+
+    elif kind == "ruleset_change":
+        if set(delta) != {"target", "content"}:
+            raise ValidationError(
+                "SCHEMA s10: ruleset_change delta is {target, content}")
+        if delta["target"] not in RULESET_TARGETS:
+            raise ValidationError(
+                f"SCHEMA s10: ruleset target must be one of "
+                f"{sorted(RULESET_TARGETS)}")
+        content = delta["content"]
+        if not isinstance(content, dict) or not content:
+            raise ValidationError(
+                "SCHEMA s10: ruleset content must be the full new "
+                "ruleset object, inline (the chain stays self-contained)")
+        operative = {k: v for k, v in content.items()
+                     if not k.startswith("_")}
+        _placeholder_guard(operative, "governance ruleset content")
+
+    elif kind == "doc_supersession":
+        if set(delta) != {"document", "new_version", "new_hash"}:
+            raise ValidationError(
+                "SCHEMA s10: doc_supersession delta is "
+                "{document, new_version, new_hash}")
+        if delta["document"] not in GOV_DOCS:
+            raise ValidationError(
+                f"SCHEMA s10: document must be one of {sorted(GOV_DOCS)}")
+        if not isinstance(delta["new_version"], str) or \
+                not delta["new_version"].strip():
+            raise ValidationError("SCHEMA s10: new_version required")
+        if not isinstance(delta["new_hash"], str) or \
+                not HASH_RE.match(delta["new_hash"]):
+            raise ValidationError(
+                "SCHEMA s10: new_hash must be 64 lowercase hex chars")
+
+
 # ---------------------------------------------------------------- ledger
 
 class Ledger:
@@ -540,6 +715,11 @@ class Ledger:
                 # not crash — surface it as a clean, citable load error
                 try:
                     self._index(r)
+                    # replay governance so in-force state (whitelist,
+                    # UCUM, exemptions, rulesets) matches the chain
+                    if isinstance(r, dict) and \
+                            r.get("record_type") == "governance":
+                        self._apply_governance(r)
                 except ValidationError as e:
                     raise ValidationError(
                         f"ledger file corrupt at record {i} "
@@ -556,6 +736,47 @@ class Ledger:
         self._by_prefix12 = {}  # triple_hash[:12] -> {triple_hash, ...}
         self._superseded = set()  # {"fact_id@version", ...} named as targets
         self._np_units = {}     # near-dup key -> {unit, ...}
+        # rules in force, evolved by governance records as they seal
+        # (SCHEMA s10/P9): the ruleset governing any fact is genesis
+        # state plus all preceding governance records — resolvable from
+        # the chain alone.
+        self._ucum = set(UCUM_V1)
+        self._ascii_exempt = set()
+        base_wl = {s["id"]: s for s in
+                   self.registries["sources"]["sources"]}
+        self._whitelist = {k: dict(v) for k, v in base_wl.items()}
+
+    def rules_in_force(self) -> dict:
+        """The rules governing the next fact — a snapshot, for
+        transparency and for validate_fact's keyword arguments."""
+        return {
+            "ucum": set(self._ucum),
+            "ascii_exempt": set(self._ascii_exempt),
+            "whitelist": {k: dict(v) for k, v in self._whitelist.items()},
+            "rulesets": self.rulesets,
+        }
+
+    def _apply_governance(self, record):
+        """Fold a validated governance record into the in-force state."""
+        kind, delta = record["governance_kind"], record["delta"]
+        if kind == "ucum_expansion":
+            self._ucum.update(delta["add_codes"])
+        elif kind == "ascii_exemption":
+            self._ascii_exempt.update(delta["exempt_chars"])
+        elif kind == "whitelist_change":
+            for e in delta.get("add", []):
+                self._whitelist[e["id"]] = {
+                    "id": e["id"], "publisher": e["publisher"],
+                    "rings": list(e["rings"])}
+            for sid in delta.get("remove", []):
+                self._whitelist.pop(sid, None)
+            for e in delta.get("set_rings", []):
+                self._whitelist[e["id"]]["rings"] = list(e["rings"])
+        elif kind == "ruleset_change":
+            self.rulesets = dict(self.rulesets)
+            self.rulesets[delta["target"]] = delta["content"]
+        # doc_supersession records the new hash on the chain; it changes
+        # no in-memory validation state (the document itself is unsealed)
 
     def _np_key(self, triple):
         ct = canonical_triple(triple)
@@ -700,19 +921,25 @@ class Ledger:
         rt = record.get("record_type")
         if not self.records and rt != "genesis":
             raise ValidationError("SCHEMA s8: record 0 must be genesis")
+        applied_gov = None
         if rt == "fact":
-            validate_fact(record, self.registries, self.rulesets)
+            validate_fact(record, self.registries, self.rulesets,
+                          whitelist=self._whitelist, ucum=self._ucum,
+                          ascii_exempt=self._ascii_exempt)
             self._check_chain_rules(record)
         elif rt == "genesis":
             if self.records:
                 raise ValidationError("genesis must be record zero")
             validate_genesis(record, self.rulesets)
-        elif rt in ("governance", "inscription"):
-            # NOTE: the governance engine (payload validation + chain-
-            # position ruleset resolution, SCHEMA s10/P9) is not yet
-            # implemented; it must exist before the first governance
-            # record seals. Tracked in GENESIS_AMENDMENTS.md.
-            _placeholder_guard(record, f"{rt} record")
+        elif rt == "governance":
+            # SCHEMA s10/P9: validate the payload against the rules in
+            # force at this chain position, then fold it in so every
+            # later fact is judged by genesis state + preceding
+            # governance records — resolvable from the chain alone.
+            validate_governance(record, self.rules_in_force())
+            applied_gov = record
+        elif rt == "inscription":
+            _placeholder_guard(record, "inscription record")
         else:
             raise ValidationError(f"unknown record_type {rt!r}")
 
@@ -723,6 +950,8 @@ class Ledger:
         record["content_hash"] = content_hash(record)
         self.records.append(record)
         self._index(record)
+        if applied_gov is not None:
+            self._apply_governance(record)
         return record
 
     def chain_head(self) -> str:

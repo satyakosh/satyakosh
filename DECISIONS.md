@@ -236,6 +236,22 @@ activation by governance record. Reverses the issue-#5 F1 seal
 behaviour; the F1 test now pins refusal. Ring-2 stress harnesses extend
 the set locally. *Applied: this commit.*
 
+**FD-30 — Build the governance engine before the window, as a
+review target (revises FD-29a).** FD-29(a) deferred the governance
+engine to pre-Ring-2 on the correct observation that the window seals
+nothing that needs it. The founder's counter is stronger: the Genesis
+Window is the project's highest-scrutiny moment, and the governance
+*payload format* — which benefits from adversarial review far more than
+implementation does — should be exposed to it. So the engine is built
+now (SCHEMA s10 / P9: validate_governance + rules_in_force /
+_apply_governance), **dormant and non-gating**: nothing at the window
+uses it, its correctness does not block the freeze, and a flaw found in
+it during the window is a fix, not a window restart. Five governance
+kinds, strict deltas validated against the rules in force,
+chain-position resolution reconstructible from the chain alone. Full
+simulated Ring-2 activation and the review's M4 ASCII-narrowing dry-run
+in stress/test_governance.py (25 cases). *Applied: this commit.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates

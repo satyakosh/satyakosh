@@ -216,7 +216,7 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   validator needs its own date pattern for astronomical/BCE years
   (record-level DATE_RE deliberately stays Gregorian-CE); (2) decide
   `edition: null` for archival sources (byte-affecting additive minor
-  at activation); (3) the precision enum's coarseness (two-day
+  at activation); (3) the ASCII-tripwire narrowing mechanism is now exercised by a governance dry-run (test_governance.py, review M4); (3b) the precision enum's coarseness (two-day
   disagreements widen to month) is a documented limitation, revisit
   only if Ring 2 practice demands a `range` value; (4) UCUM whitelist:
   `%` and `a` pre-added 2026-07-19 (issue #5 F1 — the dimensionless
@@ -225,15 +225,17 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   rules (e.g. exactly-one method) belong to the activation ruleset
   schema — v1 flags duplicate properties for review (issue #5 F2).
 
-- **Governance engine.** SCHEMA s10 / P9 promise chain-position ruleset
-  resolution (genesis state + preceding governance records) and
-  governance-payload validation; the reference implementation validates
-  against in-memory rulesets only. The engine must exist before the
-  FIRST governance record seals — nothing may enter the chain that a
-  verifier cannot re-derive rules for.
-  (FD-29: required before the first governance record, i.e. Ring-2
-  activation after the window — NOT a window-open gate, since the
-  window seals only genesis + Ring-1 seed facts.) **Retirement** (the `retires`
+- ~~**Governance engine.**~~ **Built 2026-07-19 (FD-30),** ahead of
+  need, as a Genesis Window review target: validate_governance +
+  Ledger.rules_in_force / _apply_governance implement SCHEMA s10 /
+  P9 — payload validation against the rules in force, and
+  chain-position resolution folded from genesis state plus preceding
+  governance records (reconstructible from the chain alone, incl. the
+  load-path replay). Five governance kinds; strict deltas that cannot
+  no-op or double-apply; full simulated Ring-2 activation and the
+  ASCII-narrowing dry-run in stress/test_governance.py (25 cases). Not
+  a freeze gate; nothing at the window uses it, and a flaw found in it
+  during the window is a fix, not a restart. **Retirement** (the `retires`
   retraction record that derives `status: retired`) ships with it.
 - **Intake artifact checks.** The intake pipeline (and CI) must verify,
   for every proposal carrying a `derivation.script`, that the recipe

@@ -62,6 +62,7 @@ canonical-byte contract (SCHEMA.md s10).
   both bypasses), and source_count_rules counts distinct source IDs
   per RING2 s3.1's independence requirement. Pinned as F5/F5b/F6;
   ledger suite 66 -> 69.
+- Governance engine built (2026-07-19, FD-30): SCHEMA s10/P9 realized - validate_governance (five kinds: whitelist_change, ruleset_change, ucum_expansion, ascii_exemption, doc_supersession; strict deltas validated against the rules in force, no no-ops or double-applies) plus Ledger.rules_in_force / _apply_governance folding deltas in chain order onto genesis state (reconstructible from the chain alone, load-path replay included). Built ahead of need as a Genesis Window review target - not a freeze gate. stress/test_governance.py (25 cases) runs a full simulated Ring-2 activation end to end (a fact the founding rules refuse seals only after the activation records) and the ASCII-tripwire narrowing dry-run the review asked for (M4). This reverses FD-29(a)'s defer-timing on the strength of the review-during-window argument.
 - Synthesis security review triaged (2026-07-19): most findings
   confirmed already-done (rfc8785 cross-check + seal rehearsal in
   CI, chain-rule pins from issues #1-6) or a stale docstring (H2,
