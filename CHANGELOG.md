@@ -54,6 +54,17 @@ canonical-byte contract (SCHEMA.md s10).
   collision check had quietly reintroduced O(n^2) sealing (973
   seals/s at N=9000); a prefix-12 index restores flat scaling
   (4400+ seals/s).
+- Issue #5 (fifth external review, simulated Ring-2 activation; all
+  four findings reproduced then closed, 2026-07-19): UCUM whitelist
+  gains % and a (the Ring-2 corpus's commonest units; the
+  dimensionless workaround sealed and was semantically wrong);
+  duplicate condition properties raise a review flag (refusal was
+  rejected - s3.4 documents min/max range pairs as a feature);
+  source_count_rules dormant capability added (per-derivation-type
+  minimum source counts; Ring-2 activation sets values by
+  governance, engine change no longer needed); predicate
+  object_types registry declarations are now enforced with citable
+  refusals. SCHEMA s11 documents all three. Ledger suite 60 -> 66.
 - Ring-2/3 expressiveness battery (2026-07-18,
   stress/ring2_expressiveness.py, in CI): drafts representative
   future claims using the reserved entity/date shapes and proves the

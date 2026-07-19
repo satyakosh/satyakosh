@@ -209,8 +209,12 @@ are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
   `edition: null` for archival sources (byte-affecting additive minor
   at activation); (3) the precision enum's coarseness (two-day
   disagreements widen to month) is a documented limitation, revisit
-  only if Ring 2 practice demands a `range` value; (4) UCUM whitelist
-  gains `%`, `a`, `d` etc. with proposals.
+  only if Ring 2 practice demands a `range` value; (4) UCUM whitelist:
+  `%` and `a` pre-added 2026-07-19 (issue #5 F1 — the dimensionless
+  workaround for a rate seals and is semantically wrong); further
+  codes with proposals; (5) per-property condition cardinality
+  rules (e.g. exactly-one method) belong to the activation ruleset
+  schema — v1 flags duplicate properties for review (issue #5 F2).
 
 - **Governance engine.** SCHEMA s10 / P9 promise chain-position ruleset
   resolution (genesis state + preceding governance records) and

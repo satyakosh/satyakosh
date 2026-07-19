@@ -76,7 +76,10 @@ DERIVATION_FIELDS = frozenset({"type", "script", "derived_from"})
 UCUM_V1 = frozenset({
     "1", "m", "s", "g", "kg", "A", "K", "mol", "cd", "Hz", "N", "Pa",
     "kPa", "J", "W", "C", "V", "Ohm", "lm", "lx", "Cel", "eV",
-    "m/s", "m/s2", "m2", "m3", "J.s", "J/K", "mol-1", "lm/W", "kg/m3"})
+    "m/s", "m/s2", "m2", "m3", "J.s", "J/K", "mol-1", "lm/W", "kg/m3",
+    "%", "a"})  # % (rates) and a (year) pre-added: the Ring-2 corpus's
+                # commonest units; the dimensionless workaround for a
+                # rate seals but is semantically wrong (issue #5 F1)
 
 SEALABLE_DERIVATIONS = {
     "si_exact_definition", "defined_convention", "mathematical_proof",
@@ -305,7 +308,7 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
         raise ValidationError("SCHEMA s3.2: malformed or missing predicate ID")
 
     ents = {e["id"] for e in registries["entities"]["entities"]}
-    preds = {p["id"] for p in registries["predicates"]["predicates"]}
+    preds = {p["id"]: p for p in registries["predicates"]["predicates"]}
     srcs = {s["id"]: s for s in registries["sources"]["sources"]}
     if triple["subject"] not in ents:
         raise ValidationError("SCHEMA s11: subject not in entity registry")
@@ -313,6 +316,15 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
         raise ValidationError("SCHEMA s11: predicate not in registry")
 
     _validate_quantity(triple["object"], "object")
+
+    # the predicate registry's object_types declaration is load-bearing
+    # (s3.2): a predicate admitting only dates must never seal a quantity
+    allowed_types = preds[triple["predicate"]].get("object_types")
+    if allowed_types is not None and \
+            triple["object"].get("type") not in allowed_types:
+        raise ValidationError(
+            f"registry: predicate {triple['predicate']} admits object "
+            f"types {allowed_types}, got {triple['object'].get('type')!r}")
 
     conds = triple["conditions"]
     if not isinstance(conds, list):
@@ -383,6 +395,16 @@ def validate_fact(record: dict, registries: dict, rulesets: dict):
                 not DATE_RE.match(s["retrieved"]):
             raise ValidationError(
                 "SCHEMA s7.2.2: source retrieved must be YYYY-MM-DD")
+    # per-derivation-type minimum source counts: dormant capability the
+    # Ring-2 activation governance record sets values for (issue #5 F3);
+    # v1 founding ruleset declares none, so the default of 1 applies
+    min_src = mc.get("source_count_rules", {}).get(
+        record["derivation"]["type"], 1)
+    if len(sources) < min_src:
+        raise ValidationError(
+            f"rulesets/mandatory_conditions.json: derivation type "
+            f"{record['derivation']['type']!r} requires >= {min_src} "
+            f"whitelisted sources, got {len(sources)}")
     src_ids = [s["source"] for s in sources]
     if src_ids != sorted(src_ids):
         raise ValidationError("SCHEMA s7.2.5: sources not sorted")
@@ -636,6 +658,18 @@ class Ledger:
                     f"derived_from liveness: {fid} derives from {x}, whose "
                     f"latest version @{latest} is superseded — the "
                     f"dependency does not resolve to a live fact")
+
+        # duplicate condition properties are LEGITIMATE (s3.4 min/max
+        # range pairs) but also a mandatory-condition gaming vector when
+        # values conflict (issue #5 F2) — flag for review, never refuse
+        props = [c["property"] for c in record["triple"]["conditions"]]
+        dup_props = sorted({p for p in props if props.count(p) > 1})
+        if dup_props:
+            self.flags.append(
+                f"duplicate-condition-property flag: {fid} carries "
+                f"multiple conditions on {dup_props} — legitimate for "
+                f"ranges (s3.4); review must confirm the values do not "
+                f"conflict")
 
         # near-duplicate flag (s11: same subject+predicate+conditions,
         # different unit -> human review; a warning, never a refusal;

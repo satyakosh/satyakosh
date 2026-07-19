@@ -273,6 +273,66 @@ def run():
     check("non-dict condition -> ValidationError", bad_cond,
           True, "malformed condition entry")
 
+    # ---------------- issue #5 findings (F1-F4), pinned
+    check("F1: percent unit seals (UCUM whitelist)",
+          lambda: led.seal(make_fact(value="7.404e1",
+                                     triple={"subject": "SK-ENT-000002",
+                                             "predicate": "SK-PRED-000001",
+                                             "object": {"type": "quantity",
+                                                        "value": "7.404e1",
+                                                        "unit": "%",
+                                                        "exact": False,
+                                                        "uncertainty": None},
+                                             "conditions": []},
+                                     triple_hash=None, fact_id=None)), False)
+    n_flags2 = len(led.flags)
+    QA = {"type": "quantity", "value": "1e0", "unit": "kPa",
+          "exact": True, "uncertainty": None}
+    QB = {"type": "quantity", "value": "2e0", "unit": "kPa",
+          "exact": True, "uncertainty": None}
+    check("F2: duplicate-property conditions seal (s3.4 ranges)",
+          lambda: led.seal(make_fact(value="8.1e1",
+                                     conds=[{"property": "SK-ENT-000006",
+                                             "object": QA},
+                                            {"property": "SK-ENT-000006",
+                                             "object": QB}])), False)
+    RESULTS.append((len(led.flags) > n_flags2,
+                    "F2: duplicate-property flag raised",
+                    f"{len(led.flags) - n_flags2} new flag(s)"))
+    rs_min = rulesets()
+    rs_min["mandatory_conditions"]["source_count_rules"] = \
+        {"si_exact_definition": 2}
+    led_min = L.Ledger(None, REGISTRIES, rs_min)
+    led_min.records = led.records[:1]
+    check("F3: source_count_rules enforced (min 2, one given)",
+          lambda: led_min.seal(make_fact(value="8.2e1")),
+          True, "requires >= 2")
+    check("F3b: source_count_rules satisfied with two sources",
+          lambda: led_min.seal(make_fact(value="8.3e1", sources=[
+              {"source": "SK-SRC-000001", "edition": "x",
+               "retrieved": "2026-07-01"},
+              {"source": "SK-SRC-000002", "edition": "y",
+               "retrieved": "2026-07-01"}])), False)
+    reg_ot = copy.deepcopy(REGISTRIES)
+    reg_ot["predicates"]["predicates"].append(
+        {"id": "SK-PRED-000009", "definition": "occurred on.",
+         "object_types": ["date"], "epistemic_hedge": None,
+         "status": "active", "labels": {"en": "occurred on"}})
+    led_ot = L.Ledger(None, reg_ot, rulesets())
+    led_ot.records = led.records[:1]
+    check("F4: predicate object_types enforced",
+          lambda: led_ot.seal(make_fact(value="8.4e1",
+                                        triple={"subject": "SK-ENT-000001",
+                                                "predicate": "SK-PRED-000009",
+                                                "object": {"type": "quantity",
+                                                           "value": "8.4e1",
+                                                           "unit": "m/s",
+                                                           "exact": True,
+                                                           "uncertainty": None},
+                                                "conditions": []},
+                                        triple_hash=None, fact_id=None)),
+          True, "admits object types")
+
     # ---------------- K16: near-duplicate flag (warn, never refuse)
     n_flags = len(led.flags)
     check("near-duplicate (same s+p+conds, different unit) still seals",

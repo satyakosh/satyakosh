@@ -356,10 +356,18 @@ fact = genesis state ⊕ all governance records preceding it.
 ## 11. Validation & admissibility (enforced by `ledger.py`)
 
 **Structural:** required fields; types; registry existence of all IDs;
-object/condition typing per §3.3–3.4 (v1 gate: `quantity` only); value &
+object/condition typing per §3.3–3.4 (v1 gate: `quantity` only);
+predicate object-type admission (the registry's `object_types`
+declaration is enforced — a predicate admitting only dates never seals
+a quantity); value &
 uncertainty grammar (§7.3); UCUM code check (v1: a closed whitelist of
 founding-scope codes in the reference implementation, expanded with
-proposals); condition sort + tie-break; source sort; date/timestamp
+proposals); per-derivation-type minimum source counts when the
+mandatory-conditions ruleset declares `source_count_rules` (v1: none
+declared, default 1; Ring-2 activation sets values by governance);
+condition sort + tie-break (duplicate condition properties are
+legitimate for ranges and raise a review flag, never a refusal);
+source sort; date/timestamp
 formats; ASCII-only canonical bytes for `fact` records (§7.2; genesis is
 NFC UTF-8); fact_id prefix ↔ `triple_hash` recomputation; no duplicate
 `triple_hash` among non-superseded facts; **near-duplicate flag** (same

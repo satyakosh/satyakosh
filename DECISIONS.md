@@ -230,6 +230,11 @@ in CHANGELOG at the freeze. *Applied: this commit.*
 - **Schema changes for "richer" derivation graphs** — `derived_from`
   already seals the dependency graph; the proposed example was itself
   a SCOPE violation.
+- **Refusing duplicate condition properties** (issue #5's F2 fix as
+  proposed) — SCHEMA s3.4 documents same-property pairs as a feature
+  (min/max ranges; the tie-break exists for them). Duplicates raise
+  a review flag instead; per-property cardinality rules belong to
+  the Ring-2 activation ruleset schema.
 - **Planted errors as review-zone demos** — staged, with a bad failure
   mode (FD-18 chose the honest exhibit).
 - **Early Merkle proofs** — deferred until scale demands (SCHEMA s8);
