@@ -63,10 +63,13 @@ the real local bytes directly; do not regenerate documents from memory.
       **Done 2026-07-19:** final state confirmed in the founder's G1
       re-read ("coherent", no changes requested). Candidate hash,
       stable and founder-visible from this date:
-      `admissibility_map_hash = f0560e866aa2560c5d446205c61ae1b3107216d5e15275428e63cf756db28e61`
-      (JCS). The value enters the genesis record at the G6 freeze —
-      the draft deliberately keeps its placeholders until then, so the
-      seal rehearsal keeps proving the freeze mechanics.
+      `admissibility_map_hash = f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef`
+      (JCS; recomputed same day after the file's own stale "FOUNDER TO
+      RE-REVIEW before hashing" instruction was replaced with the
+      confirmation record — the prior candidate f0560e86… hashed a
+      now-false sentence). The value enters the genesis record at the
+      G6 freeze — the draft deliberately keeps its placeholders until
+      then, so the seal rehearsal keeps proving the freeze mechanics.
 
 ## rulesets/mandatory_conditions.json
 
@@ -183,6 +186,16 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 - [x] Founding date 2026-07-07 = trademark priority date (independent
       corroboration) — **confirmed by founder against the filing,
       2026-07-19.**
+- [ ] **The G6 freeze sequence, explicitly** (nothing here may be
+      done earlier — the rehearsal proves these mechanics against the
+      placeholder-bearing draft until the real moment): (1) re-run
+      `tools/genesis_hashes.py` in the CI Python environment and
+      founder-confirm the six values against the A11/A13 candidates;
+      (2) paste all six final hashes into `genesis_record.draft.json`,
+      set `created` to the real UTC timestamp, and REMOVE every
+      `<<PLACEHOLDER>>` — grep must find zero; (3) seal genesis on the
+      real chain; (4) verify with both the engine and
+      `verify.py CHAIN.json --repo .`.
 - [ ] At the freeze (FD-33): stamp the sealed genesis record's
       content hash with OpenTimestamps and commit the `.ots` proof
       alongside the first anchor row in `anchors/ANCHORS.md`; then

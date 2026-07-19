@@ -1,5 +1,5 @@
 {
-  "_comment": "RECONSTRUCTED from the locked taxonomy decisions: rings gate ambition; derivation gates admissibility. This file, JCS-canonicalized and SHA-256 hashed, is enumerated in the genesis record. Changes after genesis are governance records. FOUNDER TO RE-REVIEW before hashing.",
+  "_comment": "RECONSTRUCTED from the locked taxonomy decisions: rings gate ambition; derivation gates admissibility. This file, JCS-canonicalized and SHA-256 hashed, is enumerated in the genesis record. Changes after genesis are governance records. Founder re-reviewed and confirmed final 2026-07-19 (G1 re-read closing A11).",
   "map": {
     "si_exact_definition":       { "ring_1": "SEAL",           "notes": "2019 SI defining constants" },
     "defined_convention":        { "ring_1": "SEAL",           "notes": "e.g. standard gravity, standard atmosphere; external-standard adoptions (ISO 3166, Unicode) are RING-2 PENDING and require an adoption governance record" },

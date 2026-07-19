@@ -22,6 +22,19 @@ canonical-byte contract (SCHEMA.md, Versioning rule in the preamble).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Freeze-hygiene follow-up (2026-07-19, review pass 9): the
+  `_comment` inside rules/admissibility_map.json still carried
+  "FOUNDER TO RE-REVIEW before hashing" — a now-false instruction
+  INSIDE a genesis-hashed file, meaning the recorded candidate digest
+  covered stale text. Replaced with the confirmation record;
+  admissibility_map_hash candidate recomputed f0560e86… →
+  f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef.
+  The G6 freeze sequence is now an explicit checklist item (re-run
+  hashes in the CI environment, paste all six + created, zero
+  placeholders remain, seal, verify engine + --repo). Tier-3
+  boiling-point digits re-confirmed (99.974 Cel at exactly standard
+  atmosphere 101.325 kPa; unit kPa is founding-UCUM; source citation
+  locks when the held exhibit unblocks).
 - Final pre-v1 diligence sweep (2026-07-19): every suite re-run from
   scratch (ledger 69, governance 41, properties 9, adversarial 24+3,
   rehearsal + independent-implementation agreement, expressiveness,
