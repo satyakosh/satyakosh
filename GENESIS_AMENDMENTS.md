@@ -201,6 +201,17 @@ are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
 
 ## Tracked, not blocking the freeze
 
+- **Ring-2 activation worklist** (from the 2026-07-18 expressiveness
+  battery, stress/ring2_expressiveness.py — all 28 frozen-surface
+  checks pass; these are activation-era items): (1) the activation
+  validator needs its own date pattern for astronomical/BCE years
+  (record-level DATE_RE deliberately stays Gregorian-CE); (2) decide
+  `edition: null` for archival sources (byte-affecting additive minor
+  at activation); (3) the precision enum's coarseness (two-day
+  disagreements widen to month) is a documented limitation, revisit
+  only if Ring 2 practice demands a `range` value; (4) UCUM whitelist
+  gains `%`, `a`, `d` etc. with proposals.
+
 - **Governance engine.** SCHEMA s10 / P9 promise chain-position ruleset
   resolution (genesis state + preceding governance records) and
   governance-payload validation; the reference implementation validates

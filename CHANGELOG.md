@@ -54,6 +54,19 @@ canonical-byte contract (SCHEMA.md s10).
   collision check had quietly reintroduced O(n^2) sealing (973
   seals/s at N=9000); a prefix-12 index restores flat scaling
   (4400+ seals/s).
+- Ring-2/3 expressiveness battery (2026-07-18,
+  stress/ring2_expressiveness.py, in CI): drafts representative
+  future claims using the reserved entity/date shapes and proves the
+  frozen machinery carries them - 28 hard checks on
+  canonicalization, identity semantics (precision/calendar/scoping
+  distinctions hash distinctly, as the conflict ladder requires),
+  ASCII survival of all Ring-2 vocabularies, and citable refusal of
+  Ring-2/BLOCKED/attestation claims today. Its E1 probe caught a
+  real activation-era bug - the near-duplicate index assumed every
+  object has a unit and would have crashed on entity/date facts;
+  fixed (heuristic now quantity-scoped) and pinned. Remaining
+  findings recorded as the Ring-2 activation worklist in
+  GENESIS_AMENDMENTS.
 - Genesis seal rehearsal (2026-07-18): stress/rehearse_genesis.py
   runs the full freeze-day ceremony on a staging chain in CI -
   computes the six hashes, fills a draft copy, seals, verifies,

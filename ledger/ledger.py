@@ -538,8 +538,15 @@ class Ledger:
             r["triple_hash"])
         if isinstance(r.get("supersedes"), str):
             self._superseded.add(r["supersedes"])
-        self._np_units.setdefault(self._np_key(r["triple"]), set()).add(
-            r["triple"]["object"]["unit"])
+        # near-dup heuristic is quantity-specific (unit-converted
+        # duplicates); entity/date objects have no unit — skip them so
+        # Ring 2 activation cannot crash the index
+        obj = r["triple"].get("object") if isinstance(r.get("triple"), dict) \
+            else None
+        if isinstance(obj, dict) and obj.get("type") == "quantity" \
+                and "unit" in obj:
+            self._np_units.setdefault(
+                self._np_key(r["triple"]), set()).add(obj["unit"])
 
     def _check_chain_rules(self, record):
         """Chain-position rules: (fact_id, version) uniqueness, the
@@ -631,9 +638,13 @@ class Ledger:
                     f"dependency does not resolve to a live fact")
 
         # near-duplicate flag (s11: same subject+predicate+conditions,
-        # different unit -> human review; a warning, never a refusal)
-        other_units = self._np_units.get(self._np_key(record["triple"]),
-                                         set()) - {record["triple"]["object"]["unit"]}
+        # different unit -> human review; a warning, never a refusal;
+        # quantity objects only — the heuristic is unit-based)
+        rec_obj = record["triple"]["object"]
+        other_units = set()
+        if rec_obj.get("type") == "quantity":
+            other_units = self._np_units.get(
+                self._np_key(record["triple"]), set()) - {rec_obj["unit"]}
         if other_units:
             self.flags.append(
                 f"near-duplicate flag: {fid} shares subject+predicate+"
