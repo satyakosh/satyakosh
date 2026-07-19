@@ -153,11 +153,13 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 
 ## Still owed by the founder (no one else can write these)
 
-1. Mission prose passage: **working draft revised 2026-07-18** — the
-   remembrance sentence added at founder request ("let this be the
-   place the world remembers to return to — not for a verdict, but to
-   check"). The 48-hour final-read clock restarts from this revision;
-   the founder's read-aloud locks it at the freeze.
+1. Mission prose passage: **founder-worded 2026-07-18** — the
+   remembrance sentence now carries the founder's own phrasing ("let
+   the world remember to return here — not for a verdict, but to
+   check"), replacing the drafted wording after review. The prose is
+   no longer assistant-scaffolded: the founder has put his hand on the
+   sentence. The 48-hour final-read clock runs from this revision; the
+   read-aloud locks it at the freeze.
 2. ~~Final read of the dedication wording (current draft is locked unless
    you change it).~~ Confirmed 2026-07-17.
 
