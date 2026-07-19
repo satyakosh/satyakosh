@@ -22,6 +22,20 @@ canonical-byte contract (SCHEMA.md s10).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Issue #8 (gate-1 re-read findings) resolved pre-freeze
+  (2026-07-19): F1 — SCHEMA s4 and GENESIS_AMENDMENTS contradicted
+  each other and the code on retirement ("ships with the governance
+  engine" vs five shipped kinds, none a retraction). Fixed by honest
+  deferral, NOT a rushed sixth kind: retirement is now documented as
+  an additive-minor extension of the s10 kind set, added when first
+  needed with its derived-status/duplicate-rule/re-entry semantics
+  reviewed then; nothing retractable exists in the window (genesis +
+  re-derivable Ring-1 constants only). The frozen schema_hash will
+  cover text that is TRUE. F2 — predicate registration / object-type
+  activation / RING2 D5's composite activation record have no
+  governance vehicle; acknowledged as Ring-2 worklist item (6) with
+  both candidate designs recorded. The 24-case standalone adversarial
+  battery joined CI.
 - Readiness gate 1 closed (2026-07-19, founder line-by-line re-read;
   report on record in GENESIS_AMENDMENTS). Residuals closed same day:
   A11/A13 confirmed with stable candidate JCS hashes recorded

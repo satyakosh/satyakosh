@@ -249,7 +249,20 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   sealed out); they return at activation by governance record; further
   codes with proposals; (5) per-property condition cardinality
   rules (e.g. exactly-one method) belong to the activation ruleset
-  schema — v1 flags duplicate properties for review (issue #5 F2).
+  schema — v1 flags duplicate properties for review (issue #5 F2);
+  (6) **governance vehicle for activation itself (issue #8 F2):**
+  predicate registration (SCHEMA §3.2 "additive via governance
+  records"), reserved object-type activation, and RING2 D5's single
+  composite activation record have NO §10 kind today —
+  `RULESET_TARGETS` covers the two rulesets only and nothing touches
+  the predicate registry (which IS genesis-hash-enumerated). The
+  suite deliberately rehearses activation as a SEQUENCE of atomic
+  records, not D5's one. At activation, either add kinds
+  (`predicate_registration` mirroring the founding snapshot-hash
+  convention; `object_type_activation`) or adopt a documented
+  composition rule that an activation IS the atomic-record sequence,
+  and reword D5 to match — decided under window/activation review,
+  additive minor either way.
 
 - ~~**Governance engine.**~~ **Built 2026-07-19 (FD-30),** ahead of
   need, as a Genesis Window review target: validate_governance +
@@ -262,7 +275,13 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   ASCII-narrowing dry-run in stress/test_governance.py (25 cases). Not
   a freeze gate; nothing at the window uses it, and a flaw found in it
   during the window is a fix, not a restart. **Retirement** (the `retires`
-  retraction record that derives `status: retired`) ships with it.
+  retraction record that derives `status: retired`) is NOT among the
+  five shipped kinds — corrected 2026-07-19 (issue #8 F1; the earlier
+  "ships with it" here contradicted both SCHEMA §4 and the code): it
+  arrives as an additive minor to the §10 kind set when first needed,
+  with its derived-status/duplicate-rule/re-entry semantics reviewed
+  then; nothing retractable exists before that (the window seals only
+  genesis + re-derivable Ring-1 constants).
 - **Durability & anchoring — SETTLED 2026-07-19 (FD-33,
   docs/durability.md).** Mirrors live before the window: Software
   Heritage archived (snapshot c65a549a…) and the GitLab push mirror

@@ -185,11 +185,17 @@ the chain:
   (`fact_id@version`). This mechanism exists and is validated (§6, §11).
 - **retired** — a later `governance` retraction record names this fact
   (a `retires: "fact_id@version"` payload, derived exactly as
-  supersession is). Retirement is a governance-era mechanism: it ships
-  with the governance engine (SCHEMA §10 / PIPELINE_POLICY), which is
-  not yet implemented. Until then no fact can become retired, and the
-  enum value is a forward declaration — like the reserved object types.
-  `ledger.py` therefore refuses `retired` as a *seal-time input*.
+  supersession is). Retirement is a governance-era mechanism that the
+  v1 engine **deliberately does not implement**: the five §10 kinds do
+  not include a retraction kind, and one is added — with its derived-
+  status, duplicate-rule, and re-entry (§6, FD-25) semantics worked
+  out under review — as an **additive minor version** when first
+  needed, like every extension of the §10 kind set. The Genesis Window
+  seals only the genesis record and independently re-derivable Ring-1
+  constants, so nothing retractable exists before that mechanism can.
+  Until it exists no fact can become retired, and the enum value is a
+  forward declaration — like the reserved object types. `ledger.py`
+  therefore refuses `retired` as a *seal-time input*.
 
 A born-with-a-closed-window fact (a `valid_until` already in the past at
 seal time) is **valid and intentional**: it records a quantity that held
