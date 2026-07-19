@@ -31,6 +31,10 @@ jobs:
           EOF
       - name: Intake tool self-test
         run: python tools/check_mandatory_conditions.py
+      - name: Recipe artifact check (self-test + seed proposals)
+        run: |
+          python tools/check_recipes.py
+          python tools/check_recipes.py seed_proposals.draft.json
       - name: Ledger test suite
         run: python stress/test_ledger.py
       - name: Governance engine test suite

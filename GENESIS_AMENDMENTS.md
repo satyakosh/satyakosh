@@ -58,8 +58,15 @@ the real local bytes directly; do not regenerate documents from memory.
 
 ## admissibility_map.json
 
-- [ ] **A11 — Confirm final state** as machine-readable data (the §11
+- [x] **A11 — Confirm final state** as machine-readable data (the §11
       table), JCS-canonicalized. Hash of this file seals in genesis.
+      **Done 2026-07-19:** final state confirmed in the founder's G1
+      re-read ("coherent", no changes requested). Candidate hash,
+      stable and founder-visible from this date:
+      `admissibility_map_hash = f0560e866aa2560c5d446205c61ae1b3107216d5e15275428e63cf756db28e61`
+      (JCS). The value enters the genesis record at the G6 freeze —
+      the draft deliberately keeps its placeholders until then, so the
+      seal rehearsal keeps proving the freeze mechanics.
 
 ## rulesets/mandatory_conditions.json
 
@@ -75,10 +82,17 @@ the real local bytes directly; do not regenerate documents from memory.
 
 ## Predicate registry
 
-- [ ] **A13 — Produce founding snapshot** (at minimum SK-PRED-000001 with
+- [x] **A13 — Produce founding snapshot** (at minimum SK-PRED-000001 with
       its definition wording final) and compute predicates_founding_hash.
       Entity-registry founding hash deliberately NOT sealed (labels are
       renderings; revisit via governance record at Ring 2 if needed).
+      **Done 2026-07-19:** registries/predicates.json is the founding
+      snapshot (definition wordings final per the founder's G1
+      re-read). Candidate hash, stable and founder-visible from this
+      date:
+      `predicates_founding_hash = e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472`
+      (JCS). Enters the genesis record at the G6 freeze, same
+      convention as A11.
 - [x] **A17 — Lock the predicates_founding_hash convention.**
       **Decided 2026-07-17 (founder):** uniform doctrine — prose
       documents (.md) hash as raw frozen file bytes; machine-readable
@@ -197,7 +211,14 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 
 The Genesis Window is **readiness-gated, not scheduled**. It opens only
 after ALL of: (1) founder line-by-line re-read of every Tier B/C
-document; (2) founder digit-by-digit verification of the Tier 1 seed
+document — **DONE 2026-07-19** (founder G1 report on record: SCHEMA,
+SCOPE, PIPELINE_POLICY, admissibility_map, mandatory_conditions,
+predicates, MISSION, GENESIS_AMENDMENTS and the governance/verifier
+surface re-examined; verdict "documents in very good shape, no
+design-level re-litigation required"; the report's residual items —
+A11/A13 closure, intake artifact checks, UCUM doc consistency,
+SCHEMA §10 shape precision, verifier output separation — closed the
+same day); (2) founder digit-by-digit verification of the Tier 1 seed
 values against the sources — **DONE 2026-07-19** (founder verified all
 seven defining constants against the SI Brochure / CODATA table;
 machine pre-checks and the recovered v0 corroboration are on record);
@@ -266,13 +287,19 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   clean up the mixed endings. `verify.py --repo` already provides the
   check mechanism.
 
-- **Intake artifact checks.** The intake pipeline (and CI) must verify,
-  for every proposal carrying a `derivation.script`, that the recipe
-  file exists at `derivations/<triple_hash>.py`, its SHA-256 matches,
-  and it runs clean — so no fact seals pointing at a missing or drifted
-  recipe. Out of scope for `ledger.py` (which validates bytes, not the
-  filesystem); belongs to the proposal-intake tooling built for the
-  Genesis Window.
+- ~~**Intake artifact checks.**~~ **CLOSED 2026-07-19 (G1 re-read
+  named it the last "seal but broken" path).** Existence + byte-hash
+  now enforced at BOTH ends: `tools/check_recipes.py` (intake + CI;
+  self-tested — missing recipe, drifted bytes, malformed digest all
+  refuse) checks any proposal or chain file, and `verify.py --repo`
+  reports `RECIPE MISSING` / `RECIPE DRIFT` findings for sealed facts
+  whose `derivation.script` pin has no byte-matching
+  `derivations/<triple_hash>.py`. **Consciously accepted limitation
+  (founder G1 disposition "implement or explicitly waive"):**
+  "runs clean" is NOT machine-checked — executing recipe files is the
+  reviewer's duty per the review-file format, recorded there; CI
+  executes nothing from derivations/. Out of scope for `ledger.py`
+  stays true (it validates bytes, not the filesystem).
 
 - **Legal wrapper.** Decide the long-term legal form (foundation or
   trust whose sole mandate is perpetual maintenance of the public

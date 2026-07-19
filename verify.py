@@ -212,6 +212,34 @@ def verify_repo_bindings(records, repo):
           genesis.get("predicates_founding_hash"),
           lambda: jcs_sha("registries/predicates.json"))
 
+    # recipe artifacts (s4.1): every sealed fact whose derivation.script
+    # pins a recipe must have derivations/<triple_hash>.py present with
+    # byte-matching sha256 — the "seal but broken" path (G1 re-read)
+    for i, r in enumerate(records):
+        if not isinstance(r, dict) or r.get("record_type") != "fact":
+            continue
+        deriv = r.get("derivation")
+        if not isinstance(deriv, dict) or deriv.get("script") is None:
+            continue
+        rid = r.get("fact_id", f"record {i}")
+        try:
+            th = triple_hash(r["triple"])
+            rel = "derivations/%s.py" % th
+            with open(os.path.join(repo, rel), "rb") as f:
+                actual = sha(f.read())
+            if actual != deriv["script"]:
+                findings.append(
+                    f"RECIPE DRIFT: {rid}: {rel} hashes to "
+                    f"{actual[:16]}..., sealed pin is "
+                    f"{str(deriv['script'])[:16]}...")
+        except FileNotFoundError:
+            findings.append(
+                f"RECIPE MISSING: {rid}: derivation.script pinned but "
+                f"derivations/{th}.py is absent from the repository")
+        except Exception as e:  # noqa: BLE001
+            findings.append(f"RECIPE CHECK: {rid}: "
+                            f"{type(e).__name__}: {e}")
+
     # inline whitelist vs sources file ({id, publisher, rings}
     # projection). Only meaningful while no whitelist_change has sealed:
     # after one, the chain alone carries the in-force whitelist.
@@ -290,42 +318,55 @@ def main():
     if args.repo:
         findings.extend(verify_repo_bindings(records, args.repo))
 
+    # the fact lookup is a grounding query, not a chain property — its
+    # outcome reports separately from chain findings (G1 re-read note)
     fact_report = None
+    fact_missing = False
     if args.fact:
         fact_report = derive_status(records, args.fact)
-        if fact_report is None:
-            findings.append(f"FACT NOT FOUND: {args.fact}")
+        fact_missing = fact_report is None
 
     if args.json:
         out = {"records": len(records), "chain_head": head,
                "intact": not findings, "findings": findings}
-        if fact_report:
-            out["fact"] = {k: v for k, v in fact_report.items()
-                           if k != "record"}
-            out["fact"]["triple"] = fact_report["record"].get("triple")
+        if args.fact:
+            if fact_missing:
+                out["fact"] = {"fact_id": args.fact, "found": False}
+            else:
+                out["fact"] = {k: v for k, v in fact_report.items()
+                               if k != "record"}
+                out["fact"]["found"] = True
+                out["fact"]["triple"] = fact_report["record"].get("triple")
         print(json.dumps(out, indent=2, ensure_ascii=False))
     else:
         print(f"records: {len(records)}")
         print(f"chain head (recomputed): {head}")
-        if fact_report:
-            fr = fact_report
-            print(f"fact {fr['fact_id']}: versions {fr['versions']}, "
-                  f"latest v{fr['latest_version']}, status {fr['status']}"
-                  + (f" (superseded by {fr['superseded_by']})"
-                     if fr["superseded_by"] else ""))
-            trip = fr["record"].get("triple", {})
-            obj = trip.get("object", {})
-            print(f"  triple: {trip.get('subject')} "
-                  f"-[{trip.get('predicate')}]-> "
-                  f"{obj.get('value')} {obj.get('unit', '')} "
-                  f"({len(trip.get('conditions', []))} condition(s))")
         if findings:
             print(f"\nNOT INTACT -- {len(findings)} finding(s):")
             for f in findings:
                 print("  -", f)
         else:
             print("\nCHAIN INTACT -- every byte accounted for.")
-    return 1 if findings else 0
+        if args.fact:
+            print("\n-- fact query --")
+            if fact_missing:
+                print(f"fact {args.fact}: NOT FOUND on this chain "
+                      f"(the chain verdict above is independent of "
+                      f"this lookup)")
+            else:
+                fr = fact_report
+                print(f"fact {fr['fact_id']}: versions {fr['versions']}, "
+                      f"latest v{fr['latest_version']}, "
+                      f"status {fr['status']}"
+                      + (f" (superseded by {fr['superseded_by']})"
+                         if fr["superseded_by"] else ""))
+                trip = fr["record"].get("triple", {})
+                obj = trip.get("object", {})
+                print(f"  triple: {trip.get('subject')} "
+                      f"-[{trip.get('predicate')}]-> "
+                      f"{obj.get('value')} {obj.get('unit', '')} "
+                      f"({len(trip.get('conditions', []))} condition(s))")
+    return 1 if (findings or fact_missing) else 0
 
 
 if __name__ == "__main__":

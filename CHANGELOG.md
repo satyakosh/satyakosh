@@ -22,6 +22,22 @@ canonical-byte contract (SCHEMA.md s10).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Readiness gate 1 closed (2026-07-19, founder line-by-line re-read;
+  report on record in GENESIS_AMENDMENTS). Residuals closed same day:
+  A11/A13 confirmed with stable candidate JCS hashes recorded
+  (admissibility_map f0560e86…, predicates_founding e2c933e2… — they
+  enter the genesis record at the G6 freeze, draft placeholders kept
+  so the seal rehearsal keeps proving freeze mechanics); the
+  derivation.script artifact gap closed at both ends
+  (tools/check_recipes.py at intake + CI, RECIPE MISSING/DRIFT
+  findings in verify.py --repo; "runs clean" consciously left to the
+  reviewer per the review-file format); SCHEMA s10 delta-shape table
+  tightened to byte-agreement with validate_governance (rings/id
+  constraints, single-char exemptions, no-duplicate codes, exact
+  doc_supersession field constraints, non-empty delta); verifier
+  output separates the fact query from chain findings (--json gains
+  fact.found). Remaining gates: G4 (mission read-aloud, earliest
+  2026-07-20) and G6 (hash sign-off at freeze).
 - Durability & anchoring policy SETTLED (2026-07-19, FD-33,
   docs/durability.md): mirrors live before the window — Software
   Heritage archived (first full visit same day) and GitLab push

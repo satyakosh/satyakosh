@@ -378,18 +378,19 @@ fact = genesis state ⊕ all governance records preceding it.
 refused): `{record_type: "governance", governance_kind, delta,
 effective_from (YYYY-MM-DD, the declared decision date — chain position
 governs when the change binds), created, content_hash,
-prev_record_hash}`. Each `governance_kind` has a strict delta shape, and
-every delta is validated against the rules *in force at that chain
-position* so a governance record can never no-op, double-apply, or
-reference something absent:
+prev_record_hash}`. Each `governance_kind` has a strict delta shape —
+the delta is always a **non-empty object** — and every delta is
+validated against the rules *in force at that chain position* so a
+governance record can never no-op, double-apply, or reference
+something absent:
 
 | `governance_kind` | delta | effect on in-force rules |
 |---|---|---|
-| `whitelist_change` | `{add[], remove[], set_rings[]}` | edits the source whitelist (add needs `{id, publisher, rings}`; remove/set_rings must name a present source) |
+| `whitelist_change` | `{add[], remove[], set_rings[]}` | edits the source whitelist (add entries are exactly `{id, publisher, rings}` with a well-formed `SK-SRC-` id and `rings` a non-empty list of integers ≥ 1; remove/set_rings must name a present source; set_rings entries are exactly `{id, rings}`) |
 | `ruleset_change` | `{target, content}` | replaces `admissibility_map` or `mandatory_conditions` with the full new ruleset, **inline** (the chain stays self-contained; content is placeholder-checked **and structurally validated** — the content must expose exactly the structure `validate_fact` indexes into, so a malformed ruleset is refused citably at governance-seal time instead of bricking every later fact seal with an uncitable error; issue #7 G2) |
-| `ucum_expansion` | `{add_codes[]}` | admits UCUM codes to the whitelist in force; codes get a **syntax check** (UCUM grammar characters only — angle brackets, spaces, and control characters refuse; issue #7 G5); a non-ASCII code requires its characters already exempted |
-| `ascii_exemption` | `{exempt_chars[]}` | narrows the §7.2 fact-record ASCII tripwire for the named characters — the mechanism referenced in §7.2, exercised in `stress/test_governance.py` |
-| `doc_supersession` | `{document, new_version, new_hash}` | records a new frozen hash for SCHEMA/PIPELINE_POLICY/SCOPE on the chain (A4) |
+| `ucum_expansion` | `{add_codes[]}` | admits UCUM codes to the whitelist in force (non-empty list, no duplicates within the delta, none already in force); codes get a **syntax check** (UCUM grammar characters only — angle brackets, spaces, and control characters refuse; issue #7 G5); a non-ASCII code requires its characters already exempted |
+| `ascii_exemption` | `{exempt_chars[]}` | narrows the §7.2 fact-record ASCII tripwire for the named characters (a non-empty list of **single non-ASCII characters**, none already exempted) — the mechanism referenced in §7.2, exercised in `stress/test_governance.py` |
+| `doc_supersession` | `{document, new_version, new_hash}` | records a new frozen hash for SCHEMA/PIPELINE_POLICY/SCOPE (exactly those three documents) on the chain (A4); `new_version` a non-empty string, `new_hash` 64 lowercase hex |
 
 Delta strings admit no `<<` marker anywhere (a wider placeholder net
 than the genesis guard: a delta is operative by definition, and `<<`
