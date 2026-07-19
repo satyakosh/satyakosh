@@ -119,9 +119,10 @@ ground-truth anchors for training, evaluation, and inference-time grounding.
   Domains (.com/.org/.in/.ai), GitHub org, PyPI, Hugging Face, and social
   handles secured.
 - **Deliberately parked:** incorporation form (Pvt Ltd vs Section 8 vs
-  hybrid), primary domain (.org vs .com), Discord — each awaiting its
-  triggering condition. **Next external milestone:** buyer conversations
-  with AI labs; internal enthusiasm is not market validation.
+  hybrid), Discord — each awaiting its triggering condition.
+  (Primary domain settled 2026-07-19, FD-31: satyakosh.org.)
+  **Next external milestone:** buyer conversations with AI labs;
+  internal enthusiasm is not market validation.
 
 ### What Satyakosh is not
 Not a wiki (no edit-in-place), not a search engine (no ranking), not an

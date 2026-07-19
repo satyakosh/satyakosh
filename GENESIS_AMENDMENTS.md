@@ -191,9 +191,7 @@ Recorded invocation code points (NFC, 61 code points, confirmed
       (P11); Git history is the authoritative timeline; machine
       annotations carry tool_version. SCHEMA s7.4 updated to point at
       the format doc. Not genesis-hashed by design — evolves by
-      governance record, versioned inside each review file. **A draft proposal exists at
-      docs/REVIEW_FILE_FORMAT.draft.md** with five open questions for
-      the founder to settle; once settled it folds into SCHEMA s7.4.
+      governance record, versioned inside each review file.
 
 ## Window scheduling (locked 2026-07-17, founder)
 
@@ -225,8 +223,9 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   at activation); (3) the ASCII-tripwire narrowing mechanism is now exercised by a governance dry-run (test_governance.py, review M4); (3b) the precision enum's coarseness (two-day
   disagreements widen to month) is a documented limitation, revisit
   only if Ring 2 practice demands a `range` value; (4) UCUM whitelist:
-  `%` and `a` pre-added 2026-07-19 (issue #5 F1 — the dimensionless
-  workaround for a rate seals and is semantically wrong); further
+  `%` and `a` removed from the founding set 2026-07-19 (FD-29(b),
+  reversing the issue #5 F1 add — closed by default while Ring 2 is
+  sealed out); they return at activation by governance record; further
   codes with proposals; (5) per-property condition cardinality
   rules (e.g. exactly-one method) belong to the activation ruleset
   schema — v1 flags duplicate properties for review (issue #5 F2).
