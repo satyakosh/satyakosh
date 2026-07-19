@@ -1,9 +1,10 @@
-# Website Roadmap (draft)
+# Website Roadmap
 
-> Status: DRAFT — for founder review. Nothing here is a locked decision;
-> open questions are listed at the end. This document plans the public
-> website only. It does not change SCHEMA, SCOPE, PIPELINE_POLICY, or any
-> hash-critical document, and nothing in it gates the genesis freeze.
+> Status: SETTLED 2026-07-19 (FD-31). The five open questions in the
+> draft were founder-answered; the settled decisions section at the end
+> records them. This document plans the public website only. It does
+> not change SCHEMA, SCOPE, PIPELINE_POLICY, or any hash-critical
+> document, and nothing in it gates the genesis freeze.
 
 ## Why this document exists
 
@@ -49,11 +50,11 @@ scale. Its job is:
 Expected on the website now: **almost nothing.** Nothing web-related may
 delay gates G1/G4/G6 or the freeze.
 
-- [ ] Optional: a single static page (GitHub Pages on the satyakosh org):
-      what Satyakosh is (from MISSION.md), link to the repository, and
-      "how to verify" pointing at `verify.py`. No backend, no accounts,
-      no forms.
-- [ ] Reserve the domain name (founder choice — see open questions).
+- [x] A single static page (GitHub Pages, repo `satyakosh/website`,
+      domain satyakosh.org): what Satyakosh is (from MISSION.md), link
+      to the repository, and "how to verify" pointing at `verify.py`.
+      No backend, no accounts, no forms. Labeled pre-genesis honestly.
+- [x] Domain: satyakosh.org (already purchased).
 - [ ] Request-a-fact channel, zero-build version: a GitHub issue form
       ("Propose a fact" / "Report an error") with structured fields, plus
       a CI job that runs the real validator and duplicate check against
@@ -131,16 +132,18 @@ public.
 - The website as the volume engine. Millions of facts arrive through
   ingest pipelines and batch review, or not at all.
 
-## Open questions for the founder
+## Settled decisions (founder, 2026-07-19 — FD-31)
 
-1. Domain name (satyakosh.org / .in / other), and who registers it.
-2. Does the website live in this repository or its own repo?
-   (Recommendation: its own repo; this one stays stdlib-only ledger +
-   tools.)
-3. Should the Phase 0 static page go up before or only after the Genesis
-   Window? (It could show "genesis pending" honestly.)
-4. Does the Phase 1 request-a-fact form launch with the explorer, or
-   only after the first batch pipeline has run (so the queue is not the
-   first thing the public sees)?
-5. Hosting and budget for Phase 1 (static hosting is near-zero cost;
-   accounts in Phase 2 are not).
+1. **Domain:** satyakosh.org (already purchased).
+2. **Repository:** the website lives in its own repo,
+   `satyakosh/website`. This repository stays stdlib-only ledger +
+   tools.
+3. **Static page timing:** publish now, before the Genesis Window,
+   labeled pre-genesis honestly.
+4. **Request-a-fact form:** launches only after the first batch
+   pipeline has run — not with the Phase 1 explorer — so an unserved
+   queue is not the public's first impression.
+5. **Hosting:** GitHub Pages. Free, HTTPS, deploys from committed
+   bytes only (the site can never drift from its repo), nothing
+   server-side to attack. Revisit a CDN in front only if
+   chain-download bandwidth ever demands it.

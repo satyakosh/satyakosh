@@ -252,6 +252,26 @@ chain-position resolution reconstructible from the chain alone. Full
 simulated Ring-2 activation and the review's M4 ASCII-narrowing dry-run
 in stress/test_governance.py (25 cases). *Applied: this commit.*
 
+**FD-31 — Public website: role, repo, hosting, and timing
+(2026-07-19).** The website plan is docs/website_roadmap.md (promoted
+from draft this commit). Its role, settled after debate: search +
+verify + request-a-fact triage — never intake at scale. Volume comes
+from batch ingest pipelines with recipe-by-hash review (P11), not from
+humans typing into forms, on any surface. Standing principles: the
+website is never authoritative (the chain plus a locally run verifier
+is), never a write path to the chain, and never a truth oracle — intake
+forms check structure (duplicates, schema/units via the real validator,
+source-admissibility class), never "truth" against web references
+(invariant 9). Founder-settled specifics: (1) domain satyakosh.org
+(already purchased); (2) the site lives in its own repository,
+`satyakosh/website` — this repository stays stdlib-only ledger + tools;
+(3) the Phase 0 static page publishes now, before the Genesis Window,
+labeled pre-genesis honestly; (4) the request-a-fact form launches only
+after the first batch pipeline has run, so an unserved queue is not the
+public's first impression; (5) hosting is GitHub Pages — static-first,
+deploys from committed bytes only. *Applied: this commit; site
+published separately in satyakosh/website.*
+
 ## Explicitly rejected (recorded so they are not re-litigated)
 
 - **Mutating a sealed record's status on supersession** — violates
