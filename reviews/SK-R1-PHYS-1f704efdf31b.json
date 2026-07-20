@@ -32,7 +32,29 @@
       }
     ]
   },
-  "annotations": [],
+  "annotations": [
+    {
+      "at": "2026-07-20T05:43:23Z",
+      "by": "machine",
+      "tool_version": "check_mandatory_conditions.py@1.0.0-rc.1",
+      "check": "mandatory_conditions",
+      "result": "pass"
+    },
+    {
+      "at": "2026-07-20T05:43:23Z",
+      "by": "machine",
+      "tool_version": "check_recipes.py@1.0.0-rc.1",
+      "check": "recipe_artifacts",
+      "result": "pass (script null - no recipe pinned)"
+    },
+    {
+      "at": "2026-07-20T05:43:23Z",
+      "by": "machine",
+      "tool_version": "ledger.py@1.0.0-rc.1",
+      "check": "validate_fact (staging dry-run, placeholder process_hash)",
+      "result": "pass (structure + admissibility SEAL at ring 1)"
+    }
+  ],
   "objections": [],
   "window": {
     "opened": "2026-07-20T05:42:47Z",
