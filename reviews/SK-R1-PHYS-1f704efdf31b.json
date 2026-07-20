@@ -73,5 +73,10 @@
     "opened": "2026-07-20T05:42:47Z",
     "closes_no_earlier_than": "2026-08-19T00:00:00Z"
   },
-  "decision": null
+  "decision": {
+    "outcome": "withdrawn",
+    "at": "2026-07-20T07:44:02Z",
+    "unresolved_objections": 0,
+    "body": "Process rehearsal complete. Withdrawn pre-genesis by design: no real chain exists before the Genesis Window (record 0 must be genesis), so nothing can seal. The staged-seal dry-run above this decision in the PR record proves the P6 mechanics; the real proposal for this fact opens at the window."
+  }
 }
