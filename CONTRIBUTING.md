@@ -75,6 +75,41 @@ The pull request template walks you through every field.
   resolved. If an objection never resolves, your proposal stays in the
   review zone — visible, unsealed — indefinitely.
 
+## The review file — your fact's permanent case file
+
+*(Added 2026-07-19; this section reflects the review-file format
+settled after the original of this page was written, and supersedes
+the "one JSON file in `proposals/`" phrasing above. The binding spec
+is [`docs/review_file_format.md`](docs/review_file_format.md).)*
+
+Everything above happens inside **one JSON file** — the review file —
+which is your fact's complete public case file:
+
+- Your **proposal** (the triple, sources, derivation) is its first
+  block.
+- The **robot's findings** are appended to it, with tool versions.
+- Every **objection and resolution** is appended too. Nothing in the
+  file is ever edited or deleted — corrections are new entries. The
+  Git history of the file is the independently witnessed timeline.
+- At sealing, the file **freezes**, and its hash is sealed inside the
+  fact itself (as `process_hash`). From that moment the fact and the
+  record of how it was reviewed share fate: neither can be quietly
+  rewritten without breaking the other.
+
+So the review is not paperwork around the fact — it is half of what
+gets sealed.
+
+## See it done
+
+A complete worked example exists:
+[pull request #10](https://github.com/satyakosh/satyakosh/pull/10)
+walks the whole flow, commit by commit, using the speed of light — the
+fact that will really be proposed first at the Genesis Window. It was
+a rehearsal (closed without merging, since nothing can seal before
+genesis), and it shows every stage: the proposal block, the machine
+annotations, an objection raised and resolved, and a staged seal with
+the `process_hash` mechanics demonstrated.
+
 ## Your identity
 
 Inside anything permanent you are an opaque ID like `SK-USR-000042`.
