@@ -22,6 +22,13 @@ canonical-byte contract (SCHEMA.md, Versioning rule in the preamble).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Readiness gate 4 closed (2026-07-20): founder read the mission
+  prose aloud after the 48-hour final-read clock and confirmed the
+  bytes unchanged — the inscription is now founder-confirmed in full.
+  Clock basis recorded transparently in GENESIS_AMENDMENTS (declared
+  2026-07-18 revision decision vs git-witnessed 2026-07-19 commit;
+  the declared date governs, both stated). ONLY GATE 6 REMAINS: the
+  hash sign-off and freeze sequence.
 - Freeze-hygiene follow-up (2026-07-19, review pass 9): the
   `_comment` inside rules/admissibility_map.json still carried
   "FOUNDER TO RE-REVIEW before hashing" — a now-false instruction

@@ -242,8 +242,17 @@ values against the sources — **DONE 2026-07-19** (founder verified all
 seven defining constants against the SI Brochure / CODATA table;
 machine pre-checks and the recovered v0 corroboration are on record);
 (3) the dedication-consent note recorded — **DONE 2026-07-18**;
-(4) the mission prose confirmed after the 48-hour final read (clock
-runs from the 2026-07-18 revision; earliest 2026-07-20);
+(4) the mission prose confirmed after the 48-hour final read — **DONE
+2026-07-20** (founder read the 117-word mission aloud and confirmed
+the bytes unchanged; the sealed-to-be prose is exactly the draft the
+final sweep byte-verified: NFC-stable, remembrance sentence
+founder-worded. Clock transparency, recorded so no reviewer has to
+dig: the register's clock ran from the 2026-07-18 revision decision
+— earliest 2026-07-20, satisfied today; the commit carrying the
+wording (ce574ee) is git-witnessed 2026-07-19 06:16 UTC, under which
+a strict from-commit reading would say 2026-07-21. The declared
+decision date governs, the same declared-date-vs-witnessed-position
+distinction s10 governance records use; both dates stated here);
 (5) founder-string / founding-date corroboration checks — **DONE
 2026-07-19** (founder confirmed both against the SATYAKOSH
 trademark filing: applicant name matches the inscription bytes
