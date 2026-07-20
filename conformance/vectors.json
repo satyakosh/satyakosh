@@ -1,0 +1,1028 @@
+{
+  "conformance_version": "1.0.0",
+  "_contract": "An implementation CONFORMS if: (1) for every jcs / triple_hash / content_hash / chain_link case it reproduces the expected bytes and digests exactly; (2) for every chain case it reproduces chain_head and the intact verdict. Finding MESSAGE TEXT is not part of the contract — hostile input may surface under different labels across languages (e.g. a stored JSON float is a citable canonicalization refusal in Python but may parse integer-losslessly elsewhere and surface as a hash mismatch); the intact verdict must agree. Strings are NFC-normalized before serialization; object keys sort by Unicode CODE POINT (not UTF-16 code unit); numbers in canonical form are integers only.",
+  "jcs": [
+    {
+      "name": "empty object",
+      "input": {},
+      "jcs_utf8_hex": "7b7d",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "name": "key sorting",
+      "input": {
+        "b": 1,
+        "a": 2,
+        "aa": 3
+      },
+      "jcs_utf8_hex": "7b2261223a322c226161223a332c2262223a317d",
+      "sha256": "b17911fd19d18d835daf4cf466aa65e7356c5fd2d46344ba7f7eb525737f7981",
+      "note": "lexicographic by code point"
+    },
+    {
+      "name": "nested + arrays preserve order",
+      "input": {
+        "z": [
+          3,
+          1,
+          2
+        ],
+        "a": {
+          "y": null,
+          "x": true
+        }
+      },
+      "jcs_utf8_hex": "7b2261223a7b2278223a747275652c2279223a6e756c6c7d2c227a223a5b332c312c325d7d",
+      "sha256": "9c78dbebd1ed8bbd05dd99ba7a18d83d20a4fddce49ad323258c650e9e74ed89"
+    },
+    {
+      "name": "integers only",
+      "input": {
+        "small": 0,
+        "neg": -7,
+        "big": 999999999
+      },
+      "jcs_utf8_hex": "7b22626967223a3939393939393939392c226e6567223a2d372c22736d616c6c223a307d",
+      "sha256": "fde2b609ceb648cf75a46d6f3ae70833ec74e7b1e550e4952ede453c4b5e738e",
+      "note": "floats are refused everywhere (s7.1); no vector contains one"
+    },
+    {
+      "name": "string escaping",
+      "input": {
+        "k": "quote\" backslash\\ newline\n tab\t"
+      },
+      "jcs_utf8_hex": "7b226b223a2271756f74655c22206261636b736c6173685c5c206e65776c696e655c6e207461625c74227d",
+      "sha256": "3db953a6af9f4d12bb9d76ccc1e05074e9f0558431d1d8313f6af25627609b40",
+      "note": "JSON minimal escaping; controls escaped, all else literal UTF-8"
+    },
+    {
+      "name": "non-ASCII passthrough (UTF-8, not \\u)",
+      "input": {
+        "k": "सत्यकोश"
+      },
+      "jcs_utf8_hex": "7b226b223a22e0a4b8e0a4a4e0a58de0a4afe0a495e0a58be0a4b6227d",
+      "sha256": "2d92b2cf6b44852df6b42f0e6c766f54012a80e65eabee967976d7dbd705b470",
+      "note": "ensure_ascii=false equivalent: multibyte UTF-8 bytes, never \\u escapes"
+    },
+    {
+      "name": "NFC normalization",
+      "input": {
+        "k": "é"
+      },
+      "jcs_utf8_hex": "7b226b223a22c3a9227d",
+      "sha256": "0ca09f1dffb485d259fc791100d48ad7ae9c17f52a2bb07b608c0e28fbca34a1",
+      "note": "input is decomposed e + COMBINING ACUTE; canonical bytes are the NFC composed form U+00E9 — same bytes as {\"k\":\"é\"}"
+    },
+    {
+      "name": "NFC composed control",
+      "input": {
+        "k": "é"
+      },
+      "jcs_utf8_hex": "7b226b223a22c3a9227d",
+      "sha256": "0ca09f1dffb485d259fc791100d48ad7ae9c17f52a2bb07b608c0e28fbca34a1",
+      "note": "must byte-match the decomposed case above"
+    },
+    {
+      "name": "unicode key sorting",
+      "input": {
+        "é": 1,
+        "z": 2
+      },
+      "jcs_utf8_hex": "7b227a223a322c22c3a9223a317d",
+      "sha256": "ebf5b3ac2125f90b74510656202151eacb0fa0dcdf14105494181e8969b802d5",
+      "note": "U+00E9 > 'z' by code point: z sorts first"
+    }
+  ],
+  "triple_hash": [
+    {
+      "name": "condition sorting by property",
+      "note": "conditions arrive unsorted; canonical form sorts by property, then by the condition object's canonical bytes",
+      "triple": {
+        "subject": "SK-ENT-000005",
+        "predicate": "SK-PRED-000001",
+        "object": {
+          "type": "quantity",
+          "value": "9.9974e1",
+          "unit": "Cel",
+          "exact": false,
+          "uncertainty": "1e-3"
+        },
+        "conditions": [
+          {
+            "property": "SK-ENT-000007",
+            "object": {
+              "type": "quantity",
+              "value": "1e0",
+              "unit": "1",
+              "exact": true,
+              "uncertainty": null
+            }
+          },
+          {
+            "property": "SK-ENT-000006",
+            "object": {
+              "type": "quantity",
+              "value": "1e0",
+              "unit": "1",
+              "exact": true,
+              "uncertainty": null
+            }
+          }
+        ]
+      },
+      "canonical_jcs_utf8_hex": "7b22636f6e646974696f6e73223a5b7b226f626a656374223a7b226578616374223a747275652c2274797065223a227175616e74697479222c22756e6365727461696e7479223a6e756c6c2c22756e6974223a2231222c2276616c7565223a22316530227d2c2270726f7065727479223a22534b2d454e542d303030303036227d2c7b226f626a656374223a7b226578616374223a747275652c2274797065223a227175616e74697479222c22756e6365727461696e7479223a6e756c6c2c22756e6974223a2231222c2276616c7565223a22316530227d2c2270726f7065727479223a22534b2d454e542d303030303037227d5d2c226f626a656374223a7b226578616374223a66616c73652c2274797065223a227175616e74697479222c22756e6365727461696e7479223a2231652d33222c22756e6974223a2243656c222c2276616c7565223a22392e393937346531227d2c22707265646963617465223a22534b2d505245442d303030303031222c227375626a656374223a22534b2d454e542d303030303035227d",
+      "triple_hash": "aa476cfa707fbe2af750b4f32598a3e7afc9f589b928ac8ecd82f3b5674c131b"
+    },
+    {
+      "name": "same-property tie-break by object bytes",
+      "triple": {
+        "subject": "SK-ENT-000001",
+        "predicate": "SK-PRED-000001",
+        "object": {
+          "type": "quantity",
+          "value": "1e0",
+          "unit": "1",
+          "exact": true,
+          "uncertainty": null
+        },
+        "conditions": [
+          {
+            "property": "SK-ENT-000006",
+            "object": {
+              "type": "quantity",
+              "value": "2e0",
+              "unit": "1",
+              "exact": true,
+              "uncertainty": null
+            }
+          },
+          {
+            "property": "SK-ENT-000006",
+            "object": {
+              "type": "quantity",
+              "value": "1e0",
+              "unit": "1",
+              "exact": true,
+              "uncertainty": null
+            }
+          }
+        ]
+      },
+      "canonical_jcs_utf8_hex": "7b22636f6e646974696f6e73223a5b7b226f626a656374223a7b226578616374223a747275652c2274797065223a227175616e74697479222c22756e6365727461696e7479223a6e756c6c2c22756e6974223a2231222c2276616c7565223a22316530227d2c2270726f7065727479223a22534b2d454e542d303030303036227d2c7b226f626a656374223a7b226578616374223a747275652c2274797065223a227175616e74697479222c22756e6365727461696e7479223a6e756c6c2c22756e6974223a2231222c2276616c7565223a22326530227d2c2270726f7065727479223a22534b2d454e542d303030303036227d5d2c226f626a656374223a7b226578616374223a747275652c2274797065223a227175616e74697479222c22756e6365727461696e7479223a6e756c6c2c22756e6974223a2231222c2276616c7565223a22316530227d2c22707265646963617465223a22534b2d505245442d303030303031222c227375626a656374223a22534b2d454e542d303030303031227d",
+      "triple_hash": "4db30bbddf9801c4ab6bcb7b32fb028e0805ce54f0e4de7dfc51af3f5995909a"
+    }
+  ],
+  "content_hash": [
+    {
+      "name": "fact record (content_hash and prev_record_hash excluded from the hashed body)",
+      "record": {
+        "record_type": "fact",
+        "fact_id": "SK-R1-PHYS-1f704efdf31b",
+        "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+        "version": 1,
+        "supersedes": null,
+        "triple": {
+          "subject": "SK-ENT-000001",
+          "predicate": "SK-PRED-000001",
+          "object": {
+            "type": "quantity",
+            "value": "2.99792458e8",
+            "unit": "m/s",
+            "exact": true,
+            "uncertainty": null
+          },
+          "conditions": []
+        },
+        "ring": 1,
+        "valid_from": null,
+        "valid_until": null,
+        "terminality": "none",
+        "sources": [
+          {
+            "source": "SK-SRC-000001",
+            "edition": "2022",
+            "retrieved": "2026-07-20"
+          }
+        ],
+        "derivation": {
+          "type": "si_exact_definition",
+          "script": null,
+          "derived_from": []
+        },
+        "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "sealed",
+        "created": "2026-07-20T00:00:00Z"
+      },
+      "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+    }
+  ],
+  "chain_link": [
+    {
+      "name": "head fold step",
+      "note": "link = sha256(ascii(content_hash + prev_link))",
+      "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177",
+      "prev_link": "0000000000000000000000000000000000000000000000000000000000000000",
+      "link": "b6f1a4c26c052c85220b69581f63f2739585f3366bb1bf38d5fdd96e3478bb52"
+    }
+  ],
+  "chains": [
+    {
+      "name": "clean chain (genesis + fact + governance + fact)",
+      "chain": {
+        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "records": [
+          {
+            "record_type": "genesis",
+            "inscription": {
+              "mission": "Conformance vector chain.",
+              "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
+              "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
+              "founder": "Shubhankar Patil",
+              "dedication": "Built with the unwavering support of my wife, Anaya Gangakhedkar — this was possible because of her.",
+              "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
+            },
+            "schema_version": "1.0.0",
+            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_version": "1.0.0",
+            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
+            "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
+            "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
+            "whitelist": [
+              {
+                "id": "SK-SRC-000001",
+                "publisher": "CODATA",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000002",
+                "publisher": "NIST",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000003",
+                "publisher": "BIPM",
+                "rings": [
+                  1
+                ]
+              }
+            ],
+            "created": "2026-07-20T00:00:00Z",
+            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-1f704efdf31b",
+            "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "2.99792458e8",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+          },
+          {
+            "record_type": "governance",
+            "governance_kind": "ucum_expansion",
+            "delta": {
+              "add_codes": [
+                "d"
+              ]
+            },
+            "effective_from": "2026-07-20",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177",
+            "content_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-55068fa7734a",
+            "triple_hash": "55068fa7734a4fa53a17300a5ae1fd729cd3b333f53f7cce4ddca7bf48d16381",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "6.02214076e23",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb",
+            "content_hash": "6224a6490db78f09a46aba1281978917cf94bd8bbfcd6e9de580c52877e05a40"
+          }
+        ]
+      },
+      "expect": {
+        "intact": true,
+        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b"
+      }
+    },
+    {
+      "name": "tampered triple value",
+      "note": "triple bytes no longer match triple_hash and the record bytes no longer match content_hash",
+      "chain": {
+        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "records": [
+          {
+            "record_type": "genesis",
+            "inscription": {
+              "mission": "Conformance vector chain.",
+              "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
+              "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
+              "founder": "Shubhankar Patil",
+              "dedication": "Built with the unwavering support of my wife, Anaya Gangakhedkar — this was possible because of her.",
+              "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
+            },
+            "schema_version": "1.0.0",
+            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_version": "1.0.0",
+            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
+            "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
+            "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
+            "whitelist": [
+              {
+                "id": "SK-SRC-000001",
+                "publisher": "CODATA",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000002",
+                "publisher": "NIST",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000003",
+                "publisher": "BIPM",
+                "rings": [
+                  1
+                ]
+              }
+            ],
+            "created": "2026-07-20T00:00:00Z",
+            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-1f704efdf31b",
+            "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "9.99e9",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+          },
+          {
+            "record_type": "governance",
+            "governance_kind": "ucum_expansion",
+            "delta": {
+              "add_codes": [
+                "d"
+              ]
+            },
+            "effective_from": "2026-07-20",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177",
+            "content_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-55068fa7734a",
+            "triple_hash": "55068fa7734a4fa53a17300a5ae1fd729cd3b333f53f7cce4ddca7bf48d16381",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "6.02214076e23",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb",
+            "content_hash": "6224a6490db78f09a46aba1281978917cf94bd8bbfcd6e9de580c52877e05a40"
+          }
+        ]
+      },
+      "expect": {
+        "intact": false
+      }
+    },
+    {
+      "name": "broken link",
+      "chain": {
+        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "records": [
+          {
+            "record_type": "genesis",
+            "inscription": {
+              "mission": "Conformance vector chain.",
+              "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
+              "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
+              "founder": "Shubhankar Patil",
+              "dedication": "Built with the unwavering support of my wife, Anaya Gangakhedkar — this was possible because of her.",
+              "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
+            },
+            "schema_version": "1.0.0",
+            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_version": "1.0.0",
+            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
+            "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
+            "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
+            "whitelist": [
+              {
+                "id": "SK-SRC-000001",
+                "publisher": "CODATA",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000002",
+                "publisher": "NIST",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000003",
+                "publisher": "BIPM",
+                "rings": [
+                  1
+                ]
+              }
+            ],
+            "created": "2026-07-20T00:00:00Z",
+            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-1f704efdf31b",
+            "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "2.99792458e8",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+          },
+          {
+            "record_type": "governance",
+            "governance_kind": "ucum_expansion",
+            "delta": {
+              "add_codes": [
+                "d"
+              ]
+            },
+            "effective_from": "2026-07-20",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "content_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-55068fa7734a",
+            "triple_hash": "55068fa7734a4fa53a17300a5ae1fd729cd3b333f53f7cce4ddca7bf48d16381",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "6.02214076e23",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb",
+            "content_hash": "6224a6490db78f09a46aba1281978917cf94bd8bbfcd6e9de580c52877e05a40"
+          }
+        ]
+      },
+      "expect": {
+        "intact": false
+      }
+    },
+    {
+      "name": "recomputed-hash lie (stored content_hash replaced)",
+      "chain": {
+        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "records": [
+          {
+            "record_type": "genesis",
+            "inscription": {
+              "mission": "Conformance vector chain.",
+              "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
+              "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
+              "founder": "Shubhankar Patil",
+              "dedication": "Built with the unwavering support of my wife, Anaya Gangakhedkar — this was possible because of her.",
+              "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
+            },
+            "schema_version": "1.0.0",
+            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_version": "1.0.0",
+            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
+            "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
+            "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
+            "whitelist": [
+              {
+                "id": "SK-SRC-000001",
+                "publisher": "CODATA",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000002",
+                "publisher": "NIST",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000003",
+                "publisher": "BIPM",
+                "rings": [
+                  1
+                ]
+              }
+            ],
+            "created": "2026-07-20T00:00:00Z",
+            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-1f704efdf31b",
+            "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "2.99792458e8",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+          },
+          {
+            "record_type": "governance",
+            "governance_kind": "ucum_expansion",
+            "delta": {
+              "add_codes": [
+                "d"
+              ]
+            },
+            "effective_from": "2026-07-20",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177",
+            "content_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-55068fa7734a",
+            "triple_hash": "55068fa7734a4fa53a17300a5ae1fd729cd3b333f53f7cce4ddca7bf48d16381",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "6.02214076e23",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb",
+            "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      },
+      "expect": {
+        "intact": false
+      }
+    },
+    {
+      "name": "stored chain_head mismatch",
+      "chain": {
+        "chain_head": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "records": [
+          {
+            "record_type": "genesis",
+            "inscription": {
+              "mission": "Conformance vector chain.",
+              "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
+              "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
+              "founder": "Shubhankar Patil",
+              "dedication": "Built with the unwavering support of my wife, Anaya Gangakhedkar — this was possible because of her.",
+              "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
+            },
+            "schema_version": "1.0.0",
+            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_version": "1.0.0",
+            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
+            "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
+            "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
+            "whitelist": [
+              {
+                "id": "SK-SRC-000001",
+                "publisher": "CODATA",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000002",
+                "publisher": "NIST",
+                "rings": [
+                  1
+                ]
+              },
+              {
+                "id": "SK-SRC-000003",
+                "publisher": "BIPM",
+                "rings": [
+                  1
+                ]
+              }
+            ],
+            "created": "2026-07-20T00:00:00Z",
+            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-1f704efdf31b",
+            "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "2.99792458e8",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+          },
+          {
+            "record_type": "governance",
+            "governance_kind": "ucum_expansion",
+            "delta": {
+              "add_codes": [
+                "d"
+              ]
+            },
+            "effective_from": "2026-07-20",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177",
+            "content_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb"
+          },
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-55068fa7734a",
+            "triple_hash": "55068fa7734a4fa53a17300a5ae1fd729cd3b333f53f7cce4ddca7bf48d16381",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "6.02214076e23",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "18c947f21c26d5392537b067ab9128c8aab266a2baf452d474c12ad70185feeb",
+            "content_hash": "6224a6490db78f09a46aba1281978917cf94bd8bbfcd6e9de580c52877e05a40"
+          }
+        ]
+      },
+      "expect": {
+        "intact": false
+      }
+    },
+    {
+      "name": "genesis not first",
+      "chain": {
+        "chain_head": null,
+        "records": [
+          {
+            "record_type": "fact",
+            "fact_id": "SK-R1-PHYS-1f704efdf31b",
+            "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+            "version": 1,
+            "supersedes": null,
+            "triple": {
+              "subject": "SK-ENT-000001",
+              "predicate": "SK-PRED-000001",
+              "object": {
+                "type": "quantity",
+                "value": "2.99792458e8",
+                "unit": "m/s",
+                "exact": true,
+                "uncertainty": null
+              },
+              "conditions": []
+            },
+            "ring": 1,
+            "valid_from": null,
+            "valid_until": null,
+            "terminality": "none",
+            "sources": [
+              {
+                "source": "SK-SRC-000001",
+                "edition": "2022",
+                "retrieved": "2026-07-20"
+              }
+            ],
+            "derivation": {
+              "type": "si_exact_definition",
+              "script": null,
+              "derived_from": []
+            },
+            "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "sealed",
+            "created": "2026-07-20T00:00:00Z",
+            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
+          }
+        ]
+      },
+      "expect": {
+        "intact": false
+      }
+    }
+  ]
+}

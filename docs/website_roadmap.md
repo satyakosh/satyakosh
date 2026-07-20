@@ -77,8 +77,12 @@ The read-only explorer. This is the public face of the ledger.
       chains. One click to the grounding receipt (verifier SDK output).
 - [ ] **Chain head**: current head hash displayed prominently on every
       page, with the record count and last-seal date.
-- [ ] **Verify page**: download the chain, run `verify.py`, expected
-      output — written so a non-programmer can follow it.
+- [x] **Verify page**: SHIPPED EARLY 2026-07-20, exceeding the plan —
+      satyakosh.org/verify.html verifies a chain entirely in the
+      browser (independent JavaScript implementation, nothing
+      uploaded, held to conformance/vectors.json in the canonical
+      repo with its own CI). The `verify.py` walkthrough for
+      non-programmers remains a v1 polish item on the same page.
 - [ ] **Genesis page**: the genesis record rendered in full (it carries
       the only prose on the chain), with its hash.
 - [ ] **Request-a-fact on the site**: a form that front-ends the Phase 0

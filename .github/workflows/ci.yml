@@ -35,6 +35,8 @@ jobs:
         run: |
           python tools/check_recipes.py
           python tools/check_recipes.py seed_proposals.draft.json
+      - name: Conformance vectors match the reference implementation
+        run: python tools/make_conformance_vectors.py --check
       - name: Standalone adversarial battery (24 failing + 3 correct)
         run: python stress/adversarial_failing_facts_test.py
       - name: Ledger test suite

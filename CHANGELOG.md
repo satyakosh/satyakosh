@@ -22,6 +22,22 @@ canonical-byte contract (SCHEMA.md, Versioning rule in the preamble).
   {id, publisher, rings} at genesis-seal time (G4); UCUM codes get a
   syntax check and governance deltas refuse any `<<` marker, so
   `<<TBD>>` can never enter force (G5). Governance suite 36 cases.
+- Language independence made demonstrable (2026-07-20): the chain
+  format was always three open standards (JSON, canonical
+  serialization under the no-floats rule, SHA-256) with SCHEMA.md as
+  the normative spec — now conformance/vectors.json (generated
+  deterministically by tools/make_conformance_vectors.py, CI-diffed
+  so it can never drift from the reference) lets a verifier in ANY
+  language prove byte-level agreement: 9 canonicalization cases
+  (incl. NFC decomposed==composed and code-point key sorting), triple
+  canonicalization with tie-break, content hash, chain-link fold, and
+  6 whole-chain verdicts. The contract is bytes + intact verdict;
+  finding text is explicitly not portable. First consumer: an
+  independent BROWSER JavaScript verifier (satyakosh.org/verify.html,
+  website repo) — client-side, nothing uploaded, 19/19 vectors
+  byte-for-byte, cross-checked against a real engine-built chain, its
+  own CI re-proving agreement on every push. Three implementations,
+  two languages: agreement is evidence, not tautology.
 - Readiness gate 4 closed (2026-07-20): founder read the mission
   prose aloud after the 48-hour final-read clock and confirmed the
   bytes unchanged — the inscription is now founder-confirmed in full.
