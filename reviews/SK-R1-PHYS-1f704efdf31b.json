@@ -1,0 +1,42 @@
+{
+  "review_format_version": "1.0.0",
+  "_REHEARSAL": "PROCESS REHEARSAL (pre-genesis). This review file exercises the P1-P10 flow in a PR that will be closed WITHOUT merging. Nothing here seals; the real proposal for this fact opens at the Genesis Window on the real chain.",
+  "fact_id": "SK-R1-PHYS-1f704efdf31b",
+  "triple_hash": "1f704efdf31b5cd7b3158d56d739e847d4734f6de9fc310c024a05319b68b8e8",
+  "batch_ref": null,
+  "proposal": {
+    "proposed_by": "SK-USR-000001",
+    "proposed_at": "2026-07-20T05:42:47Z",
+    "triple": {
+      "subject": "SK-ENT-000001",
+      "predicate": "SK-PRED-000001",
+      "object": {
+        "type": "quantity",
+        "value": "2.99792458e8",
+        "unit": "m/s",
+        "exact": true,
+        "uncertainty": null
+      },
+      "conditions": []
+    },
+    "derivation": {
+      "type": "si_exact_definition",
+      "script": null,
+      "derived_from": []
+    },
+    "sources": [
+      {
+        "source": "SK-SRC-000001",
+        "edition": "2022",
+        "retrieved": "2026-07-19"
+      }
+    ]
+  },
+  "annotations": [],
+  "objections": [],
+  "window": {
+    "opened": "2026-07-20T05:42:47Z",
+    "closes_no_earlier_than": "2026-08-19T00:00:00Z"
+  },
+  "decision": null
+}
