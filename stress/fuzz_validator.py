@@ -38,7 +38,7 @@ JUNK = [None, True, False, 0, 1, -3, 1.0, -0.5, "", "x", "GARBAGE",
 
 
 def make_genesis():
-    g = load("genesis_record.draft.json")
+    g = load("genesis_record.json")
     for k, v in list(g.items()):
         if isinstance(v, str) and "PLACEHOLDER" in v:
             g[k] = "e" * 64 if k.endswith("_hash") else "2026-07-18T00:00:00Z"

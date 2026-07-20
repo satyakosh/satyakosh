@@ -56,6 +56,8 @@ jobs:
         run: python tools/genesis_hashes.py
       - name: Genesis seal rehearsal (staging chain + independent verifier)
         run: python stress/rehearse_genesis.py
+      - name: REAL CHAIN verification (GATING - binds all six genesis digests)
+        run: python verify.py chain.json --repo .
       - name: Ring 2/3 expressiveness battery (frozen-surface dry-run)
         run: python stress/ring2_expressiveness.py
       - name: Standalone verifier CLI (clean, tamper, fact lookup)

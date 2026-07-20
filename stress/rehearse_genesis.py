@@ -5,7 +5,7 @@ Runs everything the real freeze-day seal will run, against the
 committed working bytes, without ever touching a real chain:
 
   1. compute the six founding-document hashes (FD-12 conventions)
-  2. fill a COPY of genesis_record.draft.json (staging timestamp)
+  2. fill a COPY of genesis_record.json (staging timestamp)
   3. seal it as record 0 via ledger.py; verify() and verify(full=True)
   4. recompute content_hash and the chain head with an INDEPENDENT
      second implementation — pure stdlib, no ledger.py import — the
@@ -88,7 +88,18 @@ def main():
     failures = []
 
     # step 2: fill a copy of the draft
-    g = load("genesis_record.draft.json")
+    g = load("genesis_record.json")
+    # POST-FREEZE: once the real genesis is sealed (no placeholders
+    # remain), this rehearsal has served its purpose — the real chain
+    # is verified in CI by verify.py --repo, which is strictly
+    # stronger. The script is retained as the historical record of
+    # how the freeze mechanics were proven before the real seal.
+    if not any(isinstance(v, str) and "PLACEHOLDER" in v
+               for v in g.values()):
+        print("genesis is SEALED (no placeholders remain) - rehearsal "
+              "retired; the real chain is verified in CI via "
+              "verify.py chain.json --repo .")
+        return 0
     staged = copy.deepcopy(g)
     for k, v in compute_hashes().items():
         assert "PLACEHOLDER" in str(staged.get(k)), \

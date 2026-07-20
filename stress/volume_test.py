@@ -50,7 +50,7 @@ def resolved_rulesets():
 
 
 def make_genesis():
-    g = load("genesis_record.draft.json")
+    g = load("genesis_record.json")
     for k, v in list(g.items()):
         if isinstance(v, str) and "PLACEHOLDER" in v:
             g[k] = "e" * 64 if k.endswith("_hash") else CREATED

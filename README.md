@@ -31,7 +31,8 @@ here.
 | `PIPELINE_POLICY.md` | How a fact gets in (rules P1-P11) |
 | `RING2.md` | The public rulebook for the next expansion |
 | `CONTRIBUTING.md` | How to propose facts and catch errors |
-| `genesis_record.draft.json` | Record zero, placeholders visible |
+| `chain.json` | **The chain** — the sealed ledger itself |
+| `genesis_record.json` | Record zero as sealed (identical to `chain.json` record 0) |
 | `registries/` | Entity, predicate, source, and contributor registries |
 | `rules/` | Machine-readable rulesets frozen by genesis hashes |
 | `rulesets/` | Mandatory-condition rules (frozen by genesis hash) |
@@ -39,9 +40,22 @@ here.
 
 ## Status
 
-Pre-genesis. The chain is empty. The genesis record is drafted with
-visible placeholders. The Genesis Window — a 30-day public adversarial
-review — opens when the founding documents freeze.
+**The chain is live.** Record 0 — the genesis record — sealed
+2026-07-20T11:05:55Z with all six founding-document hashes bound and
+verified by three independent implementations (the engine, the
+standalone Python verifier, and the browser JavaScript verifier):
+
+```
+genesis content_hash  ebd533692e9bed7945cad78b2ae5e7dddc3f023061fe9eb01898cf5979100a0e
+chain head            f3995a8fe67fc6adb949a99bd8bf146ced6a95c74881f0dd5910050aeebe4615
+```
+
+Check it yourself: `python verify.py chain.json --repo .` — or in a
+browser at [satyakosh.org/verify.html](https://satyakosh.org/verify.html).
+The **Genesis Window is open**: a 30-day public adversarial review
+through which the first facts (the seven 2019 SI defining constants)
+must pass, one pull request each, no exceptions — see
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## How to cite
 

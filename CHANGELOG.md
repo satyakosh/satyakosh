@@ -3,6 +3,28 @@
 Public versioning starts at 1.0.0. Version numbers track the
 canonical-byte contract (SCHEMA.md, Versioning rule in the preamble).
 
+## 1.0.0-rc.1 — GENESIS SEALED — 2026-07-20
+
+- **Record 0 is on the chain.** Sealed 2026-07-20T11:05:55Z after all
+  six readiness gates closed and founder sign-off of the six
+  founding-document hashes (schema 35e337cc…, pipeline_policy
+  03bccdf2…, scope b21d6719…, admissibility_map f6c95625…,
+  mandatory_conditions 125c1373…, predicates_founding e2c933e2…).
+  Genesis content_hash ebd53369…, chain head f3995a8f… — verified
+  CLEAN by three independent implementations (engine full replay
+  with digest binding; verify.py --repo binding all six digests
+  against the frozen files; the browser JavaScript verifier), all
+  reporting the identical head. The inscription bytes were proven
+  unchanged through the placeholder fill; zero placeholders remain.
+  `genesis_record.draft.json` → `genesis_record.json` (the sealed
+  record, byte-identical to chain.json record 0); the chain lives at
+  `chain.json`. The seal rehearsal retired itself; CI now GATES on
+  `verify.py chain.json --repo .`, closing the post-freeze
+  hash-gating item — a byte change to any frozen document now fails
+  the build. **The Genesis Window is OPEN**: the seven SI defining
+  constants enter next, one PR each, through the full public
+  pipeline. Nothing sealed without it; nothing ever will be.
+
 ## 1.0.0-rc.1 (Genesis Window candidate) — 2026-07
 - First public version. Internal draft lineage renumbered.
 - Governance-engine hardening (2026-07-19, issue #7 — all five findings

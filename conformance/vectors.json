@@ -229,7 +229,7 @@
     {
       "name": "clean chain (genesis + fact + governance + fact)",
       "chain": {
-        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "chain_head": "3a962ac5f329cfeaf265a039be7dc1d94d48f5f77f384a994d236eb15a61faa0",
         "records": [
           {
             "record_type": "genesis",
@@ -242,10 +242,10 @@
               "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
             },
             "schema_version": "1.0.0",
-            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "schema_hash": "35e337ccf90d5917d3da94e63e25192283285a1a1a5f6132efc3d6d43137ca68",
             "pipeline_policy_version": "1.0.0",
-            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_hash": "03bccdf23a9d9478ff5b2206ceecf830a244909d1ccf5cbe65e0d6bd3c3aa7e9",
+            "scope_hash": "b21d67199fd7dd88605072b85300cda37b77ec71082c1bffba6b74f02d90ed40",
             "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
             "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
             "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
@@ -272,8 +272,8 @@
                 ]
               }
             ],
-            "created": "2026-07-20T00:00:00Z",
-            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "created": "2026-07-20T11:05:55Z",
+            "content_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
           },
           {
@@ -313,7 +313,7 @@
             "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "sealed",
             "created": "2026-07-20T00:00:00Z",
-            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
           },
           {
@@ -373,14 +373,14 @@
       },
       "expect": {
         "intact": true,
-        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b"
+        "chain_head": "3a962ac5f329cfeaf265a039be7dc1d94d48f5f77f384a994d236eb15a61faa0"
       }
     },
     {
       "name": "tampered triple value",
       "note": "triple bytes no longer match triple_hash and the record bytes no longer match content_hash",
       "chain": {
-        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "chain_head": "3a962ac5f329cfeaf265a039be7dc1d94d48f5f77f384a994d236eb15a61faa0",
         "records": [
           {
             "record_type": "genesis",
@@ -393,10 +393,10 @@
               "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
             },
             "schema_version": "1.0.0",
-            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "schema_hash": "35e337ccf90d5917d3da94e63e25192283285a1a1a5f6132efc3d6d43137ca68",
             "pipeline_policy_version": "1.0.0",
-            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_hash": "03bccdf23a9d9478ff5b2206ceecf830a244909d1ccf5cbe65e0d6bd3c3aa7e9",
+            "scope_hash": "b21d67199fd7dd88605072b85300cda37b77ec71082c1bffba6b74f02d90ed40",
             "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
             "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
             "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
@@ -423,8 +423,8 @@
                 ]
               }
             ],
-            "created": "2026-07-20T00:00:00Z",
-            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "created": "2026-07-20T11:05:55Z",
+            "content_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
           },
           {
@@ -464,7 +464,7 @@
             "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "sealed",
             "created": "2026-07-20T00:00:00Z",
-            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
           },
           {
@@ -529,7 +529,7 @@
     {
       "name": "broken link",
       "chain": {
-        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "chain_head": "3a962ac5f329cfeaf265a039be7dc1d94d48f5f77f384a994d236eb15a61faa0",
         "records": [
           {
             "record_type": "genesis",
@@ -542,10 +542,10 @@
               "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
             },
             "schema_version": "1.0.0",
-            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "schema_hash": "35e337ccf90d5917d3da94e63e25192283285a1a1a5f6132efc3d6d43137ca68",
             "pipeline_policy_version": "1.0.0",
-            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_hash": "03bccdf23a9d9478ff5b2206ceecf830a244909d1ccf5cbe65e0d6bd3c3aa7e9",
+            "scope_hash": "b21d67199fd7dd88605072b85300cda37b77ec71082c1bffba6b74f02d90ed40",
             "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
             "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
             "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
@@ -572,8 +572,8 @@
                 ]
               }
             ],
-            "created": "2026-07-20T00:00:00Z",
-            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "created": "2026-07-20T11:05:55Z",
+            "content_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
           },
           {
@@ -613,7 +613,7 @@
             "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "sealed",
             "created": "2026-07-20T00:00:00Z",
-            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
           },
           {
@@ -678,7 +678,7 @@
     {
       "name": "recomputed-hash lie (stored content_hash replaced)",
       "chain": {
-        "chain_head": "24a6119cb0343fa0b84fb93453fe9f1884953c2eae1303fa89cd74060e3e8b6b",
+        "chain_head": "3a962ac5f329cfeaf265a039be7dc1d94d48f5f77f384a994d236eb15a61faa0",
         "records": [
           {
             "record_type": "genesis",
@@ -691,10 +691,10 @@
               "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
             },
             "schema_version": "1.0.0",
-            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "schema_hash": "35e337ccf90d5917d3da94e63e25192283285a1a1a5f6132efc3d6d43137ca68",
             "pipeline_policy_version": "1.0.0",
-            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_hash": "03bccdf23a9d9478ff5b2206ceecf830a244909d1ccf5cbe65e0d6bd3c3aa7e9",
+            "scope_hash": "b21d67199fd7dd88605072b85300cda37b77ec71082c1bffba6b74f02d90ed40",
             "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
             "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
             "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
@@ -721,8 +721,8 @@
                 ]
               }
             ],
-            "created": "2026-07-20T00:00:00Z",
-            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "created": "2026-07-20T11:05:55Z",
+            "content_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
           },
           {
@@ -762,7 +762,7 @@
             "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "sealed",
             "created": "2026-07-20T00:00:00Z",
-            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
           },
           {
@@ -840,10 +840,10 @@
               "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
             },
             "schema_version": "1.0.0",
-            "schema_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "schema_hash": "35e337ccf90d5917d3da94e63e25192283285a1a1a5f6132efc3d6d43137ca68",
             "pipeline_policy_version": "1.0.0",
-            "pipeline_policy_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "pipeline_policy_hash": "03bccdf23a9d9478ff5b2206ceecf830a244909d1ccf5cbe65e0d6bd3c3aa7e9",
+            "scope_hash": "b21d67199fd7dd88605072b85300cda37b77ec71082c1bffba6b74f02d90ed40",
             "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
             "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
             "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
@@ -870,8 +870,8 @@
                 ]
               }
             ],
-            "created": "2026-07-20T00:00:00Z",
-            "content_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "created": "2026-07-20T11:05:55Z",
+            "content_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
           },
           {
@@ -911,7 +911,7 @@
             "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "sealed",
             "created": "2026-07-20T00:00:00Z",
-            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
           },
           {
@@ -1015,7 +1015,7 @@
             "process_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "sealed",
             "created": "2026-07-20T00:00:00Z",
-            "prev_record_hash": "9fe88838467ff38a64a216673ff3a7fe297cf8fe83cd439f278cd8b232e10b6e",
+            "prev_record_hash": "c98518ebdfbc13eb83cf78af69f6a96e6defb3d4a5efc05a106ecd171557f392",
             "content_hash": "c772c81f8311949601a2709cd4899762809c77e2b93264f19159b83f4ae09177"
           }
         ]

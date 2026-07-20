@@ -186,16 +186,16 @@ Recorded invocation code points (NFC, 61 code points, confirmed
 - [x] Founding date 2026-07-07 = trademark priority date (independent
       corroboration) — **confirmed by founder against the filing,
       2026-07-19.**
-- [ ] **The G6 freeze sequence, explicitly** (nothing here may be
-      done earlier — the rehearsal proves these mechanics against the
-      placeholder-bearing draft until the real moment): (1) re-run
-      `tools/genesis_hashes.py` in the CI Python environment and
-      founder-confirm the six values against the A11/A13 candidates;
-      (2) paste all six final hashes into `genesis_record.draft.json`,
-      set `created` to the real UTC timestamp, and REMOVE every
-      `<<PLACEHOLDER>>` — grep must find zero; (3) seal genesis on the
-      real chain; (4) verify with both the engine and
-      `verify.py CHAIN.json --repo .`.
+- [x] **The G6 freeze sequence** — **EXECUTED 2026-07-20**: (1)
+      genesis_hashes re-run, six values founder-confirmed against the
+      A11/A13 candidates (exact match); (2) hashes + real created
+      pasted, the draft renamed `genesis_record.json`, grep found
+      zero placeholders, inscription bytes proven unchanged; (3)
+      record 0 sealed onto `chain.json`; (4) verified by the engine,
+      `verify.py chain.json --repo .`, AND the independent JS
+      implementation — same head from all three. The rehearsal script
+      retired itself gracefully; CI now runs the REAL chain
+      verification as a gating step.
 - [ ] At the freeze (FD-33): stamp the sealed genesis record's
       content hash with OpenTimestamps and commit the `.ots` proof
       alongside the first anchor row in `anchors/ANCHORS.md`; then
@@ -257,8 +257,18 @@ distinction s10 governance records use; both dates stated here);
 2026-07-19** (founder confirmed both against the SATYAKOSH
 trademark filing: applicant name matches the inscription bytes
 exactly; priority date is 7 July 2026, the founded anchor);
-(6) tools/genesis_hashes.py green with founder sign-off. No date is
-announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis seals clean
+(6) tools/genesis_hashes.py green with founder sign-off — **DONE
+2026-07-20: THE FREEZE IS COMPLETE.** The founder signed off all six
+hashes (schema 35e337cc…, pipeline_policy 03bccdf2…, scope b21d6719…,
+admissibility_map f6c95625… = the A11 candidate, mandatory_conditions
+125c1373…, predicates_founding e2c933e2… = the A13 candidate) and
+record 0 sealed at 2026-07-20T11:05:55Z: content_hash ebd53369…,
+chain head f3995a8f…, verified CLEAN by the engine (full replay with
+digest binding), by verify.py --repo (all six digests bound against
+the frozen files), and by the independent browser JS implementation —
+identical head from all three. Zero placeholders remain anywhere; the
+inscription bytes were proven unchanged through the fill. ALL SIX
+GATES CLOSED. **The Genesis Window is OPEN.** PyPI 1.0.0rc1 ships only after genesis seals clean
 (with the verifier), per the existing versioning rule.
 
 ## Tracked, not blocking the freeze
@@ -321,7 +331,15 @@ announced before those are checked off. PyPI 1.0.0rc1 ships only after genesis s
   with a written tightening path. Remaining activation-era item:
   Zenodo versioned DOI at rc1, as already sequenced.
 
-- **Post-freeze hash gating (issue #7 follow-up, 2026-07-19).** The repo
+- ~~**Post-freeze hash gating**~~ **CLOSED AT THE FREEZE 2026-07-20:**
+  CI now runs `verify.py chain.json --repo .` as a GATING step on
+  every push — any byte change to a hash-enumerated file (including a
+  future "normalize line endings" commit) fails the build against the
+  sealed digests. The explicit decision NOT to normalize the mixed
+  endings stands recorded below.
+
+- **(historical, superseded by the closure above) Post-freeze hash
+  gating (issue #7 follow-up, 2026-07-19).** The repo
   tree is mixed CRLF/LF, including genesis-hashed prose documents.
   Functionally safe under `.gitattributes * -text` (committed bytes are
   canonical and genesis hashes compute over them), but one future

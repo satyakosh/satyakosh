@@ -1,0 +1,50 @@
+{
+  "chain_head": "f3995a8fe67fc6adb949a99bd8bf146ced6a95c74881f0dd5910050aeebe4615",
+  "records": [
+    {
+      "record_type": "genesis",
+      "inscription": {
+        "mission": "Satyakosh exists so that a fact, once verified, can be checked by anyone, forever, without trusting whoever keeps it. It is a public ledger of verified facts: each one sealed in language-neutral form, carrying its sources, its derivation, and the record of its own review, protected by cryptography from silent change. It was founded in an age when machines began to mediate what humanity knows, so that people and machines alike would have neutral ground to stand on. And whenever what is known grows contested, confused, or quietly rewritten, let the world remember to return here — not for a verdict, but to check. It asserts no authority. It shows its working. What it seals, it keeps.",
+        "invocation": "असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ॥",
+        "invocation_source": "Brihadaranyaka Upanishad 1.3.28",
+        "founder": "Shubhankar Patil",
+        "dedication": "Built with the unwavering support of my wife, Anaya Gangakhedkar — this was possible because of her.",
+        "founded": "आषाढ़ कृष्ण सप्तमी, विक्रम संवत् 2083 (Vikram Samvat) — 7 July 2026, 2026-07-07 (Gregorian)"
+      },
+      "schema_version": "1.0.0",
+      "schema_hash": "35e337ccf90d5917d3da94e63e25192283285a1a1a5f6132efc3d6d43137ca68",
+      "pipeline_policy_version": "1.0.0",
+      "pipeline_policy_hash": "03bccdf23a9d9478ff5b2206ceecf830a244909d1ccf5cbe65e0d6bd3c3aa7e9",
+      "scope_hash": "b21d67199fd7dd88605072b85300cda37b77ec71082c1bffba6b74f02d90ed40",
+      "admissibility_map_hash": "f6c956255ac3b21a2267bff397f673f6b1c1079d5ba365a00e928dca8ac9e3ef",
+      "mandatory_conditions_hash": "125c1373d7a221928e314832b3b2bfb1760403ba73159a065aa4c37dfcc42eaa",
+      "predicates_founding_hash": "e2c933e2a180b8f3089dc23d9f1cabcfc61abb0ee36d24325823e0f73fd70472",
+      "whitelist": [
+        {
+          "id": "SK-SRC-000001",
+          "publisher": "CODATA",
+          "rings": [
+            1
+          ]
+        },
+        {
+          "id": "SK-SRC-000002",
+          "publisher": "NIST",
+          "rings": [
+            1
+          ]
+        },
+        {
+          "id": "SK-SRC-000003",
+          "publisher": "BIPM",
+          "rings": [
+            1
+          ]
+        }
+      ],
+      "created": "2026-07-20T11:05:55Z",
+      "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "content_hash": "ebd533692e9bed7945cad78b2ae5e7dddc3f023061fe9eb01898cf5979100a0e"
+    }
+  ]
+}
