@@ -55,7 +55,20 @@
       "result": "pass (structure + admissibility SEAL at ring 1)"
     }
   ],
-  "objections": [],
+  "objections": [
+    {
+      "id": "OBJ-1",
+      "at": "2026-07-20T07:44:01Z",
+      "by": "SK-USR-000001",
+      "body": "Citability check: the source edition string '2022' must match registries/sources.json editions[] for SK-SRC-000001 verbatim, so a verifier can resolve the citation mechanically (S5 language-neutral citability).",
+      "resolution": {
+        "at": "2026-07-20T07:44:01Z",
+        "by": "SK-USR-000001",
+        "outcome": "confirmed",
+        "body": "Registry pins editions: [\"2022\"] for SK-SRC-000001 (CODATA). The proposal's edition string matches verbatim; no change. Objection resolved without amendment - recorded, never deleted."
+      }
+    }
+  ],
   "window": {
     "opened": "2026-07-20T05:42:47Z",
     "closes_no_earlier_than": "2026-08-19T00:00:00Z"
