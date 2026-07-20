@@ -98,6 +98,24 @@ ground-truth anchors for training, evaluation, and inference-time grounding.
   Every fact ever sealed, including fact #1, will have passed the full
   process: the founding invariant holds from record zero.
 
+### Positioning (settled 2026-07-20)
+
+One canonical sentence, identical everywhere it appears (README,
+website, PyPI): *every fact seals together with the hash of its own
+adversarial review, and anyone can verify the entire chain from a
+bare clone — no account, no API, no trust in the maintainers.* The
+first-mover claim is made only in its falsifiable form — "to our
+knowledge, the first open-source ledger where a fact and the record
+of its review seal together; know prior art? open an issue" — which
+turns the inevitable prior-art challenge into participation in
+review. Unscoped superlatives ("world's first fact ledger") are
+refused: a negative existential over all prior art is exactly the
+claim class this ledger could never seal, and the founding documents
+must not carry what the chain cannot. The tagline is the mission's
+own line: **"not for a verdict, but to check."** Branding lives only
+on unsealed surfaces — never in the three genesis-hashed prose
+documents.
+
 ### Status (July 2026)
 - **Provenance:** the local working copy was lost 2026-07-15 and the
   repository rebuilt, hardened through external adversarial review,
